@@ -90,4 +90,16 @@ class Payment_Erede_For_Givewp_Public {
          */
         wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-public.js', array('jquery'), $this->version, false );
     }
+
+    public function payment_form($form_id, $args): void {    
+        load_template(
+            plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-public-display.php',
+            true,
+            array(
+                'form_id' => $form_id,
+                'settings' => $args,
+                'billing_details' => 'disabled' // TODO change to give setting
+            )
+        );
+    }
 }
