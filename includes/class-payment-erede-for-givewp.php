@@ -149,6 +149,9 @@ class Payment_Erede_For_Givewp {
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+        $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
+        $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
+        $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
     }
 
     /**
@@ -163,6 +166,7 @@ class Payment_Erede_For_Givewp {
 
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+        $this->loader->add_action('give_lkn_payment_erede_cc_form', $plugin_public, 'payment_form', 10, 3);
     }
 
     /**
