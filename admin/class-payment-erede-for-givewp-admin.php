@@ -91,6 +91,15 @@ class Payment_Erede_For_Givewp_Admin {
         wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-admin.js', array('jquery'), $this->version, false );
     }
 
+    public function register_gateway($gateways) {
+        $gateways['lkn_payment_erede'] = array(
+            'admin_label' => __('Payment E-Rede for GiveWP', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'checkout_label' => __('Payment E-Rede for GiveWP', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+        );
+
+        return $gateways;
+    }
+
     public function add_new_setting_section($sections) :array {
         $sections['lkn-payment-erede'] = __('Payment E-Rede for GiveWP', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
 
@@ -102,15 +111,25 @@ class Payment_Erede_For_Givewp_Admin {
 
         if ('lkn-payment-erede' === $currentSection) {
             $settings[] = array(
+                'type' => 'title',
+                'id' => 'lkn_payment_erede',
+            );
+
+            $settings[] = array(
                 'name' => __('Payment E-Rede', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                 'id' => 'lkn_payment_erede_setting_field',
-                'desc' => __('Enable or disable the option to add the payment fee amount for the donor.', FEE_RECOVERY_FOR_GIVEWP_TEXT_DOMAIN),
+                'desc' => __('Enable or disable the option to add the payment fee amount for the donor.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                 'type' => 'radio',
                 'default' => 'disabled',
                 'options' => array(
-                    'enabled' => __('By form', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'disabled' => __('Disable', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                    'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
                 ),
+            );
+
+            $settings[] = array(
+                'id' => 'lkn_payment_erede',
+                'type' => 'sectionend',
             );
         }
         
