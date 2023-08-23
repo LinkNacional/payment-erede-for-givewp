@@ -21,16 +21,13 @@
  * @author     Link Nacional <contato@linknacional.com>
  */
 class Payment_Erede_For_Givewp_Activator {
-
-	/**
-	 * Short Description. (use period)
-	 *
-	 * Long Description.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function activate() {
-
-	}
-
+    /**
+     * Short Description. (use period)
+     *
+     * Long Description.
+     *
+     * @since    1.0.0
+     */
+    public static function activate(): void {
+    }
 }

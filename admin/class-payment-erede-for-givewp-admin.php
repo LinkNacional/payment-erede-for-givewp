@@ -21,83 +21,99 @@
  * @author     Link Nacional <contato@linknacional.com>
  */
 class Payment_Erede_For_Givewp_Admin {
+    /**
+     * The ID of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $plugin_name    The ID of this plugin.
+     */
+    private $plugin_name;
 
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
+    /**
+     * The version of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      string    $version    The current version of this plugin.
+     */
+    private $version;
 
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
+    /**
+     * Initialize the class and set its properties.
+     *
+     * @since    1.0.0
+     * @param      string    $plugin_name       The name of this plugin.
+     * @param      string    $version    The version of this plugin.
+     */
+    public function __construct( $plugin_name, $version ) {
+        $this->plugin_name = $plugin_name;
+        $this->version = $version;
+    }
 
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since    1.0.0
-	 * @param      string    $plugin_name       The name of this plugin.
-	 * @param      string    $version    The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
+    /**
+     * Register the stylesheets for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_styles(): void {
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in Payment_Erede_For_Givewp_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The Payment_Erede_For_Givewp_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
+        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/payment-erede-for-givewp-admin.css', array(), $this->version, 'all' );
+    }
 
-		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+    /**
+     * Register the JavaScript for the admin area.
+     *
+     * @since    1.0.0
+     */
+    public function enqueue_scripts(): void {
+        /**
+         * This function is provided for demonstration purposes only.
+         *
+         * An instance of this class should be passed to the run() function
+         * defined in Payment_Erede_For_Givewp_Loader as all of the hooks are defined
+         * in that particular class.
+         *
+         * The Payment_Erede_For_Givewp_Loader will then create the relationship
+         * between the defined hooks and the functions defined in this
+         * class.
+         */
+        wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-admin.js', array('jquery'), $this->version, false );
+    }
 
-	}
+    public function add_new_setting_section($sections) :array {
+        $sections['lkn-payment-erede'] = __('Payment E-Rede for GiveWP', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
 
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
+        return $sections;
+    }
 
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Payment_Erede_For_Givewp_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Payment_Erede_For_Givewp_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
+    public function add_settings_into_section($settings) :array {
+        $currentSection = give_get_current_setting_section();
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/payment-erede-for-givewp-admin.css', array(), $this->version, 'all' );
-
-	}
-
-	/**
-	 * Register the JavaScript for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Payment_Erede_For_Givewp_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Payment_Erede_For_Givewp_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-admin.js', array( 'jquery' ), $this->version, false );
-
-	}
-
+        if ('lkn-payment-erede' === $currentSection) {
+            $settings[] = array(
+                'name' => __('Payment E-Rede', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                'id' => 'lkn_payment_erede_setting_field',
+                'desc' => __('Enable or disable the option to add the payment fee amount for the donor.', FEE_RECOVERY_FOR_GIVEWP_TEXT_DOMAIN),
+                'type' => 'radio',
+                'default' => 'disabled',
+                'options' => array(
+                    'enabled' => __('By form', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'disabled' => __('Disable', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                ),
+            );
+        }
+        
+        return $settings;
+    }
 }
