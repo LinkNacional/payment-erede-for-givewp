@@ -142,6 +142,54 @@ class Payment_Erede_For_Givewp {
         $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
     }
 
+    public function process_api_payment($payment_data): void {
+        // Set the configs values
+        /* $configs = lkn_give_cielo_api_get_configs($payment_data['post_data']['give-form-id']);
+        $merchantId = $configs['merchantId'];
+        $merchantSecret = $configs['merchantSecret'];
+        $recurrencyDefault = $configs['recurrencyDefault'];
+        $saveCard = false;
+        $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
+        $orderId = uniqid('lkn_cielo_api_card_'); */
+    
+        // Validate nonce.
+        give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
+    
+        // Make sure we don't have any left over errors present.
+        give_clear_errors();
+
+        // Any errors?
+        $errors = give_get_errors();
+
+        /* if ('enabled' === $configs['debug']) {
+            lkn_give_cielo_api_reg_log(date('d M Y H:i:s') . \PHP_EOL . 'Give Form Errors: ' . var_export($errors, true) . \PHP_EOL, $configs);
+            lkn_give_cielo_api_reg_log(date('d M Y H:i:s') . \PHP_EOL . 'Give Payment Data: ' . var_export($payment_data, true) . \PHP_EOL, $configs);
+        } */
+    
+        if ( ! $errors) {
+            // Setup the payment details.
+            $payment_array = array(
+                'price' => $payment_data['price'],
+                'give_form_title' => $payment_data['post_data']['give-form-title'],
+                'give_form_id' => (int) ($payment_data['post_data']['give-form-id']),
+                'give_price_id' => isset($payment_data['post_data']['give-price-id']) ? $payment_data['post_data']['give-price-id'] : '',
+                'date' => $payment_data['date'],
+                'user_email' => $payment_data['user_email'],
+                'purchase_key' => $payment_data['purchase_key'],
+                'currency' => give_get_currency($payment_data['post_data']['give-form-id'], $payment_data),
+                'user_info' => $payment_data['user_info'],
+                'status' => 'pending',
+                'gateway' => 'lkn_erede_credit',
+            );
+    
+            $payment_id = give_insert_payment($payment_array);
+
+            give_send_to_success_page();
+
+            exit;
+        }
+    }
+
     /**
      * Register all of the hooks related to the admin area functionality
      * of the plugin.
@@ -157,6 +205,7 @@ class Payment_Erede_For_Givewp {
         $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
         $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
+        $this->loader->add_action( 'give_gateway_lkn_erede_credit', $this, 'process_api_payment');
     }
 
     /**
