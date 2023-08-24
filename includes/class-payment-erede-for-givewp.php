@@ -109,6 +109,11 @@ class Payment_Erede_For_Givewp {
         require_once plugin_dir_path( __DIR__ ) . 'includes/class-payment-erede-for-givewp-i18n.php';
 
         /**
+         * The class responsible for defining helpers functions
+         */
+        require_once plugin_dir_path( __DIR__ ) . 'includes/class-payment-erede-for-givewp-helper.php';
+
+        /**
          * The class responsible for defining all actions that occur in the admin area.
          */
         require_once plugin_dir_path( __DIR__ ) . 'admin/class-payment-erede-for-givewp-admin.php';
