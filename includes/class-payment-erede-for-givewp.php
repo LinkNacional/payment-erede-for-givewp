@@ -144,13 +144,7 @@ class Payment_Erede_For_Givewp {
 
     public function process_api_payment($payment_data): void {
         // Set the configs values
-        /* $configs = lkn_give_cielo_api_get_configs($payment_data['post_data']['give-form-id']);
-        $merchantId = $configs['merchantId'];
-        $merchantSecret = $configs['merchantSecret'];
-        $recurrencyDefault = $configs['recurrencyDefault'];
-        $saveCard = false;
-        $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
-        $orderId = uniqid('lkn_cielo_api_card_'); */
+        $configs = Payment_Erede_For_Givewp_Helper::get_configs('credit');
     
         // Validate nonce.
         give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
@@ -161,32 +155,88 @@ class Payment_Erede_For_Givewp {
         // Any errors?
         $errors = give_get_errors();
 
-        /* if ('enabled' === $configs['debug']) {
-            lkn_give_cielo_api_reg_log(date('d M Y H:i:s') . \PHP_EOL . 'Give Form Errors: ' . var_export($errors, true) . \PHP_EOL, $configs);
-            lkn_give_cielo_api_reg_log(date('d M Y H:i:s') . \PHP_EOL . 'Give Payment Data: ' . var_export($payment_data, true) . \PHP_EOL, $configs);
-        } */
-    
-        if ( ! $errors) {
-            // Setup the payment details.
-            $payment_array = array(
-                'price' => $payment_data['price'],
-                'give_form_title' => $payment_data['post_data']['give-form-title'],
-                'give_form_id' => (int) ($payment_data['post_data']['give-form-id']),
-                'give_price_id' => isset($payment_data['post_data']['give-price-id']) ? $payment_data['post_data']['give-price-id'] : '',
-                'date' => $payment_data['date'],
-                'user_email' => $payment_data['user_email'],
-                'purchase_key' => $payment_data['purchase_key'],
-                'currency' => give_get_currency($payment_data['post_data']['give-form-id'], $payment_data),
-                'user_info' => $payment_data['user_info'],
-                'status' => 'pending',
-                'gateway' => 'lkn_erede_credit',
-            );
-    
-            $payment_id = give_insert_payment($payment_array);
-
-            give_send_to_success_page();
+        if ($errors) {
+            give_send_back_to_checkout('?payment-mode=' . $payment_data['post_data']['give-gateway'] . '&error-msg=Erro interno no processamento do pagamento, contate o suporte');
 
             exit;
+        }
+
+        // Setup the payment details.
+        $payment_array = array(
+            'price' => $payment_data['price'],
+            'give_form_title' => $payment_data['post_data']['give-form-title'],
+            'give_form_id' => (int) ($payment_data['post_data']['give-form-id']),
+            'give_price_id' => isset($payment_data['post_data']['give-price-id']) ? $payment_data['post_data']['give-price-id'] : '',
+            'date' => $payment_data['date'],
+            'user_email' => $payment_data['user_email'],
+            'purchase_key' => $payment_data['purchase_key'],
+            'currency' => give_get_currency($payment_data['post_data']['give-form-id'], $payment_data),
+            'user_info' => $payment_data['user_info'],
+            'status' => 'pending',
+            'gateway' => 'lkn_erede_credit',
+        );
+
+        $headers = array(
+            'Authorization' => 'Basic ' . base64_encode( $configs['pv'] . ':' . $configs['token'] ),
+            'Content-Type' => 'application/json'
+        );
+
+        $payment_id = give_insert_payment($payment_array);
+        $amount = number_format($payment_data['price'], 2, '', '');
+
+        $card = array();
+        $splitDate = explode('/', $payment_data['post_data']['lkn_erede_credit_card_expiry']);
+        $card['expMonth'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[0]));
+        $card['expYear'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[1]));
+        $card['number'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_number']));
+        $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_cvc']));
+        $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_name']);
+
+        $body = array(
+            'capture' => true,
+            'kind' => 'credit',
+            'reference' => $payment_id,
+            'amount' => $amount,
+            'cardholderName' => $card['name'],
+            'cardNumber' => $card['number'],
+            'expirationMonth' => $card['expMonth'],
+            'expirationYear' => $card['expYear'],
+            'securityCode' => $card['cvv'],
+            'softDescriptor' => 'string', // TODO add description config
+            'subscription' => false,
+            'origin' => 1,
+            'distributorAffiliation' => 0,
+            'storageCard' => '0',
+            'transactionCredentials' => array(
+                'credentialId' => '01'
+            )
+        );
+
+        $response = wp_remote_post($configs['api_url'], array(
+            'headers' => $headers,
+            'body' => json_encode($body)
+        ));
+
+        Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true));
+
+        $response = json_decode(wp_remote_retrieve_body($response));
+
+        Payment_Erede_For_Givewp_Helper::log('[Response decoded]: ' . var_export($response, true));
+
+        switch ($response->returnCode) {
+            case '00':
+                give_update_payment_status($payment_id, 'publish');
+
+                give_send_to_success_page();
+
+                exit;
+
+            default:
+                give_update_payment_status($payment_id, 'failed');
+
+                wp_redirect(give_get_failed_transaction_uri());
+
+                exit;
         }
     }
 
