@@ -74,6 +74,6 @@ abstract class Payment_Erede_For_Givewp_Helper {
     }
 
     public static function log($message) :void {
-        error_log(PHP_EOL . date('d-m-Y') . ' - ' . $message, 3, __DIR__ . '/error.log');
+        error_log($message, 3, PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . date('d.m.Y-H.i.s') . '.log');
     }
 }
