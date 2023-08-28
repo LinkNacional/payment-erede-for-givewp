@@ -31,6 +31,8 @@ abstract class Payment_Erede_For_Givewp_Helper {
                 $configs['token'] = give_get_option('lkn_erede_credit_token_setting_field', '');
                 $configs['billing_fields'] = give_get_option('lkn_erede_credit_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_credit_debug_setting_field', 'disabled');
+                $description = give_get_option('lkn_erede_credit_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
+                $configs['description'] = Payment_Erede_For_Givewp_Helper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
@@ -75,5 +77,17 @@ abstract class Payment_Erede_For_Givewp_Helper {
 
     public static function log($message) :void {
         error_log($message, 3, PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . date('d.m.Y-H.i.s') . '.log');
+    }
+
+    public static function format_softdescriptor_string($str) :string {
+        $str = preg_replace('/[áàãâä]/ui', 'a', $str);
+        $str = preg_replace('/[éèêë]/ui', 'e', $str);
+        $str = preg_replace('/[íìîï]/ui', 'i', $str);
+        $str = preg_replace('/[óòõôö]/ui', 'o', $str);
+        $str = preg_replace('/[úùûü]/ui', 'u', $str);
+        $str = preg_replace('/[ç]/ui', 'c', $str);
+        $str = preg_replace('/[^a-zA-Z0-9_]/', '', $str);
+
+        return $str;
     }
 }

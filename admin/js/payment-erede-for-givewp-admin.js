@@ -29,4 +29,9 @@
      * Although scripts in the WordPress core, Plugins and Themes may be
      * practising this, we should strive to set a better example in our own work.
      */
+
+  $(window).on('load', () => {
+    const sofdescriptionInput = $('#lkn_erede_credit_softdescription_setting_field')
+    sofdescriptionInput.attr('maxlength', '18')
+  })
 })(jQuery)

@@ -202,7 +202,7 @@ class Payment_Erede_For_Givewp {
             'expirationMonth' => $card['expMonth'],
             'expirationYear' => $card['expYear'],
             'securityCode' => $card['cvv'],
-            'softDescriptor' => 'string', // TODO add description config
+            'softDescriptor' => $configs['description'],
             'subscription' => false,
             'origin' => 1,
             'distributorAffiliation' => 0,

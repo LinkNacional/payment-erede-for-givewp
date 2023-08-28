@@ -149,6 +149,14 @@ class Payment_Erede_For_Givewp_Admin {
                     'type' => 'api_key',
                     'default' => '',
                 );
+
+                $settings[] = array(
+                    'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'id' => 'lkn_erede_credit_softdescription_setting_field',
+                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'type' => 'text',
+                    'default' => '',
+                );
     
                 $settings[] = array(
                     'name' => __('Billing fields', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
