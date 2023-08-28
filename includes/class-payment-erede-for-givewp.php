@@ -142,7 +142,133 @@ class Payment_Erede_For_Givewp {
         $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
     }
 
-    public function process_api_payment($payment_data): void {
+    public function process_debit_3ds_api_payment($payment_data) : void {
+        // Set the configs values
+        $configs = Payment_Erede_For_Givewp_Helper::get_configs('debit-3ds');
+    
+        // Validate nonce.
+        give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
+    
+        // Make sure we don't have any left over errors present.
+        give_clear_errors();
+
+        // Any errors?
+        $errors = give_get_errors();
+
+        if ($errors) {
+            give_send_back_to_checkout('?payment-mode=' . $payment_data['post_data']['give-gateway'] . '&error-msg=Erro interno no processamento do pagamento, contate o suporte');
+
+            exit;
+        }
+
+        // Setup the payment details.
+        $payment_array = array(
+            'price' => $payment_data['price'],
+            'give_form_title' => $payment_data['post_data']['give-form-title'],
+            'give_form_id' => (int) ($payment_data['post_data']['give-form-id']),
+            'give_price_id' => isset($payment_data['post_data']['give-price-id']) ? $payment_data['post_data']['give-price-id'] : '',
+            'date' => $payment_data['date'],
+            'user_email' => $payment_data['user_email'],
+            'purchase_key' => $payment_data['purchase_key'],
+            'currency' => give_get_currency($payment_data['post_data']['give-form-id'], $payment_data),
+            'user_info' => $payment_data['user_info'],
+            'status' => 'pending',
+            'gateway' => 'lkn_erede_debit_3ds',
+        );
+
+        $headers = array(
+            'Authorization' => 'Basic ' . base64_encode( $configs['pv'] . ':' . $configs['token'] ),
+            'Content-Type' => 'application/json'
+        );
+
+        $payment_id = give_insert_payment($payment_array);
+        $amount = number_format($payment_data['price'], 2, '', '');
+        $userAgent = $payment_data['post_data']['lkn_erede_debit_3ds_user_agent'];
+        $colorDepth = $payment_data['post_data']['lkn_erede_debit_3ds_device_color'];
+        $lang = $payment_data['post_data']['lkn_erede_debit_3ds_lang'];
+        $height = $payment_data['post_data']['lkn_erede_debit_3ds_device_height'];
+        $width = $payment_data['post_data']['lkn_erede_debit_3ds_device_width'];
+        $timezone = $payment_data['post_data']['lkn_erede_debit_3ds_timezone'];
+
+        $card = array();
+        $splitDate = explode('/', $payment_data['post_data']['lkn_erede_debit_3ds_card_expiry']);
+        $card['expMonth'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[0]));
+        $card['expYear'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[1]));
+        $card['number'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_number']));
+        $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_cvc']));
+        $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_name']);
+
+        $body = array(
+            'capture' => true,
+            'kind' => 'debit',
+            'reference' => $payment_id,
+            'amount' => $amount,
+            'cardholderName' => $card['name'],
+            'cardNumber' => $card['number'],
+            'expirationMonth' => $card['expMonth'],
+            'expirationYear' => $card['expYear'],
+            'securityCode' => $card['cvv'],
+            'softDescriptor' => $configs['description'],
+            'threeDSecure' => array(
+                'embedded' => true,
+                'onFailure' => 'decline',
+                'userAgent' => $userAgent,
+                'device' => array(
+                    'colorDepth' => $colorDepth,
+                    'deviceType3ds' => 'BROWSER',
+                    'javaEnabled' => false,
+                    'language' => $lang,
+                    'screenHeight' => $height,
+                    'screenWidth' => $width,
+                    'timeZoneOffset' => $timezone
+                )
+            ),
+            'urls' => array(
+                array(
+                    'kind' => 'threeDSecureSuccess',
+                    'url' => give_get_success_page_uri()
+                ),
+                array(
+                    'kind' => 'threeDSecureFailure',
+                    'url' => give_get_failed_transaction_uri()
+                )
+            )
+        );
+
+        $response = wp_remote_post($configs['api_url'], array(
+            'headers' => $headers,
+            'body' => json_encode($body)
+        ));
+
+        Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true));
+
+        $response = json_decode(wp_remote_retrieve_body($response));
+
+        Payment_Erede_For_Givewp_Helper::log('[Response decoded]: ' . var_export($response, true));
+
+        switch ($response->returnCode) {
+            case '200':
+                give_update_payment_status($payment_id, 'publish');
+
+                give_send_to_success_page();
+
+                exit;
+            case '220':
+                // TODO if ended with authentication needs to verify manually later
+                wp_redirect($response->threeDSecure->url);
+
+                exit;
+
+            default:
+                give_update_payment_status($payment_id, 'failed');
+
+                wp_redirect(give_get_failed_transaction_uri());
+
+                exit;
+        }
+    }
+
+    public function process_credit_api_payment($payment_data): void {
         // Set the configs values
         $configs = Payment_Erede_For_Givewp_Helper::get_configs('credit');
     
@@ -255,7 +381,8 @@ class Payment_Erede_For_Givewp {
         $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
         $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
-        $this->loader->add_action( 'give_gateway_lkn_erede_credit', $this, 'process_api_payment');
+        $this->loader->add_action( 'give_gateway_lkn_erede_credit', $this, 'process_credit_api_payment');
+        $this->loader->add_action( 'give_gateway_lkn_erede_debit_3ds', $this, 'process_debit_3ds_api_payment');
     }
 
     /**
