@@ -88,7 +88,11 @@ class Payment_Erede_For_Givewp_Public {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-public.js', array('jquery'), $this->version, false );
+        wp_register_script( $this->plugin_name . '_debit_3ds', plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-debit-3ds.js', array('jquery'), $this->version, false );
+    
+        if(give_is_gateway_active('lkn_erede_debit_3ds')) {
+            wp_enqueue_script( $this->plugin_name . '_debit_3ds');
+        }
     }
 
     public function payment_form_credit($form_id, $args): void {
