@@ -31,7 +31,34 @@
      */
 
   $(window).on('load', () => {
-    const sofdescriptionInput = $('#lkn_erede_credit_softdescription_setting_field')
-    sofdescriptionInput.attr('maxlength', '18')
+    const urlParams = new URLSearchParams(window.location.search)
+    const section = urlParams.get('section')
+    const postType = urlParams.get('post_type')
+    const page = urlParams.get('page')
+    const tab = urlParams.get('tab')
+
+    if (
+      postType === 'give_forms' &&
+      page === 'give-settings' &&
+      tab === 'gateways'
+    ) {
+      switch (section) {
+        case 'lkn-erede-credit': {
+          const sofdescriptionInputCredit = $('#lkn_erede_credit_softdescription_setting_field')
+          sofdescriptionInputCredit.attr('maxlength', '18')
+
+          break
+        }
+        case 'lkn-erede-debit-3ds': {
+          const sofdescriptionInputDebit = $('#lkn_erede_debit_3ds_softdescription_setting_field')
+          sofdescriptionInputDebit.attr('maxlength', '18')
+
+          break
+        }
+
+        default:
+          break
+      }
+    }
   })
 })(jQuery)

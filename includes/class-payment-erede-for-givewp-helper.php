@@ -47,6 +47,8 @@ abstract class Payment_Erede_For_Givewp_Helper {
                 $configs['token'] = give_get_option('lkn_erede_debit_3ds_token_setting_field', '');
                 $configs['billing_fields'] = give_get_option('lkn_erede_debit_3ds_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_debit_3ds_debug_setting_field', 'disabled');
+                $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
+                $configs['description'] = Payment_Erede_For_Givewp_Helper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';

@@ -116,6 +116,9 @@ class Payment_Erede_For_Givewp_Admin {
         $currentSection = give_get_current_setting_section();
 
         switch ($currentSection) {
+            // TODO add paid options disabled freemium
+            // manual capture, installments, return
+
             case 'lkn-erede-credit':
                 $settings[] = array(
                     'type' => 'title',
@@ -219,6 +222,14 @@ class Payment_Erede_For_Givewp_Admin {
                     'id' => 'lkn_erede_debit_3ds_token_setting_field',
                     'desc' => __('E-Rede API credential secret token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'type' => 'api_key',
+                    'default' => '',
+                );
+
+                $settings[] = array(
+                    'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
+                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'type' => 'text',
                     'default' => '',
                 );
     
