@@ -198,6 +198,9 @@ class Payment_Erede_For_Givewp {
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_name']);
 
+        // TODO add filter to body, change capture and installments, maybe more things
+        // TODO add compatibility with other currencies?
+
         $body = array(
             'capture' => true,
             'kind' => 'debit',
@@ -240,11 +243,11 @@ class Payment_Erede_For_Givewp {
             'body' => json_encode($body)
         ));
 
-        Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true));
+        if ('enabled' === $configs['debug']) {
+            Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true), 'debit-3ds');
+        }
 
         $response = json_decode(wp_remote_retrieve_body($response));
-
-        Payment_Erede_For_Givewp_Helper::log('[Response decoded]: ' . var_export($response, true));
 
         switch ($response->returnCode) {
             case '200':
@@ -318,6 +321,9 @@ class Payment_Erede_For_Givewp {
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_name']);
 
+        // TODO add filter to body, change capture and installments, maybe more things
+        // TODO add compatibility with other currencies?
+
         $body = array(
             'capture' => true,
             'kind' => 'credit',
@@ -343,11 +349,11 @@ class Payment_Erede_For_Givewp {
             'body' => json_encode($body)
         ));
 
-        Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true));
+        if($configs['debug'] === 'enabled') {
+            Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true), 'credit');
+        }
 
         $response = json_decode(wp_remote_retrieve_body($response));
-
-        Payment_Erede_For_Givewp_Helper::log('[Response decoded]: ' . var_export($response, true));
 
         switch ($response->returnCode) {
             case '00':
@@ -376,6 +382,7 @@ class Payment_Erede_For_Givewp {
     private function define_admin_hooks(): void {
         $plugin_admin = new Payment_Erede_For_Givewp_Admin( $this->get_plugin_name(), $this->get_version() );
 
+        // TODO add dependencies verification
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
         $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
