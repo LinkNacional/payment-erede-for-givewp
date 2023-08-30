@@ -372,6 +372,79 @@ class Payment_Erede_For_Givewp {
         }
     }
 
+    public function define_row_meta($plugin_meta, $plugin_file) :array {
+        if ( ! defined(PAYMENT_EREDE_FOR_GIVEWP_BASENAME) && ! is_plugin_active(PAYMENT_EREDE_FOR_GIVEWP_BASENAME)) {
+            return $plugin_meta;
+        }
+
+        $new_meta_links['setting'] = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways'),
+            __('Settings', 'give')
+        );
+    
+        return array_merge($plugin_meta, $new_meta_links);
+    }
+
+    public function check_environment() : bool {
+        // Flag to check whether deactivate plugin or not.
+        $is_deactivate_plugin = false;
+
+        // Load plugin helper functions.
+        if ( ! function_exists('deactivate_plugins') || ! function_exists('is_plugin_active')) {
+            require_once ABSPATH . '/wp-admin/includes/plugin.php';
+        }
+
+        if (
+            defined('GIVE_VERSION')
+            && version_compare(GIVE_VERSION, PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION, '<')
+        ) {
+            // Min. Give. plugin version.
+
+            // Show admin notice.
+            add_action('admin_notices', array('Payment_Erede_For_Givewp', 'givewp_dependency_notice'));
+
+            $is_deactivate_plugin = true;
+        }
+
+        $is_give_active = defined('GIVE_PLUGIN_BASENAME') ? is_plugin_active(GIVE_PLUGIN_BASENAME) : false;
+
+        if ( ! $is_give_active) {
+            add_action('admin_notices', array('Payment_Erede_For_Givewp', 'givewp_dependency_notice'));
+
+            $is_deactivate_plugin = true;
+        }
+
+        // Don't let this plugin activate.
+        if ($is_deactivate_plugin) {
+            // Deactivate plugin.
+            deactivate_plugins(PAYMENT_EREDE_FOR_GIVEWP_BASENAME);
+
+            if (isset($_GET['activate'])) {
+                unset($_GET['activate']);
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function givewp_dependency_notice(): void {
+        // Admin notice.
+        $message = sprintf(
+            '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
+            __('Activation error:', ''),
+            __('You need to have', ''),
+            'https://givewp.com',
+            __('Give WP', ''),
+            __('version', ''),
+            PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
+            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', '')
+        );
+
+        echo $message;
+    }
+
     /**
      * Register all of the hooks related to the admin area functionality
      * of the plugin.
@@ -382,12 +455,16 @@ class Payment_Erede_For_Givewp {
     private function define_admin_hooks(): void {
         $plugin_admin = new Payment_Erede_For_Givewp_Admin( $this->get_plugin_name(), $this->get_version() );
 
-        // TODO add dependencies verification
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+        $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
+
+        $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
+        $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
+
         $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
-        $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
+
         $this->loader->add_action( 'give_gateway_lkn_erede_credit', $this, 'process_credit_api_payment');
         $this->loader->add_action( 'give_gateway_lkn_erede_debit_3ds', $this, 'process_debit_3ds_api_payment');
     }
