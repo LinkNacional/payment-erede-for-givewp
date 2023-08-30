@@ -181,6 +181,7 @@ class Payment_Erede_For_Givewp {
             'Content-Type' => 'application/json'
         );
 
+        $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
         $payment_id = give_insert_payment($payment_array);
         $amount = number_format($payment_data['price'], 2, '', '');
         $userAgent = $payment_data['post_data']['lkn_erede_debit_3ds_user_agent'];
@@ -197,8 +198,6 @@ class Payment_Erede_For_Givewp {
         $card['number'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_number']));
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_name']);
-
-        // TODO add compatibility with other currencies?
 
         $body = array(
             'capture' => true,
@@ -237,7 +236,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_debit_3ds_body', $body);
+        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
@@ -311,6 +310,7 @@ class Payment_Erede_For_Givewp {
             'Content-Type' => 'application/json'
         );
 
+        $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
         $payment_id = give_insert_payment($payment_array);
         $amount = number_format($payment_data['price'], 2, '', '');
 
@@ -321,8 +321,6 @@ class Payment_Erede_For_Givewp {
         $card['number'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_number']));
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_name']);
-
-        // TODO add compatibility with other currencies?
 
         $body = array(
             'capture' => true,
@@ -344,7 +342,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_credit_body', $body);
+        $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
