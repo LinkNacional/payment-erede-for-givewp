@@ -198,7 +198,6 @@ class Payment_Erede_For_Givewp {
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_name']);
 
-        // TODO add filter to body, change capture and installments, maybe more things
         // TODO add compatibility with other currencies?
 
         $body = array(
@@ -237,6 +236,8 @@ class Payment_Erede_For_Givewp {
                 )
             )
         );
+
+        $body = apply_filters('lkn_erede_debit_3ds_body', $body);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
@@ -321,7 +322,6 @@ class Payment_Erede_For_Givewp {
         $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_cvc']));
         $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_credit_card_name']);
 
-        // TODO add filter to body, change capture and installments, maybe more things
         // TODO add compatibility with other currencies?
 
         $body = array(
@@ -344,12 +344,14 @@ class Payment_Erede_For_Givewp {
             )
         );
 
+        $body = apply_filters('lkn_erede_credit_body', $body);
+
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
             'body' => json_encode($body)
         ));
 
-        if($configs['debug'] === 'enabled') {
+        if ('enabled' === $configs['debug']) {
             Payment_Erede_For_Givewp_Helper::log('[Raw Response]: ' . var_export($response, true), 'credit');
         }
 
