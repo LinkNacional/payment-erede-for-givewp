@@ -81,6 +81,33 @@ abstract class Payment_Erede_For_Givewp_Helper {
         error_log($message, 3, PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . date('d.m.Y-H.i.s') . '-' . $type . '.log');
     }
 
+    public static function delete_old_logs() :void {
+        $logsPath = PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR;
+
+        foreach (scandir($logsPath) as $logFilename) {
+            if ('.' !== $logFilename && '..' !== $logFilename && 'index.php' !== $logFilename) {
+                $logDate = explode('-', $logFilename)[0];
+                $logDate = explode('.', $logDate);
+    
+                $logDay = $logDate[0];
+                $logMonth = $logDate[1];
+                $logYear = $logDate[2];
+    
+                $logDate = $logYear . '-' . $logMonth . '-' . $logDay;
+    
+                $logDate = new DateTime($logDate);
+                $now = new DateTime(date('Y-m-d'));
+    
+                $interval = $logDate->diff($now);
+                $logAge = $interval->format('%a');
+    
+                if ($logAge >= 15) {
+                    unlink($logsPath . '/' . $logFilename);
+                }
+            }
+        }
+    }
+
     public static function format_softdescriptor_string($str) :string {
         $str = preg_replace('/[áàãâä]/ui', 'a', $str);
         $str = preg_replace('/[éèêë]/ui', 'e', $str);

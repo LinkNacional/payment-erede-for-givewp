@@ -77,6 +77,13 @@ class Payment_Erede_For_Givewp {
         $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
+        $this->schedule_events();
+    }
+
+    public function schedule_events() : void {
+        if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_delete_logs' ) ) {
+            wp_schedule_event( time() + 604800, 'weekly', 'lkn_payment_erede_cron_delete_logs' );
+        }
     }
 
     /**
@@ -461,6 +468,7 @@ class Payment_Erede_For_Givewp {
 
         $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
+        $this->loader->add_action('lkn_payment_erede_cron_delete_logs', Payment_Erede_For_Givewp_Helper::class, 'delete_old_logs', 10, 0 );
 
         $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
