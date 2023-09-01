@@ -271,4 +271,13 @@ class Payment_Erede_For_Givewp_Admin {
         
         return $settings;
     }
+
+    public function add_donation_details($payment_id) :void {
+        load_template(
+            plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-admin-display.php',
+            true,
+            array(
+            )
+        );
+    }
 }
