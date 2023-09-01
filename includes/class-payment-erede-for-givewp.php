@@ -103,39 +103,58 @@ class Payment_Erede_For_Givewp {
 
         if($paymentCounter > 0) {
             $configs = Payment_Erede_For_Givewp_Helper::get_configs('debit-3ds');
+            $authorization = base64_encode( $configs['pv'] . ':' . $configs['token'] );
+            $paymentsToValidate = [];
 
             $headers = array(
-                'Authorization' => 'Basic ' . base64_encode( $configs['pv'] . ':' . $configs['token'] ),
+                'Authorization' => 'Basic ' . $authorization,
                 'Content-Type' => 'application/json'
             );
 
             for ($c=0; $c < $paymentCounter; $c++) {
-                $responseRaw = wp_remote_get($configs['api_url'] . '/' . $paymentsToVerify[$c], [
+                $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . $paymentsToVerify[$c]['id'], [
                     'headers' => $headers
                 ]);
 
-                Payment_Erede_For_Givewp_Helper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw), true) . PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($responseRaw), true), 'debit-3ds-verification');
-
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
 
-                switch ($response->authorization->returnCode) {
-                    case '00':
-                        $payment_id = $response->authorization->reference;
+                if($configs['debug'] === 'enabled') {
+                    Payment_Erede_For_Givewp_Helper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw), true), 'debit-3ds-verification');
+                    Payment_Erede_For_Givewp_Helper::log(PHP_EOL . ' [INFO]: ' . var_export($paymentsToVerify, true), 'debit-3ds-verification');
+                    Payment_Erede_For_Givewp_Helper::log(PHP_EOL . ' [BODY]: ' . var_export($response, true), 'debit-3ds-verification');
+                }
 
-                        give_update_payment_status($payment_id, 'publish');
+                switch ($response->returnCode) {
+                    case '00':
+                        give_update_payment_status($paymentsToVerify[$c]['id'], 'publish');
+
+                        break;
+                    case '78':
+                        $counter = (int) ($paymentsToVerify[$c]['count']);
+                        $counter++;
+
+                        if ($counter > 5) {
+                            give_update_payment_status($paymentsToVerify[$c]['id'], 'failed');
+                        }else{
+                            $paymentsToValidate[] = array('id' => $paymentsToVerify[$c]['id'], 'count' => $counter);
+                        }
 
                         break;
 
                     default:
-                        $payment_id = $response->authorization->reference;
-
-                        give_update_payment_status($payment_id, 'failed');
+                        give_update_payment_status($paymentsToVerify[$c]['id'], 'failed');
 
                         break;
                 }
             }
 
-            give_update_option('lkn_erede_debit_3ds_payments_pending', '');
+            if(count($paymentsToValidate) > 0) {
+                $paymentsToValidate = base64_encode(json_encode($paymentsToValidate));
+
+                give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToValidate);
+            }else{
+                give_update_option('lkn_erede_debit_3ds_payments_pending', '');
+            }
         }
 
         return true;
@@ -327,7 +346,8 @@ class Payment_Erede_For_Givewp {
                     $paymentsToVerify = json_decode(base64_decode($paymentsToVerify),true);
                 }
 
-                $paymentsToVerify[] = $response->tid;
+                $paymentsToVerify[] = ['id' => $payment_id, 'count' => '0'];
+                Payment_Erede_For_Givewp_Helper::log('[payments array]: ' . var_export($paymentsToVerify,true), 'debit-3ds');
                 $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
                 give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToVerify);
 
