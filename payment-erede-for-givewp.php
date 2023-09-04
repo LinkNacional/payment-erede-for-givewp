@@ -13,9 +13,9 @@
  * @package           Payment_Erede_For_Givewp
  *
  * @wordpress-plugin
- * Plugin Name:       Payment E-Rede for GiveWP
+ * Plugin Name:       Payment Gateway E-Rede for GiveWP
  * Plugin URI:        https://www.linknacional.com.br/wordpress/plugins/
- * Description:       Pagamento de cartão de crédito e débito utilizando E-Rede
+ * Description:       Credit and debit card payment using E-Rede
  * Version:           1.0.0
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com.br/wordpress/plugins/
