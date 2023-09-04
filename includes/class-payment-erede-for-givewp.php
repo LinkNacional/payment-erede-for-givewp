@@ -105,7 +105,7 @@ class Payment_Erede_For_Givewp {
             $configs = Payment_Erede_For_Givewp_Helper::get_configs('debit-3ds');
             $authorization = base64_encode( $configs['pv'] . ':' . $configs['token'] );
             $paymentsToValidate = [];
-            $type = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
+            $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
 
             $headers = array(
                 'Authorization' => 'Basic ' . $authorization,
@@ -120,7 +120,7 @@ class Payment_Erede_For_Givewp {
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
 
                 if($configs['debug'] === 'enabled') {
-                    Payment_Erede_For_Givewp_Helper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw) . PHP_EOL . ' [INFO]: ' . var_export($paymentsToVerify, true), true) . PHP_EOL . ' [BODY]: ' . var_export($response, true), $type);
+                    Payment_Erede_For_Givewp_Helper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw) . PHP_EOL . ' [INFO]: ' . var_export($paymentsToVerify, true), true) . PHP_EOL . ' [BODY]: ' . var_export($response, true), $logname);
                 }
 
                 switch ($response->returnCode) {
@@ -270,7 +270,7 @@ class Payment_Erede_For_Givewp {
         $height = $payment_data['post_data']['lkn_erede_debit_3ds_device_height'];
         $width = $payment_data['post_data']['lkn_erede_debit_3ds_device_width'];
         $timezone = $payment_data['post_data']['lkn_erede_debit_3ds_timezone'];
-        $type = date('d.m.Y-H.i.s') . '-debit-3ds';
+        $logname = date('d.m.Y-H.i.s') . '-debit-3ds';
 
         $card = array();
         $splitDate = explode('/', $payment_data['post_data']['lkn_erede_debit_3ds_card_expiry']);
@@ -325,20 +325,23 @@ class Payment_Erede_For_Givewp {
         ));
 
         if ('enabled' === $configs['debug']) {
-            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $type);
+            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
         }
 
         $response = json_decode(wp_remote_retrieve_body($response));
 
         $arrMetaData = [
-            'status' => $response->returnCode,
-            'message' => $response->returnMessage,
-            'transaction_id' => $response->tid ?? '0'
+            'status' => $response->returnCode ?? '500',
+            'message' => $response->returnMessage ?? 'Error on processing payment',
+            'transaction_id' => $response->tid ?? '0',
+            'capture' => $body['capture']
         ];
 
         if('enabled' === $configs['debug']){
-            $arrMetaData['log'] = $type;
+            $arrMetaData['log'] = $logname;
         }
+
+        give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
 
         switch ($response->returnCode) {
             case '200':
@@ -415,7 +418,7 @@ class Payment_Erede_For_Givewp {
         $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
         $payment_id = give_insert_payment($payment_array);
         $amount = number_format($payment_data['price'], 2, '', '');
-        $type = date('d.m.Y-H.i.s') . '-credit';
+        $logname = date('d.m.Y-H.i.s') . '-credit';
 
         $card = array();
         $splitDate = explode('/', $payment_data['post_data']['lkn_erede_credit_card_expiry']);
@@ -453,20 +456,23 @@ class Payment_Erede_For_Givewp {
         ));
 
         if ('enabled' === $configs['debug']) {
-            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $type);
+            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
         }
 
         $response = json_decode(wp_remote_retrieve_body($response));
 
         $arrMetaData = [
-            'status' => $response->returnCode,
-            'message' => $response->returnMessage,
-            'transaction_id' => $response->tid
+            'status' => $response->returnCode ?? '500',
+            'message' => $response->returnMessage ?? 'Error on processing payment',
+            'transaction_id' => $response->tid ?? '0',
+            'capture' => $body['capture']
         ];
 
         if('enabled' === $configs['debug']){
-            $arrMetaData['log'] = $type;
+            $arrMetaData['log'] = $logname;
         }
+
+        give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
 
         switch ($response->returnCode) {
             case '00':

@@ -132,7 +132,7 @@ class Payment_Erede_For_Givewp_Admin {
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation developer environment', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'sandbox' => __('Homologation environment for developer', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                         'production' => __('Production', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
                     ),
                 );
@@ -148,7 +148,7 @@ class Payment_Erede_For_Givewp_Admin {
                 $settings[] = array(
                     'name' => __('Token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_credit_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential secret token.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'type' => 'api_key',
                     'default' => '',
                 );
@@ -156,7 +156,7 @@ class Payment_Erede_For_Givewp_Admin {
                 $settings[] = array(
                     'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_credit_softdescription_setting_field',
-                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'type' => 'text',
                     'default' => '',
                 );
@@ -204,7 +204,7 @@ class Payment_Erede_For_Givewp_Admin {
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation developer environment', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'sandbox' => __('Homologation environment for developer', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                         'production' => __('Production', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
                     ),
                 );
@@ -220,7 +220,7 @@ class Payment_Erede_For_Givewp_Admin {
                 $settings[] = array(
                     'name' => __('Token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_debit_3ds_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential secret token.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'type' => 'api_key',
                     'default' => '',
                 );
@@ -228,7 +228,7 @@ class Payment_Erede_For_Givewp_Admin {
                 $settings[] = array(
                     'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
-                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Description that will appear on the customer\'s card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'type' => 'text',
                     'default' => '',
                 );
@@ -273,11 +273,27 @@ class Payment_Erede_For_Givewp_Admin {
     }
 
     public function add_donation_details($payment_id) :void {
-        load_template(
-            plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-admin-display.php',
-            true,
-            array(
-            )
-        );
+        // TODO make metadata
+        $metaOpt = json_decode(give_get_meta($payment_id, 'lkn_erede_response', true));
+
+        if (isset($metaOpt->status)) {
+            load_template(
+                plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-admin-display.php',
+                true,
+                array(
+                    'status' => $metaOpt->status,
+                    'message' => $metaOpt->message,
+                    'transaction_id' => $metaOpt->transaction_id,
+                    'capture' => $metaOpt->capture,
+                    'log_exists' =>  file_exists(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log'),
+                    'log_data' => base64_encode(file_get_contents(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log')),
+                    'status_label' => __('Return code:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'message_label' => __('Return message:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'transaction_label' => __('Transaction ID:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'log_label' => __('Transaction log in base64', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'know_more_label' => __('Know more', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                )
+            );
+        }
     }
 }
