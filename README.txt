@@ -1,114 +1,75 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
+=== Payment Gateway E-Rede for GiveWP ===
+Contributors: linknacional
 Donate link: https://www.linknacional.com.br/wordpress/plugins/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tags: payment, donation, givewp, credit, debit, card
+Requires at least: 5.7
+Requires PHP: 7.4
+Tested up to: 6.3
+Stable tag: 1.0.0
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Credit and debit card payment using E-Rede
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Introducing the Payment Gateway E-Rede for GiveWP plugin – your seamless solution for securely processing credit and debit card payments within your WordPress-powered fundraising efforts. This robust plugin extends the functionality of GiveWP, the leading donations management plugin, by seamlessly integrating E-Rede API as a trusted payment method.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+Key Features:
 
-A few notes about the sections above:
+1. **Effortless Integration**: This plugin effortlessly integrates E-Rede's powerful payment processing capabilities into your GiveWP donation forms, providing your supporters with a convenient and secure payment option.
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+2. **Secure Transactions**: Ensure peace of mind for your donors with E-Rede's robust security measures, safeguarding every transaction and protecting sensitive cardholder data.
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+3. **User-Friendly Setup**: Setting up E-Rede as a payment gateway for your GiveWP forms is a breeze. Our intuitive configuration wizard guides you through the process, ensuring quick and hassle-free integration.
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+4. **Seamless Donation Experience**: Donors can now contribute seamlessly, choosing from a range of payment methods including credit and debit cards. The plugin provides a smooth and familiar checkout experience.
+
+Give your donors the convenience and security they deserve while seamlessly managing your fundraising efforts with the Payment Gateway E-Rede for GiveWP plugin. Elevate your online donations experience and watch your fundraising campaigns thrive.
+
+**Dependencies**
+
+Payment Gateway E-Rede for GiveWP plugin is dependent on [GiveWP plugin](https://wordpress.org/plugins/give/), please make sure GiveWP is installed and properly configured.
+
+This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.
+
+**User instructions**
+
+1. Go to GiveWP settings menu;
+
+2. Search for the 'Payment gateways' tab;
+
+3. Activate the credit or debit card payment method for your donation forms;
+
+4. Save;
+
+5. Go to the E-Rede API - Credit card or E-Rede API - Debit card 3DS tab;
+
+6. Fill the form with your E-Rede credentials;
+
+7. Save.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload `payment-erede-for-givewp.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+1. Upload `payment-erede-for-givewp.zip` to the `/wp-content/plugins/` directory;
+2. Activate the plugin through the 'Plugins' menu in WordPress.
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= How can I get my E-Rede production credentials? =
 
-An answer to that question.
-
-= What about foo bar? =
-
-Answer to foo bar dilemma.
+To get your E-Rede production credentials you will need to follow [this guide](https://developer.userede.com.br/e-rede#documentacao-credenciamento).
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. None
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 1.0.0 =
+* Plugin launch.
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+= 1.0.0 =
+* Plugin launch.
