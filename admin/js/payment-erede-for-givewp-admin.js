@@ -21,11 +21,29 @@
           const sofdescriptionInputCredit = $('#lkn_erede_credit_softdescription_setting_field')
           sofdescriptionInputCredit.attr('maxlength', '18')
 
+          // Notice to sell the plugin
+          const noticeDiv = document.createElement('div')
+          noticeDiv.setAttribute('id', 'lkn-payment-erede-notice')
+          // eslint-disable-next-line no-undef
+          noticeDiv.innerHTML = lknEredePaymentAdmin.notice + ' <a href="https://www.linknacional.com.br/wordpress/" target="_blank">Payment E-Rede PRO</a>'
+
+          const formSubmit = document.getElementsByClassName('give-submit-wrap')[0]
+          formSubmit.before(noticeDiv)
+
           break
         }
         case 'lkn-erede-debit-3ds': {
           const sofdescriptionInputDebit = $('#lkn_erede_debit_3ds_softdescription_setting_field')
           sofdescriptionInputDebit.attr('maxlength', '18')
+
+          // Notice to sell the plugin
+          const noticeDiv = document.createElement('div')
+          noticeDiv.setAttribute('id', 'lkn-payment-erede-notice')
+          // eslint-disable-next-line no-undef
+          noticeDiv.innerHTML = lknEredePaymentAdmin.notice + ' <a href="https://www.linknacional.com.br/wordpress/" target="_blank">Payment E-Rede PRO</a>'
+
+          const formSubmit = document.getElementsByClassName('give-submit-wrap')[0]
+          formSubmit.before(noticeDiv)
 
           break
         }
