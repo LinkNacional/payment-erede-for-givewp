@@ -29,3 +29,19 @@
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
     exit;
 }
+
+wp_unschedule_hook( 'lkn_payment_erede_cron_delete_logs' );
+wp_unschedule_hook( 'lkn_payment_erede_cron_verify_payment' );
+
+$lkn_erede_opt = give_get_settings();
+
+$lkn_erede_opt = array_filter($lkn_erede_opt, function ($key) {
+    return strpos($key, 'lkn_erede_') === 0;
+}, ARRAY_FILTER_USE_KEY);
+$lkn_erede_opt = array_keys($lkn_erede_opt);
+
+if (count($lkn_erede_opt) > 0) {
+    for ($c = 0; $c < count($lkn_erede_opt); $c++) {
+        give_delete_option($lkn_erede_opt[$c]);
+    }
+}
