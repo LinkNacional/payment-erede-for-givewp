@@ -90,7 +90,7 @@ class Payment_Erede_For_Givewp_Public {
          */
         wp_register_script( $this->plugin_name . '_debit_3ds', plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-debit-3ds.js', array('jquery'), $this->version, false );
     
-        if(give_is_gateway_active('lkn_erede_debit_3ds')) {
+        if (give_is_gateway_active('lkn_erede_debit_3ds')) {
             wp_enqueue_script( $this->plugin_name . '_debit_3ds');
         }
     }
