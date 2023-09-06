@@ -22,13 +22,9 @@
           sofdescriptionInputCredit.attr('maxlength', '18')
 
           // Notice to sell the plugin
-          const noticeDiv = document.createElement('div')
-          noticeDiv.setAttribute('id', 'lkn-payment-erede-notice')
-          // eslint-disable-next-line no-undef
-          noticeDiv.innerHTML = lknEredePaymentAdmin.notice + ' <a href="https://www.linknacional.com.br/wordpress/" target="_blank">Payment E-Rede PRO</a>'
-
-          const formSubmit = document.getElementsByClassName('give-submit-wrap')[0]
-          formSubmit.before(noticeDiv)
+          lknMakeNotice()
+          // Add support for collapsibles
+          lknInitCollapsibles()
 
           break
         }
@@ -37,13 +33,9 @@
           sofdescriptionInputDebit.attr('maxlength', '18')
 
           // Notice to sell the plugin
-          const noticeDiv = document.createElement('div')
-          noticeDiv.setAttribute('id', 'lkn-payment-erede-notice')
-          // eslint-disable-next-line no-undef
-          noticeDiv.innerHTML = lknEredePaymentAdmin.notice + ' <a href="https://www.linknacional.com.br/wordpress/" target="_blank">Payment E-Rede PRO</a>'
-
-          const formSubmit = document.getElementsByClassName('give-submit-wrap')[0]
-          formSubmit.before(noticeDiv)
+          lknMakeNotice()
+          // Add support for collapsibles
+          lknInitCollapsibles()
 
           break
         }
@@ -75,4 +67,50 @@
       }
     }
   })
+
+  function lknMakeNotice () {
+    const noticeDiv = document.createElement('div')
+    noticeDiv.setAttribute('id', 'lkn-payment-erede-notice')
+    noticeDiv.innerHTML = lknEredePaymentAdmin.notice +
+    '<ul id="lkn-list-collapsible">' +
+    '<li class="lkn-collapsible">' + lknEredePaymentAdmin.captureLabelTitle + '</li>' +
+    '<div class="lkn-content">' +
+    '  <p>' + lknEredePaymentAdmin.captureLabelDesc + '</p>' +
+    '</div>' +
+    '<li class="lkn-collapsible">' + lknEredePaymentAdmin.returnLabelTitle + '</li>' +
+    '<div class="lkn-content">' +
+    '  <p>' + lknEredePaymentAdmin.returnLabelDesc + '</p>' +
+    '</div>' +
+    '<li class="lkn-collapsible">' + lknEredePaymentAdmin.installmentLabelTitle + '</li>' +
+    '<div class="lkn-content">' +
+    '  <p>' + lknEredePaymentAdmin.installmentLabelDesc + '</p>' +
+    '</div>' +
+    '<li class="lkn-collapsible">' + lknEredePaymentAdmin.currencyExchangeLabelTitle + '</li>' +
+    '<div class="lkn-content">' +
+    '  <p>' + lknEredePaymentAdmin.currencyExchangeLabelDesc + '</p>' +
+    '</div>' +
+    '</ul>'
+
+    const formSubmit = document.getElementsByClassName('give-submit-wrap')[0]
+    formSubmit.before(noticeDiv)
+  }
+
+  function lknInitCollapsibles () {
+    const coll = document.getElementsByClassName('lkn-collapsible')
+    let i
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener('click', function () {
+        this.classList.toggle('lkn-active')
+        const content = this.nextElementSibling
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null
+          this.style = 'list-style: disclosure-closed;'
+        } else {
+          content.style.maxHeight = content.scrollHeight + 'px'
+          this.style = 'list-style: disclosure-open;'
+        }
+      })
+    }
+  }
 })(jQuery)

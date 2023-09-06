@@ -89,6 +89,34 @@ class Payment_Erede_For_Givewp_Admin {
          * class.
          */
         wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-admin.js', array('jquery'), $this->version, false );
+        
+        $noticeDesc = sprintf(
+            ' %1$s %2$s %3$s %4$s',
+            __('Get new features with', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            '<a href="https://www.linknacional.com.br/wordpress/" target="_blank">',
+            __('Payment E-Rede for GiveWP PRO.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            '</a>',
+        );
+
+        $currencyExchangeLabel = sprintf(
+            '%1$s %2$s %3$s %4$s',
+            __('Calculate exchange rates automatically for international currencies, we have full compatibility with the', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            '<a href="https://www.linknacional.com.br/wordpress/givewp/multimoeda/" target="_blank">',
+            __('Multicurrency plugin for GiveWP by Link Nacional.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            '</a>',
+        );
+
+        wp_localize_script($this->plugin_name, 'lknEredePaymentAdmin', array(
+            'notice' => esc_html__($noticeDesc),
+            'captureLabelTitle' => esc_html__('Manual capture your transactions', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'captureLabelDesc' => esc_html__('Capture your transactions manually to avoid chargeback and card testing.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'returnLabelTitle' => esc_html__('Refund your transactions', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'returnLabelDesc' => esc_html__('Option to refund transaction amount integrated into GiveWP donation details.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'installmentLabelTitle' => esc_html__('Donations in installments', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'installmentLabelDesc' => esc_html__('Option for your donor to pay the donation in installments.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'currencyExchangeLabelTitle' => esc_html__('International currency exchange', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'currencyExchangeLabelDesc' => $currencyExchangeLabel,
+        ));
     }
 
     public function register_gateway($gateways) {
@@ -116,9 +144,6 @@ class Payment_Erede_For_Givewp_Admin {
         $currentSection = give_get_current_setting_section();
 
         switch ($currentSection) {
-            // TODO add paid options disabled freemium
-            // manual capture, installments, return
-
             case 'lkn-erede-credit':
                 $settings[] = array(
                     'type' => 'title',
@@ -273,7 +298,6 @@ class Payment_Erede_For_Givewp_Admin {
     }
 
     public function add_donation_details($payment_id) :void {
-        // TODO make metadata
         $metaOpt = json_decode(give_get_meta($payment_id, 'lkn_erede_response', true));
 
         if (isset($metaOpt->status)) {

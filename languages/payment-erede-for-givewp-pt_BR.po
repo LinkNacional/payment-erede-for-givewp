@@ -82,3 +82,36 @@ msgstr "Log da transação em base64"
 
 msgid "Know more"
 msgstr "Saiba mais"
+
+msgid "Manual capture your transactions"
+msgstr "Capture manualmente suas transações"
+
+msgid "Capture your transactions manually to avoid chargeback and card testing."
+msgstr "Capture suas transações manualmente para evitar estorno e testes de cartão."
+
+msgid "Refund your transactions"
+msgstr "Reembolse suas transações"
+
+msgid "Option to refund transaction amount integrated into GiveWP donation details."
+msgstr "Opção para reembolsar o valor das transações integrado aos detalhes da doação do GiveWP."
+
+msgid "Donations in installments"
+msgstr "Doações parceladas"
+
+msgid "Option for your donor to pay the donation in installments."
+msgstr "Opção para seu doador pagar a doação em parcelas."
+
+msgid "International currency exchange"
+msgstr "Câmbio internacional"
+
+msgid "Get new features with"
+msgstr "Obtenha novas funcionalidades com"
+
+msgid "Payment E-Rede for GiveWP PRO."
+msgstr "Pagamento E-Rede para GiveWP PRO"
+
+msgid "Calculate exchange rates automatically for international currencies, we have full compatibility with the"
+msgstr "Calcule as taxas de câmbio automaticamente para moedas internacionais, temos total compatibilidade com o"
+
+msgid "Multicurrency plugin for GiveWP by Link Nacional."
+msgstr "Plugin Multimoedas para GiveWP por Link Nacional."

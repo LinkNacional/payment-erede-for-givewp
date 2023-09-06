@@ -82,3 +82,36 @@ msgstr ""
 
 msgid "Know more"
 msgstr ""
+
+msgid "Manual capture your transactions"
+msgstr ""
+
+msgid "Capture your transactions manually to avoid chargeback and card testing."
+msgstr ""
+
+msgid "Refund your transactions"
+msgstr ""
+
+msgid "Option to refund transaction amount integrated into GiveWP donation details."
+msgstr ""
+
+msgid "Donations in installments"
+msgstr ""
+
+msgid "Option for your donor to pay the donation in installments."
+msgstr ""
+
+msgid "International currency exchange"
+msgstr ""
+
+msgid "Get new features with"
+msgstr ""
+
+msgid "Payment E-Rede for GiveWP PRO."
+msgstr ""
+
+msgid "Calculate exchange rates automatically for international currencies, we have full compatibility with the"
+msgstr ""
+
+msgid "Multicurrency plugin for GiveWP by Link Nacional."
+msgstr ""
