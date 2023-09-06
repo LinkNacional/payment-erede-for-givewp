@@ -39,6 +39,7 @@ define( 'PAYMENT_EREDE_FOR_GIVEWP_VERSION', '1.0.0' );
 define( 'PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION', '2.31.0' );
 define( 'PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN', 'payment-erede-for-givewp' );
 define( 'PAYMENT_EREDE_FOR_GIVEWP_BASENAME', plugin_basename(__FILE__) );
+define( 'PAYMENT_EREDE_FOR_GIVEWP_FILE', __FILE__);
 define( 'PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR', __DIR__ . '/includes/logs/' );
 
 /**

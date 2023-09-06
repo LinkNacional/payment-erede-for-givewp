@@ -177,6 +177,11 @@ class Payment_Erede_For_Givewp {
      */
     private function load_dependencies(): void {
         /**
+         * The class responsible for plugin updater
+         */
+        require_once plugin_dir_path( __DIR__ ) . 'includes/plugin-updater/plugin-update-checker.php';
+
+        /**
          * The class responsible for orchestrating the actions and filters of the
          * core plugin.
          */
@@ -573,6 +578,7 @@ class Payment_Erede_For_Givewp {
      */
     private function define_admin_hooks(): void {
         $plugin_admin = new Payment_Erede_For_Givewp_Admin( $this->get_plugin_name(), $this->get_version() );
+        $this->loader->add_action('give_init', $this, 'updater_init');
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -645,5 +651,13 @@ class Payment_Erede_For_Givewp {
      */
     public function get_version() {
         return $this->version;
+    }
+
+    public function updater_init() :Lkn_Puc_Plugin_UpdateChecker {
+        return new Lkn_Puc_Plugin_UpdateChecker(
+            'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
+            PAYMENT_EREDE_FOR_GIVEWP_FILE,
+            'payment-erede-for-givewp'
+        );
     }
 }
