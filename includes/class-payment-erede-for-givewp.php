@@ -179,7 +179,7 @@ class Payment_Erede_For_Givewp {
         /**
          * The class responsible for plugin updater
          */
-        require_once plugin_dir_path( __DIR__ ) . 'includes/plugin-updater/plugin-update-checker.php';
+        include_once plugin_dir_path( __DIR__ ) . 'includes/plugin-updater/plugin-update-checker.php';
 
         /**
          * The class responsible for orchestrating the actions and filters of the
@@ -653,11 +653,15 @@ class Payment_Erede_For_Givewp {
         return $this->version;
     }
 
-    public function updater_init() :Lkn_Puc_Plugin_UpdateChecker {
-        return new Lkn_Puc_Plugin_UpdateChecker(
-            'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
-            PAYMENT_EREDE_FOR_GIVEWP_FILE,
-            'payment-erede-for-givewp'
-        );
+    public function updater_init() :Lkn_Puc_Plugin_UpdateChecker|null {
+        if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
+            return new Lkn_Puc_Plugin_UpdateChecker(
+                'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
+                PAYMENT_EREDE_FOR_GIVEWP_FILE,
+                'payment-erede-for-givewp'
+            );
+        } else {
+            return null;
+        }
     }
 }
