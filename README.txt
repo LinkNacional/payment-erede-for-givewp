@@ -1,7 +1,17 @@
-# payment-erede-for-givewp
-Cartão de crédito e débito para GiveWP utilizando E-Rede https://www.linknacional.com.br/wordpress/givewp/
+=== Payment Gateway E-Rede for GiveWP ===
+Contributors: linknacional
+Donate link: https://www.linknacional.com.br/wordpress/plugins/
+Tags: payment, donation, givewp, credit, debit, card
+Requires at least: 5.7
+Requires PHP: 7.4
+Tested up to: 6.3
+Stable tag: 1.0.0
+License: GPLv3 or later
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-## Description
+Credit and debit card payment using E-Rede
+
+== Description ==
 
 Introducing the Payment Gateway E-Rede for GiveWP plugin – your seamless solution for securely processing credit and debit card payments within your WordPress-powered fundraising efforts. This robust plugin extends the functionality of GiveWP, the leading donations management plugin, by seamlessly integrating E-Rede API as a trusted payment method.
 
@@ -39,13 +49,27 @@ This plugin requires an active [E-Rede account](https://developer.userede.com.br
 
 7. Save.
 
-## Installation
+== Installation ==
 
 1. Upload `payment-erede-for-givewp.zip` to the `/wp-content/plugins/` directory;
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 
-## Frequently Asked Questions
+== Frequently Asked Questions ==
 
-### How can I get my E-Rede production credentials?
+= How can I get my E-Rede production credentials? =
 
 To get your E-Rede production credentials you will need to follow [this guide](https://developer.userede.com.br/e-rede#documentacao-credenciamento).
+
+== Screenshots ==
+
+1. None
+
+== Changelog ==
+
+= 1.0.0 =
+* Plugin launch.
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+* Plugin launch.

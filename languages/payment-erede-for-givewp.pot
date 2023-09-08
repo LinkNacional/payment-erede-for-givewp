@@ -1,0 +1,117 @@
+# Payment E-Rede for GiveWP
+msgid "Payment Gateway E-Rede for GiveWP"
+msgstr ""
+
+msgid "Credit and debit card payment using E-Rede"
+msgstr ""
+
+msgid "E-Rede API - Credit Card"
+msgstr ""
+
+msgid "E-Rede - Credit Card"
+msgstr ""
+
+msgid "E-Rede API - Debit Card 3DS"
+msgstr ""
+
+msgid "E-Rede - Debit Card"
+msgstr ""
+
+msgid "Environment type"
+msgstr ""
+
+msgid "Environment type to make transactions."
+msgstr ""
+
+msgid "Homologation developer environment"
+msgstr ""
+
+msgid "Production"
+msgstr ""
+
+msgid "PV"
+msgstr ""
+
+msgid "E-Rede API credential filiation number."
+msgstr ""
+
+msgid "Token"
+msgstr ""
+
+msgid "E-Rede API credential secret token."
+msgstr ""
+
+msgid "Transaction description"
+msgstr ""
+
+msgid "Description that will appear on the customer\\'s card statement, does not allow special characters or white space."
+msgstr ""
+
+msgid "Billing fields"
+msgstr ""
+
+msgid "Adds additional address fields to your donation form."
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Debug mode"
+msgstr ""
+
+msgid "Saves transaction logs for testing purposes."
+msgstr ""
+
+msgid "Donation"
+msgstr ""
+
+msgid "Return code:"
+msgstr ""
+
+msgid "Return message:"
+msgstr ""
+
+msgid "Transaction ID:"
+msgstr ""
+
+msgid "Transaction log in base64"
+msgstr ""
+
+msgid "Know more"
+msgstr ""
+
+msgid "Manual capture your transactions"
+msgstr ""
+
+msgid "Capture your transactions manually to avoid chargeback and card testing."
+msgstr ""
+
+msgid "Refund your transactions"
+msgstr ""
+
+msgid "Option to refund transaction amount integrated into GiveWP donation details."
+msgstr ""
+
+msgid "Donations in installments"
+msgstr ""
+
+msgid "Option for your donor to pay the donation in installments."
+msgstr ""
+
+msgid "International currency exchange"
+msgstr ""
+
+msgid "Get new features with"
+msgstr ""
+
+msgid "Payment E-Rede for GiveWP PRO."
+msgstr ""
+
+msgid "Calculate exchange rates automatically for international currencies, we have full compatibility with the"
+msgstr ""
+
+msgid "Multicurrency plugin for GiveWP by Link Nacional."
+msgstr ""

@@ -1,0 +1,5 @@
+.devcontainer/devcontainer.json
+.vscode/settings.json
+vendor
+node_modules
+includes/logs/*.log
