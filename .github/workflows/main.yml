@@ -22,7 +22,7 @@ jobs:
         run: "mkdir ${{env.PLUGIN_NAME_WITH_UPDATER}} && cp -r ./languages ./admin ./includes ./public LICENSE *.php ./${{env.PLUGIN_NAME_WITH_UPDATER}}/ && find ./${{env.PLUGIN_NAME_WITH_UPDATER}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME_WITH_UPDATER}} -type d -exec chmod 0755 {} + && ls -lah"
 
       - name: Make plugin root directory
-        run: "rm -Rf ./${{env.PLUGIN_NAME}}/includes/plugin-updater && mkdir ${{env.PLUGIN_NAME}} && mv -t ./${{env.PLUGIN_NAME}} ./languages ./admin ./includes ./public LICENSE *.php && find ./${{env.PLUGIN_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME}} -type d -exec chmod 0755 {} + && ls -lah"
+        run: "rm -Rf ./${{env.PLUGIN_NAME}}/includes/plugin-updater && mkdir ${{env.PLUGIN_NAME}} && mv -t ./${{env.PLUGIN_NAME}} ./languages ./admin ./includes ./public LICENSE *.php *.txt && find ./${{env.PLUGIN_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME}} -type d -exec chmod 0755 {} + && ls -lah"
 
       # Compact plugin as .zip
       - name: Archive Release
