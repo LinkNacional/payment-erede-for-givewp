@@ -653,7 +653,7 @@ class Payment_Erede_For_Givewp {
         return $this->version;
     }
 
-    public function updater_init() :Lkn_Puc_Plugin_UpdateChecker|null {
+    public function updater_init() :object {
         if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
             return new Lkn_Puc_Plugin_UpdateChecker(
                 'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
