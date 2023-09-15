@@ -322,7 +322,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode);
+        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $payment_data);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
@@ -453,7 +453,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode);
+        $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode, $payment_data);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
