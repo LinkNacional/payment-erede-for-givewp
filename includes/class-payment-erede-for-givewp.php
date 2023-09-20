@@ -322,7 +322,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode);
+        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $payment_data);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
@@ -453,7 +453,7 @@ class Payment_Erede_For_Givewp {
             )
         );
 
-        $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode);
+        $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode, $payment_data);
 
         $response = wp_remote_post($configs['api_url'], array(
             'headers' => $headers,
@@ -653,7 +653,7 @@ class Payment_Erede_For_Givewp {
         return $this->version;
     }
 
-    public function updater_init() :Lkn_Puc_Plugin_UpdateChecker|null {
+    public function updater_init() :object {
         if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
             return new Lkn_Puc_Plugin_UpdateChecker(
                 'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',

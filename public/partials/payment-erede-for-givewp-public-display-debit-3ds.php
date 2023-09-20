@@ -11,12 +11,12 @@
  * @package    Payment_Erede_For_Givewp
  * @subpackage Payment_Erede_For_Givewp/public/partials
  */
-do_action('give_before_cc_fields', $args['form_id']);
+do_action('give_before_dc_fields', $args['form_id']);
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 
-<fieldset id="give_cc_fields" class="give-do-validate">
+<fieldset id="give_dc_fields" class="give-do-validate">
     <legend>
         Informações de cartão de débito
     </legend>
@@ -132,15 +132,15 @@ do_action('give_before_cc_fields', $args['form_id']);
         />
     </div>
 <?php
-do_action('give_after_cc_expiration', $args['form_id'], $args['settings']);
+do_action('give_after_dc_expiration', $args['form_id'], $args['settings']);
 
-do_action('give_lkn_payment_erede_after_cc_expiration', $args['form_id'], $args['settings']);
+do_action('give_lkn_payment_erede_after_dc_expiration', $args['form_id'], $args['settings']);
 
 // Remove Address Fields if user has option enabled.
 if ('disabled' === $args['billing_details']) {
-    remove_action('give_after_cc_fields', 'give_default_cc_address_fields');
+    remove_action('give_after_dc_fields', 'give_default_cc_address_fields');
 }
 
-do_action('give_after_cc_fields', $args['form_id'], $args['settings']);
+do_action('give_after_dc_fields', $args['form_id'], $args['settings']);
 ?>
 </fieldset>
