@@ -44,7 +44,7 @@ msgstr ""
 msgid "Transaction description"
 msgstr ""
 
-msgid "Description that will appear on the customer\\'s card statement, does not allow special characters or white space."
+msgid "Description that will appear on the customer card statement, does not allow special characters or white space."
 msgstr ""
 
 msgid "Billing fields"

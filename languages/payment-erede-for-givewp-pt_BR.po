@@ -44,7 +44,7 @@ msgstr "Token secreto da credencial API do E-Rede."
 msgid "Transaction description"
 msgstr "Descrição da transação"
 
-msgid "Description that will appear on the customer\\'s card statement, does not allow special characters or white space."
+msgid "Description that will appear on the customer card statement, does not allow special characters or white space."
 msgstr "A Descrição que constará no extrato do cartão do cliente, não permite caracteres especiais ou espaços em branco."
 
 msgid "Billing fields"
