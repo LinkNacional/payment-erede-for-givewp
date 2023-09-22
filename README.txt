@@ -5,7 +5,7 @@ Tags: payment, donation, givewp, credit, debit, card
 Requires at least: 5.7
 Requires PHP: 7.4
 Tested up to: 6.3
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -66,10 +66,16 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 
 == Changelog ==
 
+= 1.0.2 =
+**22/09/2023**
+* Fix a bug in translation.
+
 = 1.0.1 =
+**20/09/2023**
 * Fix a bug with front-end inputs.
 
 = 1.0.0 =
+**04/09/2023**
 * Plugin launch.
 
 == Upgrade Notice ==
