@@ -22,7 +22,7 @@ namespace Lkn\PaymentEredeForGivewp\Admin;
  * @subpackage Payment_Erede_For_Givewp/admin
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewpHelperAdmin {
+class LknPaymentEredeForGivewpAdmin {
     /**
      * The ID of this plugin.
      *

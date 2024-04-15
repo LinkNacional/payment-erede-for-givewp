@@ -2,7 +2,7 @@
 
 namespace Lkn\PaymentEredeForGivewp\Includes;
 
-use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpHelperAdmin;
+use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
 use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
 use Lkn_Puc_Plugin_UpdateChecker;
 
@@ -535,7 +535,7 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function define_admin_hooks(): void {
-        $plugin_admin = new LknPaymentEredeForGivewpHelperAdmin( $this->get_plugin_name(), $this->get_version() );
+        $plugin_admin = new LknPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action('give_init', $this, 'updater_init');
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
