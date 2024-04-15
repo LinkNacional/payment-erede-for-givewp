@@ -1,5 +1,7 @@
 <?php
 
+namespace Lkn\PaymentEredeForGivewp\Includes;
+
 /**
  * Fired during plugin deactivation
  *
@@ -20,7 +22,7 @@
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class Payment_Erede_For_Givewp_Deactivator {
+class LknPaymentEredeForGivewpDeactivator {
     /**
      * Short Description. (use period)
      *

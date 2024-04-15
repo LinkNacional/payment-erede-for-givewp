@@ -1,5 +1,11 @@
 <?php
 
+namespace Lkn\PaymentEredeForGivewp\Includes;
+
+use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpHelperAdmin;
+use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
+use Lkn_Puc_Plugin_UpdateChecker;
+
 /**
  * The file that defines the core plugin class
  *
@@ -27,7 +33,7 @@
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class Payment_Erede_For_Givewp {
+class LknPaymentEredeForGivewp {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
@@ -74,7 +80,6 @@ class Payment_Erede_For_Givewp {
         $this->plugin_name = 'payment-erede-for-givewp';
 
         $this->load_dependencies();
-        $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
         $this->schedule_events();
@@ -102,7 +107,7 @@ class Payment_Erede_For_Givewp {
         $paymentCounter = count($paymentsToVerify);
 
         if ($paymentCounter > 0) {
-            $configs = Payment_Erede_For_Givewp_Helper::get_configs('debit-3ds');
+            $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
             $authorization = base64_encode( $configs['pv'] . ':' . $configs['token'] );
             $paymentsToValidate = array();
             $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
@@ -120,7 +125,7 @@ class Payment_Erede_For_Givewp {
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
 
                 if ('enabled' === $configs['debug']) {
-                    Payment_Erede_For_Givewp_Helper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw) . \PHP_EOL . ' [INFO]: ' . var_export($paymentsToVerify, true), true) . \PHP_EOL . ' [BODY]: ' . var_export($response, true), $logname);
+                    LknPaymentEredeForGivewpHelper::log('VERIFY PAYMENT - [Raw header]: ' . var_export(wp_remote_retrieve_headers($responseRaw) . \PHP_EOL . ' [INFO]: ' . var_export($paymentsToVerify, true), true) . \PHP_EOL . ' [BODY]: ' . var_export($response, true), $logname);
                 }
 
                 switch ($response->returnCode) {
@@ -176,60 +181,13 @@ class Payment_Erede_For_Givewp {
      * @access   private
      */
     private function load_dependencies(): void {
-        /**
-         * The class responsible for plugin updater
-         */
-        include_once plugin_dir_path( __DIR__ ) . 'includes/plugin-updater/plugin-update-checker.php';
-
-        /**
-         * The class responsible for orchestrating the actions and filters of the
-         * core plugin.
-         */
-        require_once plugin_dir_path( __DIR__ ) . 'includes/class-payment-erede-for-givewp-loader.php';
-
-        /**
-         * The class responsible for defining internationalization functionality
-         * of the plugin.
-         */
-        require_once plugin_dir_path( __DIR__ ) . 'includes/class-payment-erede-for-givewp-i18n.php';
-
-        /**
-         * The class responsible for defining helpers functions
-         */
-        require_once plugin_dir_path( __DIR__ ) . 'includes/class-payment-erede-for-givewp-helper.php';
-
-        /**
-         * The class responsible for defining all actions that occur in the admin area.
-         */
-        require_once plugin_dir_path( __DIR__ ) . 'admin/class-payment-erede-for-givewp-admin.php';
-
-        /**
-         * The class responsible for defining all actions that occur in the public-facing
-         * side of the site.
-         */
-        require_once plugin_dir_path( __DIR__ ) . 'public/class-payment-erede-for-givewp-public.php';
-
-        $this->loader = new Payment_Erede_For_Givewp_Loader();
+        $this->loader = new LknPaymentEredeForGivewpLoader();
     }
 
-    /**
-     * Define the locale for this plugin for internationalization.
-     *
-     * Uses the Payment_Erede_For_Givewp_i18n class in order to set the domain and to register the hook
-     * with WordPress.
-     *
-     * @since    1.0.0
-     * @access   private
-     */
-    private function set_locale(): void {
-        $plugin_i18n = new Payment_Erede_For_Givewp_i18n();
-
-        $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-    }
 
     public function process_debit_3ds_api_payment($payment_data) : void {
         // Set the configs values
-        $configs = Payment_Erede_For_Givewp_Helper::get_configs('debit-3ds');
+        $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
     
         // Validate nonce.
         give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
@@ -330,7 +288,7 @@ class Payment_Erede_For_Givewp {
         ));
 
         if ('enabled' === $configs['debug']) {
-            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
+            LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
         }
 
         $response = json_decode(wp_remote_retrieve_body($response));
@@ -383,7 +341,7 @@ class Payment_Erede_For_Givewp {
 
     public function process_credit_api_payment($payment_data): void {
         // Set the configs values
-        $configs = Payment_Erede_For_Givewp_Helper::get_configs('credit');
+        $configs = LknPaymentEredeForGivewpHelper::get_configs('credit');
     
         // Validate nonce.
         give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
@@ -461,7 +419,7 @@ class Payment_Erede_For_Givewp {
         ));
 
         if ('enabled' === $configs['debug']) {
-            Payment_Erede_For_Givewp_Helper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
+            LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
         }
 
         $response = json_decode(wp_remote_retrieve_body($response));
@@ -577,7 +535,7 @@ class Payment_Erede_For_Givewp {
      * @access   private
      */
     private function define_admin_hooks(): void {
-        $plugin_admin = new Payment_Erede_For_Givewp_Admin( $this->get_plugin_name(), $this->get_version() );
+        $plugin_admin = new LknPaymentEredeForGivewpHelperAdmin( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action('give_init', $this, 'updater_init');
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
@@ -605,7 +563,7 @@ class Payment_Erede_For_Givewp {
      * @access   private
      */
     private function define_public_hooks(): void {
-        $plugin_public = new Payment_Erede_For_Givewp_Public( $this->get_plugin_name(), $this->get_version() );
+        $plugin_public = new LknPaymentEredeForGivewpPublic( $this->get_plugin_name(), $this->get_version() );
 
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
@@ -653,15 +611,13 @@ class Payment_Erede_For_Givewp {
         return $this->version;
     }
 
-    public function updater_init() :object {
+    public function updater_init(){
         if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
             return new Lkn_Puc_Plugin_UpdateChecker(
                 'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
                 PAYMENT_EREDE_FOR_GIVEWP_FILE,
                 'payment-erede-for-givewp'
             );
-        } else {
-            return null;
         }
     }
 }

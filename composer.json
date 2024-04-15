@@ -1,0 +1,23 @@
+{
+    "name": "lkn/payment-erede-for-givewp",
+    "type": "project",
+    "license": "Proprietary",
+    "autoload": {
+        "psr-4": {
+            "Lkn\\PaymentEredeForGivewp\\Includes\\": "Includes/",
+            "Lkn\\PaymentEredeForGivewp\\Admin\\": "Admin/",
+            "Lkn\\PaymentEredeForGivewp\\PublicView\\": "Public/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Link Nacional",
+            "email": "ticket@linknacional.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require-dev": {
+        "phan/phan": "5.4.1"
+    },
+    "require": {}
+}

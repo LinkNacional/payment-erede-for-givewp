@@ -1,5 +1,9 @@
 <?php
 
+namespace Lkn\PaymentEredeForGivewp\PublicView;
+
+use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpHelper;
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -20,7 +24,7 @@
  * @subpackage Payment_Erede_For_Givewp/public
  * @author     Link Nacional <contato@linknacional.com>
  */
-class Payment_Erede_For_Givewp_Public {
+class LknPaymentEredeForGivewpPublic {
     /**
      * The ID of this plugin.
      *
@@ -102,7 +106,7 @@ class Payment_Erede_For_Givewp_Public {
             array(
                 'form_id' => $form_id,
                 'settings' => $args,
-                'billing_details' => Payment_Erede_For_Givewp_Helper::get_billing_fields_opt()
+                'billing_details' => LknPaymentEredeForGivewpHelper::get_billing_fields_opt()
             )
         );
     }
@@ -114,7 +118,7 @@ class Payment_Erede_For_Givewp_Public {
             array(
                 'form_id' => $form_id,
                 'settings' => $args,
-                'billing_details' => Payment_Erede_For_Givewp_Helper::get_billing_fields_opt()
+                'billing_details' => LknPaymentEredeForGivewpHelper::get_billing_fields_opt()
             )
         );
     }

@@ -1,5 +1,9 @@
 <?php
 
+use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpActivator;
+use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpDeactivator;
+use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewp;
+
 /**
  * The plugin bootstrap file
  *
@@ -25,6 +29,8 @@
  * Domain Path:       /languages
  */
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
     die;
@@ -47,8 +53,7 @@ define( 'PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR', __DIR__ . '/includes/logs/' );
  * This action is documented in includes/class-payment-erede-for-givewp-activator.php
  */
 function activate_payment_erede_for_givewp(): void {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/class-payment-erede-for-givewp-activator.php';
-    Payment_Erede_For_Givewp_Activator::activate();
+    LknPaymentEredeForGivewpActivator::activate();
 }
 
 /**
@@ -56,8 +61,7 @@ function activate_payment_erede_for_givewp(): void {
  * This action is documented in includes/class-payment-erede-for-givewp-deactivator.php
  */
 function deactivate_payment_erede_for_givewp(): void {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/class-payment-erede-for-givewp-deactivator.php';
-    Payment_Erede_For_Givewp_Deactivator::deactivate();
+    LknPaymentEredeForGivewpDeactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'activate_payment_erede_for_givewp' );
@@ -67,7 +71,6 @@ register_deactivation_hook( __FILE__, 'deactivate_payment_erede_for_givewp' );
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-payment-erede-for-givewp.php';
 
 /**
  * Begins execution of the plugin.
@@ -79,7 +82,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-payment-erede-for-givewp.p
  * @since    1.0.0
  */
 function run_payment_erede_for_givewp(): void {
-    $plugin = new Payment_Erede_For_Givewp();
+    $plugin = new LknPaymentEredeForGivewp();
     $plugin->run();
 }
 run_payment_erede_for_givewp();

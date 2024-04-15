@@ -1,5 +1,9 @@
 <?php
 
+namespace Lkn\PaymentEredeForGivewp\Includes;
+
+use Datetime;
+
 /**
  * Helper plugin class
  *
@@ -11,7 +15,7 @@
  * @subpackage Payment_Erede_For_Givewp_Helper/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-abstract class Payment_Erede_For_Givewp_Helper {
+abstract class LknPaymentEredeForGivewpHelper {
     /**
      * Get all paymethod config options
      *
@@ -23,7 +27,6 @@ abstract class Payment_Erede_For_Givewp_Helper {
      */
     public static function get_configs($type) :array {
         $configs = array();
-
         switch ($type) {
             case 'credit':
                 $configs['env'] = give_get_option('lkn_erede_credit_env_setting_field', 'sandbox');
@@ -32,7 +35,7 @@ abstract class Payment_Erede_For_Givewp_Helper {
                 $configs['billing_fields'] = give_get_option('lkn_erede_credit_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_credit_debug_setting_field', 'disabled');
                 $description = give_get_option('lkn_erede_credit_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
-                $configs['description'] = Payment_Erede_For_Givewp_Helper::format_softdescriptor_string($description);
+                $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
@@ -48,7 +51,7 @@ abstract class Payment_Erede_For_Givewp_Helper {
                 $configs['billing_fields'] = give_get_option('lkn_erede_debit_3ds_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_debit_3ds_debug_setting_field', 'disabled');
                 $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
-                $configs['description'] = Payment_Erede_For_Givewp_Helper::format_softdescriptor_string($description);
+                $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
