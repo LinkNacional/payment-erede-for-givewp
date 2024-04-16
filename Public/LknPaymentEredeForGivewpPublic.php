@@ -2,8 +2,6 @@
 
 namespace Lkn\PaymentEredeForGivewp\PublicView;
 
-use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpHelper;
-
 /**
  * The public-facing functionality of the plugin.
  *
@@ -92,34 +90,6 @@ class LknPaymentEredeForGivewpPublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_register_script( $this->plugin_name . '_debit_3ds', plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-debit-3ds.js', array('jquery'), $this->version, false );
-    
-        if (give_is_gateway_active('lkn_erede_debit_3ds')) {
-            wp_enqueue_script( $this->plugin_name . '_debit_3ds');
-        }
-    }
-
-    public function payment_form_credit($form_id, $args): void {
-        load_template(
-            plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-public-display-credit.php',
-            true,
-            array(
-                'form_id' => $form_id,
-                'settings' => $args,
-                'billing_details' => LknPaymentEredeForGivewpHelper::get_billing_fields_opt()
-            )
-        );
-    }
-
-    public function payment_form_debit_3ds($form_id, $args): void {
-        load_template(
-            plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-public-display-debit-3ds.php',
-            true,
-            array(
-                'form_id' => $form_id,
-                'settings' => $args,
-                'billing_details' => LknPaymentEredeForGivewpHelper::get_billing_fields_opt()
-            )
-        );
+        
     }
 }

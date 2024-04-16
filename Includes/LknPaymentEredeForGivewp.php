@@ -95,6 +95,7 @@ class LknPaymentEredeForGivewp {
         }
     }
 
+    // TODO realocar funções  para sua devida classe
     public function verify_payment() :bool {
         $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
 
@@ -184,7 +185,7 @@ class LknPaymentEredeForGivewp {
         $this->loader = new LknPaymentEredeForGivewpLoader();
     }
 
-
+    // TODO metodo de processamento de pagamento no debito
     public function process_debit_3ds_api_payment($payment_data) : void {
         // Set the configs values
         $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
@@ -339,6 +340,7 @@ class LknPaymentEredeForGivewp {
         }
     }
 
+    // TODO metodo de processamento de pagamento no credito
     public function process_credit_api_payment($payment_data): void {
         // Set the configs values
         $configs = LknPaymentEredeForGivewpHelper::get_configs('credit');
@@ -540,15 +542,14 @@ class LknPaymentEredeForGivewp {
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-        $this->loader->add_filter( 'give_payment_gateways', $plugin_admin, 'register_gateway' );
 
         $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
         $this->loader->add_action('lkn_payment_erede_cron_delete_logs', 'Payment_Erede_For_Givewp_Helper', 'delete_old_logs', 10, 0 );
         $this->loader->add_action('lkn_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
 
-        $this->loader->add_filter( 'give_get_sections_gateways', $plugin_admin, 'add_new_setting_section' );
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
+        $this->loader->add_filter('give_get_sections_gateways', $plugin_admin, 'new_setting_section');
         $this->loader->add_action('give_view_donation_details_billing_after', $plugin_admin, 'add_donation_details');
 
         $this->loader->add_action( 'give_gateway_lkn_erede_credit', $this, 'process_credit_api_payment');
@@ -567,8 +568,21 @@ class LknPaymentEredeForGivewp {
 
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-        $this->loader->add_action('give_lkn_erede_credit_cc_form', $plugin_public, 'payment_form_credit', 10, 3);
-        $this->loader->add_action('give_lkn_erede_debit_3ds_cc_form', $plugin_public, 'payment_form_debit_3ds', 10, 3);
+        $this->loader->add_action('givewp_register_payment_gateway', $this, 'new_gateway_register', 999);
+    }
+
+    /**
+     * Register gateway to new GiveWP v3
+     *
+     * @since 3.0.0
+     *
+     * @param  PaymentGatewayRegister $paymentGatewayRegister 
+     *
+     * @return void
+     */
+    final public function new_gateway_register($paymentGatewayRegister): void {
+        $paymentGatewayRegister->registerGateway('Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpDebitGateway');
+        $paymentGatewayRegister->registerGateway('Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpCreditGateway');
     }
 
     /**
@@ -611,7 +625,7 @@ class LknPaymentEredeForGivewp {
         return $this->version;
     }
 
-    public function updater_init(){
+    public function updater_init() {
         if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
             return new Lkn_Puc_Plugin_UpdateChecker(
                 'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',

@@ -69,17 +69,6 @@ abstract class LknPaymentEredeForGivewpHelper {
         return $configs;
     }
 
-    /**
-     * Get billing fields option
-     *
-     * @since 1.0.0
-     *
-     * @return string
-     */
-    public static function get_billing_fields_opt() :string {
-        return give_get_option('lkn_erede_credit_billing_fields_setting_field', 'disabled');
-    }
-
     public static function log($message, $type) :void {
         error_log($message, 3, PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $type . '.log');
     }

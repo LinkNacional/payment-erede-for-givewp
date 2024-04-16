@@ -121,23 +121,16 @@ class LknPaymentEredeForGivewpAdmin {
         ));
     }
 
-    public function register_gateway($gateways) {
-        $gateways['lkn_erede_credit'] = array(
-            'admin_label' => __('E-Rede API - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'checkout_label' => __('E-Rede - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-        );
-
-        $gateways['lkn_erede_debit_3ds'] = array(
-            'admin_label' => __('E-Rede API - Debit Card 3DS', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'checkout_label' => __('E-Rede - Debit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-        );
-
-        return $gateways;
-    }
-
-    public function add_new_setting_section($sections) :array {
-        $sections['lkn-erede-credit'] = __('E-Rede API - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
-        $sections['lkn-erede-debit-3ds'] = __('E-Rede API - Debit Card 3DS', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
+    /**
+     * Add new section to "General" setting tab
+     *
+     * @param $sections
+     *
+     * @return array
+     */
+    public function new_setting_section($sections) {
+        $sections['lkn-erede-credit'] = 'E-Rede API - Credit Card';
+        $sections['lkn-erede-debit-3ds'] = 'E-Rede API - Debit Card 3DS';
 
         return $sections;
     }
