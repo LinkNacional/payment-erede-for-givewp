@@ -96,7 +96,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
      * @return mixed
      */
     final public static function credit_card_form($form_id, $args) {
-        $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
+        $configs = LknPaymentEredeForGivewpHelper::get_configs('credit');
       
         ob_start();
 

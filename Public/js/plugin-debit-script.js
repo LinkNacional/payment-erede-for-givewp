@@ -1,4 +1,5 @@
 function lknSet3DSvalue() {
+  const form = document.querySelector('button[type="submit"]')?.closest('form');
   const language = window.navigator.language.slice(0, 2);
   const height = screen.height;
   const width = screen.width;
@@ -6,20 +7,13 @@ function lknSet3DSvalue() {
   const userAgent = navigator.userAgent;
   const date = new Date();
   const timezoneOffset = date.getTimezoneOffset();
-  const userAgentInput = document.getElementsByName('lkn_erede_debit_3ds_user_agent')[0];
-  const deviceColorInput = document.getElementsByName('lkn_erede_debit_3ds_device_color')[0];
-  const langInput = document.getElementsByName('lkn_erede_debit_3ds_lang')[0];
-  const heightInput = document.getElementsByName('lkn_erede_debit_3ds_device_height')[0];
-  const widthInput = document.getElementsByName('lkn_erede_debit_3ds_device_width')[0];
-  const timezoneInput = document.getElementsByName('lkn_erede_debit_3ds_timezone')[0];
-  if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-    userAgentInput.value = userAgent;
-    deviceColorInput.value = colorDepth.toString();
-    langInput.value = language;
-    heightInput.value = height.toString();
-    widthInput.value = width.toString();
-    timezoneInput.value = timezoneOffset.toString();
-  }
+  form?.setAttribute('data-payment-language', language);
+  form?.setAttribute('data-payment-height', String(height));
+  form?.setAttribute('data-payment-width', String(width));
+  form?.setAttribute('data-payment-colorDepth', String(colorDepth));
+  form?.setAttribute('data-payment-userAgent', userAgent);
+  form?.setAttribute('data-payment-date', date.toISOString());
+  form?.setAttribute('data-payment-timezoneOffset', String(timezoneOffset));
 }
 
 // Máscara para número de cartão de débito
@@ -103,61 +97,82 @@ function lknApplyDateMask(inputHTML) {
 
   inputHTML.target.value = maskedValue;
 }
-function lknSetBorderIfEmpty(elementId) {
-  const element = document.getElementById(elementId);
-  if (!element.value.trim()) {
-    element.style.borderColor = 'red';
-  }
-}
 function lknSetBorderColorOninput(inputHTML) {
   inputHTML.style.borderColor = '#666';
+  inputHTML.setAttribute('aria-invalid', 'false');
+}
+function lknSetBorderIfEmpty(elementId) {
+  const element = document.getElementById(elementId);
+  if (element && !element.value.trim()) {
+    element.style.borderColor = 'red';
+    element.setAttribute('aria-invalid', 'true');
+  }
+}
+function lknSetDataCard(values) {
+  const form = document.querySelector('button[type="submit"]')?.closest('form');
+
+  // Obter referência para todos os campos de entrada
+  const cardNumElement = document.getElementById('card_number');
+  const cardCVCElement = document.getElementById('card_cvc');
+  const cardNameElement = document.getElementById('give-card-name-field');
+  const cardExpirationElement = document.getElementById('card_expiry');
+
+  // Verificar se os elementos existem antes de acessar seus valores
+  if (!cardNumElement || !cardCVCElement || !cardNameElement || !cardExpirationElement) {
+    throw new Error('Um ou mais campos de cartão não encontrados.');
+  }
+
+  // Obter os valores dos campos de entrada
+  const cardNum = cardNumElement.value;
+  const cardCVC = cardCVCElement.value;
+  const cardName = cardNameElement.value;
+  const cardExpiration = cardExpirationElement.value;
+
+  // Verificar se algum campo está vazio
+  if (cardNum.trim() === '' || cardCVC.trim() === '' || cardName.trim() === '' || cardExpiration.trim() === '') {
+    // Definir a borda como vermelha para os campos vazios
+    lknSetBorderIfEmpty('card_number');
+    lknSetBorderIfEmpty('card_cvc');
+    lknSetBorderIfEmpty('give-card-name-field');
+    lknSetBorderIfEmpty('card_expiry');
+    throw new Error('Por favor, preencha todos os campos obrigatórios.');
+  } else {
+    // Todos os campos estão preenchidos, atribuir valores ao objeto 'values'
+    values.paymentCardNum = cardNum;
+    values.paymentCardCVC = cardCVC;
+    values.paymentCardName = cardName;
+    values.paymentCardExp = cardExpiration;
+  }
+}
+function lknGet3DSvalue(values) {
+  const form = document.querySelector('button[type="submit"]')?.closest('form');
+  const paymentLanguage = form?.getAttribute('data-payment-language');
+  const paymentHeight = form?.getAttribute('data-payment-height');
+  const paymentWidth = form?.getAttribute('data-payment-width');
+  const paymentColorDepth = form?.getAttribute('data-payment-colorDepth');
+  const paymentUserAgent = form?.getAttribute('data-payment-userAgent');
+  const paymentDate = form?.getAttribute('data-payment-date');
+  const paymenTimezoneOffset = form?.getAttribute('data-payment-timezoneOffset');
+
+  // Verifica se as informações estão presentes antes de usá-las
+  if (paymentLanguage && paymentHeight && paymentWidth && paymentColorDepth && paymentUserAgent && paymentDate && paymenTimezoneOffset) {
+    values.paymentLanguage = paymentLanguage;
+    values.paymentHeight = paymentHeight;
+    values.paymentWidth = paymentWidth;
+    values.paymentColorDepth = paymentColorDepth;
+    values.paymentUserAgent = paymentUserAgent;
+    values.paymentDate = paymentDate;
+    values.paymenTimezoneOffset = paymenTimezoneOffset;
+  } else {
+    throw new Error('Dados do 3DS não inseridos');
+  }
 }
 const lkn_erede_debit_3ds = {
   id: 'lkn_erede_debit_3ds',
   async initialize() {},
   async beforeCreatePayment(values) {
-    // Obtenha uma referência para todos os campos de entrada
-    const cardNum = document.getElementById('card_number')?.value;
-    const cardCVC = document.getElementById('card_cvc')?.value;
-    const cardName = document.getElementById('give-card-name-field')?.value;
-    const cardExpiration = document.getElementById('card_expiry')?.value;
-
-    // Verifique se todos os campos estão preenchidos
-    if (cardNum.trim() === '' || cardCVC.trim() === '' || cardName.trim() === '' || cardExpiration.trim() === '') {
-      document.getElementById('card_number')?.setAttribute('required', 'required');
-      document.getElementById('card_cvc')?.setAttribute('required', 'required');
-      document.getElementById('give-card-name-field')?.setAttribute('required', 'required');
-      document.getElementById('card_expiry')?.setAttribute('required', 'required');
-
-      // Define a borda como vermelha para os campos vazios
-      lknSetBorderIfEmpty('card_number');
-      lknSetBorderIfEmpty('card_cvc');
-      lknSetBorderIfEmpty('give-card-name-field');
-      lknSetBorderIfEmpty('card_expiry');
-    }
-    if (cardNum && cardCVC && cardName && cardExpiration) {
-      //setando em values
-      values.paymentCardNum = cardNum;
-      values.paymentCardCVC = cardCVC;
-      values.paymentCardName = cardName;
-      values.paymentCardExp = cardExpiration;
-    }
-    const userAgentInput = document.getElementsByName('lkn_erede_debit_3ds_user_agent')[0];
-    const deviceColorInput = document.getElementsByName('lkn_erede_debit_3ds_device_color')[0];
-    const langInput = document.getElementsByName('lkn_erede_debit_3ds_lang')[0];
-    const heightInput = document.getElementsByName('lkn_erede_debit_3ds_device_height')[0];
-    const widthInput = document.getElementsByName('lkn_erede_debit_3ds_device_width')[0];
-    const timezoneInput = document.getElementsByName('lkn_erede_debit_3ds_timezone')[0];
-    if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-      //setando em values
-      values.paymentUserAgentInput = deviceColorInput.value;
-      values.paymentDeviceColorInput = deviceColorInput.value;
-      values.paymentLangInput = langInput.value;
-      values.paymentHeightInput = heightInput.value;
-      values.paymentwidthInput = widthInput.value;
-      values.paymentTimezoneInput = timezoneInput.value;
-      console.log(deviceColorInput.value);
-    }
+    lknSetDataCard(values);
+    lknGet3DSvalue(values);
     if (values.firstname === 'error') {
       throw new Error('Gateway failed');
     }
@@ -202,31 +217,7 @@ const lkn_erede_debit_3ds = {
           padding: '20px',
           textAlign: 'center'
         }
-      }, "Doa\xE7\xE3o Segura por Criptografia SSL")), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_user_agent",
-        value: ""
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_device_color",
-        value: ""
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_lang",
-        value: ""
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_device_height",
-        value: ""
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_device_width",
-        value: ""
-      }), /*#__PURE__*/React.createElement("input", {
-        type: "hidden",
-        name: "lkn_erede_debit_3ds_timezone",
-        value: ""
-      }), /*#__PURE__*/React.createElement("div", {
+      }, "Doa\xE7\xE3o Segura por Criptografia SSL")), /*#__PURE__*/React.createElement("div", {
         id: "give-card-number-wrap",
         class: "form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap"
       }, /*#__PURE__*/React.createElement("span", {
@@ -257,8 +248,7 @@ const lkn_erede_debit_3ds = {
         id: "card_number",
         class: "card-number give-input required",
         placeholder: "N\xFAmero do cart\xE3o",
-        "aria-required": "true",
-        required: true
+        "aria-required": "true"
       })), /*#__PURE__*/React.createElement("div", {
         id: "give-card-expiration-wrap",
         class: "card-expiration form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap"
@@ -287,8 +277,7 @@ const lkn_erede_debit_3ds = {
         id: "card_expiry",
         class: "card-expiry give-input required",
         placeholder: "MM / AAAA",
-        "aria-required": "true",
-        required: true
+        "aria-required": "true"
       })), /*#__PURE__*/React.createElement("div", {
         id: "give-card-name-wrap",
         class: "form-row form-row-two-thirds form-row-responsive"
@@ -317,8 +306,7 @@ const lkn_erede_debit_3ds = {
         name: "card_name",
         class: "card-name give-input required",
         placeholder: "Nome do titular do cart\xE3o",
-        "aria-required": "true",
-        required: true
+        "aria-required": "true"
       })), /*#__PURE__*/React.createElement("div", {
         id: "give-card-cvc-wrap",
         class: "form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap"
@@ -352,8 +340,7 @@ const lkn_erede_debit_3ds = {
         id: "card_cvc",
         class: "give-input required",
         placeholder: "CVV",
-        "aria-required": "true",
-        required: true
+        "aria-required": "true"
       })));
     }
   }

@@ -1,4 +1,5 @@
 function lknSet3DSvalue() {
+    const form = document.querySelector('button[type="submit"]')?.closest('form');
     const language = window.navigator.language.slice(0, 2)
     const height = screen.height
     const width = screen.width
@@ -7,24 +8,15 @@ function lknSet3DSvalue() {
     const date = new Date()
     const timezoneOffset = date.getTimezoneOffset()
 
-    const userAgentInput = document.getElementsByName('lkn_erede_debit_3ds_user_agent')[0] as HTMLInputElement
-    const deviceColorInput = document.getElementsByName('lkn_erede_debit_3ds_device_color')[0] as HTMLInputElement
-    const langInput = document.getElementsByName('lkn_erede_debit_3ds_lang')[0] as HTMLInputElement
-    const heightInput = document.getElementsByName('lkn_erede_debit_3ds_device_height')[0] as HTMLInputElement
-    const widthInput = document.getElementsByName('lkn_erede_debit_3ds_device_width')[0] as HTMLInputElement
-    const timezoneInput = document.getElementsByName('lkn_erede_debit_3ds_timezone')[0] as HTMLInputElement
-
-    if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-        userAgentInput.value = userAgent
-        deviceColorInput.value = colorDepth.toString();
-        langInput.value = language
-        heightInput.value = height.toString();
-        widthInput.value = width.toString();
-        timezoneInput.value = timezoneOffset.toString();
-    }
+    form?.setAttribute('data-payment-language', language);
+    form?.setAttribute('data-payment-height', String(height));
+    form?.setAttribute('data-payment-width', String(width));
+    form?.setAttribute('data-payment-colorDepth', String(colorDepth));
+    form?.setAttribute('data-payment-userAgent', userAgent);
+    form?.setAttribute('data-payment-date', date.toISOString());
+    form?.setAttribute('data-payment-timezoneOffset', String(timezoneOffset));
 }
 
-// TODO mudar nme das funções de event
 // Máscara para número de cartão de débito
 function lknDebitCardMask(inputHTML) {
     let cardNumber = inputHTML.target.value.replace(/\D/gmi, ''); // Remover caracteres não numéricos
@@ -112,78 +104,93 @@ function lknApplyDateMask(inputHTML) {
     inputHTML.target.value = maskedValue;
 }
 
+function lknSetBorderColorOninput(inputHTML) {
+    inputHTML.style.borderColor = '#666';
+    inputHTML.setAttribute('aria-invalid', 'false')
+}
+
 function lknSetBorderIfEmpty(elementId) {
     const element = document.getElementById(elementId);
-    if (!element.value.trim()) {
+    if (element && !element.value.trim()) {
         element.style.borderColor = 'red';
+        element.setAttribute('aria-invalid', 'true');
     }
 }
 
-function lknSetBorderColorOninput(inputHTML) {
-    inputHTML.style.borderColor = '#666';
+function lknSetDataCard(values) {
+    const form = document.querySelector('button[type="submit"]')?.closest('form');
+
+    // Obter referência para todos os campos de entrada
+    const cardNumElement = document.getElementById('card_number');
+    const cardCVCElement = document.getElementById('card_cvc');
+    const cardNameElement = document.getElementById('give-card-name-field');
+    const cardExpirationElement = document.getElementById('card_expiry');
+
+    // Verificar se os elementos existem antes de acessar seus valores
+    if (!cardNumElement || !cardCVCElement || !cardNameElement || !cardExpirationElement) {
+        throw new Error('Um ou mais campos de cartão não encontrados.');
+    }
+
+    // Obter os valores dos campos de entrada
+    const cardNum = cardNumElement.value;
+    const cardCVC = cardCVCElement.value;
+    const cardName = cardNameElement.value;
+    const cardExpiration = cardExpirationElement.value;
+
+    // Verificar se algum campo está vazio
+    if (cardNum.trim() === '' || cardCVC.trim() === '' || cardName.trim() === '' || cardExpiration.trim() === '') {
+        // Definir a borda como vermelha para os campos vazios
+        lknSetBorderIfEmpty('card_number');
+        lknSetBorderIfEmpty('card_cvc');
+        lknSetBorderIfEmpty('give-card-name-field');
+        lknSetBorderIfEmpty('card_expiry');  
+        throw new Error('Por favor, preencha todos os campos obrigatórios.');
+    } else {
+        // Todos os campos estão preenchidos, atribuir valores ao objeto 'values'
+        values.paymentCardNum = cardNum;
+        values.paymentCardCVC = cardCVC;
+        values.paymentCardName = cardName;
+        values.paymentCardExp = cardExpiration;
+    }
 }
 
+function lknGet3DSvalue(values) {
+    const form = document.querySelector('button[type="submit"]')?.closest('form');
+    const paymentLanguage = form?.getAttribute('data-payment-language');
+    const paymentHeight = form?.getAttribute('data-payment-height');
+    const paymentWidth = form?.getAttribute('data-payment-width');
+    const paymentColorDepth = form?.getAttribute('data-payment-colorDepth');
+    const paymentUserAgent = form?.getAttribute('data-payment-userAgent');
+    const paymentDate = form?.getAttribute('data-payment-date');
+    const paymenTimezoneOffset = form?.getAttribute('data-payment-timezoneOffset');
+
+    // Verifica se as informações estão presentes antes de usá-las
+    if (paymentLanguage && paymentHeight && paymentWidth && paymentColorDepth && paymentUserAgent && paymentDate && paymenTimezoneOffset) {
+        values.paymentLanguage = paymentLanguage
+        values.paymentHeight = paymentHeight
+        values.paymentWidth = paymentWidth
+        values.paymentColorDepth = paymentColorDepth
+        values.paymentUserAgent = paymentUserAgent
+        values.paymentDate = paymentDate
+        values.paymenTimezoneOffset = paymenTimezoneOffset
+    }else {
+        throw new Error('Dados do 3DS não inseridos');
+    }
+}
 
 const lkn_erede_debit_3ds = {
     id: 'lkn_erede_debit_3ds',
     async initialize() {
     },
     async beforeCreatePayment(values) {
-
-        // Obtenha uma referência para todos os campos de entrada
-        const cardNum = document.getElementById('card_number')?.value;
-        const cardCVC = document.getElementById('card_cvc')?.value;
-        const cardName = document.getElementById('give-card-name-field')?.value;
-        const cardExpiration = document.getElementById('card_expiry')?.value;
-        
-        // FIXME faz função para bloquear o botão em caso de campo vazio
-        // Verifique se todos os campos estão preenchidos
-        if (cardNum.trim() === '' || cardCVC.trim() === '' || cardName.trim() === '' || cardExpiration.trim() === '') {
-            document.getElementById('card_number')?.setAttribute('required', 'required');
-            document.getElementById('card_cvc')?.setAttribute('required', 'required');
-            document.getElementById('give-card-name-field')?.setAttribute('required', 'required');
-            document.getElementById('card_expiry')?.setAttribute('required', 'required');
-
-            // Define a borda como vermelha para os campos vazios
-            lknSetBorderIfEmpty('card_number');
-            lknSetBorderIfEmpty('card_cvc');
-            lknSetBorderIfEmpty('give-card-name-field');
-            lknSetBorderIfEmpty('card_expiry');
-        }
-
-        // TODO abstrair o codigo em funções menores, para melhorar na resolução de problemas
-        if (cardNum && cardCVC && cardName && cardExpiration) {
-            //setando em values
-            values.paymentCardNum = cardNum
-            values.paymentCardCVC = cardCVC
-            values.paymentCardName = cardName
-            values.paymentCardExp = cardExpiration
-        }
-
-        const userAgentInput = document.getElementsByName('lkn_erede_debit_3ds_user_agent')[0] as HTMLInputElement
-        const deviceColorInput = document.getElementsByName('lkn_erede_debit_3ds_device_color')[0] as HTMLInputElement
-        const langInput = document.getElementsByName('lkn_erede_debit_3ds_lang')[0] as HTMLInputElement
-        const heightInput = document.getElementsByName('lkn_erede_debit_3ds_device_height')[0] as HTMLInputElement
-        const widthInput = document.getElementsByName('lkn_erede_debit_3ds_device_width')[0] as HTMLInputElement
-        const timezoneInput = document.getElementsByName('lkn_erede_debit_3ds_timezone')[0]as HTMLInputElement
-
-
-        // BUG verificar o pq não tá pegando os valores 
-        if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-            //setando em values
-            values.paymentUserAgentInput = deviceColorInput.value
-            values.paymentDeviceColorInput = deviceColorInput.value
-            values.paymentLangInput = langInput.value
-            values.paymentHeightInput = heightInput.value
-            values.paymentwidthInput = widthInput.value
-            values.paymentTimezoneInput = timezoneInput.value
-            console.log(deviceColorInput.value)
-        }
+    
+        lknSetDataCard(values);
+        lknGet3DSvalue(values);
 
         if (values.firstname === 'error') {
             throw new Error('Gateway failed');
         }
-        
+
         console.log(values);
 
         return {
@@ -213,36 +220,28 @@ const lkn_erede_debit_3ds = {
 
         if (!isSSL()) {
             return lknPrintFrontendNotice('Erro:', 'Doação desabilitada por falta de SSL (HTTPS).');
-        }else{
+        } else {
             return (
                 <fieldset className="give-do-validate" id="give_dc_fields">
-                    <legend style={{ fontSize: 'large'}}>
+                    <legend style={{ fontSize: 'large' }}>
                         Informações de cartão de débito
                     </legend>
                     <div id="give_secure_site_wrapper">
                         <span class="give-icon padlock"></span>
-                        <span style={{ display: 'block', padding: '20px' , textAlign: 'center'}}>
+                        <span style={{ display: 'block', padding: '20px', textAlign: 'center' }}>
                             Doação Segura por Criptografia SSL
                         </span>
                     </div>
-    
-                    {/* <!-- Secure 3DS - Erede --> */}
-                    <input type="hidden" name="lkn_erede_debit_3ds_user_agent" value="" />
-                    <input type="hidden" name="lkn_erede_debit_3ds_device_color" value="" />
-                    <input type="hidden" name="lkn_erede_debit_3ds_lang" value="" />
-                    <input type="hidden" name="lkn_erede_debit_3ds_device_height" value="" />
-                    <input type="hidden" name="lkn_erede_debit_3ds_device_width" value="" />
-                    <input type="hidden" name="lkn_erede_debit_3ds_timezone" value="" />
-    
+
                     {/* // <!-- CARD NUMBER INPUT --> */}
                     <div id="give-card-number-wrap" class="form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-                        <span for="card_number" class="give-label" style={{ display: 'block', padding: '10 0'}}>
+                        <span for="card_number" class="give-label" style={{ display: 'block', padding: '10 0' }}>
                             Número do cartão
                             <span class="give-required-indicator" style={{ color: 'red' }} > *</span>
                             <span class="give-tooltip hint--top hint--medium hint--bounce" aria-label="Normalmente possui 16 digitos na frente do seu cartão de débito." rel="tooltip"><i class="give-icon give-icon-question"></i></span>
                         </span>
                         <input
-                            onInput={(e) => { lknFormatNumbers(e), lknDebitCardMask(e), lknSetBorderColorOninput(e.target)}}
+                            onInput={(e) => { lknFormatNumbers(e), lknDebitCardMask(e), lknSetBorderColorOninput(e.target) }}
                             type="text"
                             autocomplete="off"
                             name="card_number"
@@ -250,20 +249,19 @@ const lkn_erede_debit_3ds = {
                             class="card-number give-input required"
                             placeholder="Número do cartão"
                             aria-required="true"
-                            required
                         />
                     </div>
-    
+
                     {/* // <!-- CARD EXPIRY INPUT --> */}
                     <div id="give-card-expiration-wrap" class="card-expiration form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-                        <span for="give-card-expiration-field" class="give-label" style={{ display: 'block', padding: '10 0'}}>
+                        <span for="give-card-expiration-field" class="give-label" style={{ display: 'block', padding: '10 0' }}>
                             Expiração
                             <span class="give-required-indicator" style={{ color: 'red' }}> *</span>
                             <span class="give-tooltip give-icon give-icon-question"
                                 data-tooltip="A data de expiração do cartão de débito, geralmente na frente do cartão."></span>
                         </span>
                         <input
-                            onInput={(e) => {lknApplyDateMask(e), lknSetBorderColorOninput(e.target)}}
+                            onInput={(e) => { lknApplyDateMask(e), lknSetBorderColorOninput(e.target) }}
                             type="text"
                             autocomplete="off"
                             name="card_expiry"
@@ -271,13 +269,12 @@ const lkn_erede_debit_3ds = {
                             class="card-expiry give-input required"
                             placeholder="MM / AAAA"
                             aria-required="true"
-                            required
                         />
                     </div>
-    
+
                     {/* // <!-- CARD HOLDER INPUT --> */}
                     <div id="give-card-name-wrap" class="form-row form-row-two-thirds form-row-responsive">
-                        <span for="give-card-name-field" class="give-label" style={{ display: 'block', padding: '10 0'}}>
+                        <span for="give-card-name-field" class="give-label" style={{ display: 'block', padding: '10 0' }}>
                             Nome do títular do cartão
                             <span class="give-required-indicator" style={{ color: 'red' }}> *</span>
                             <span class="give-tooltip give-icon give-icon-question"
@@ -285,7 +282,7 @@ const lkn_erede_debit_3ds = {
                             </span>
                         </span>
                         <input
-                            onInput={(e) => {lknNameValidation(e), lknSetBorderColorOninput(e.target)}}
+                            onInput={(e) => { lknNameValidation(e), lknSetBorderColorOninput(e.target) }}
                             type="text"
                             autocomplete="off"
                             id="give-card-name-field"
@@ -293,13 +290,12 @@ const lkn_erede_debit_3ds = {
                             class="card-name give-input required"
                             placeholder="Nome do titular do cartão"
                             aria-required="true"
-                            required
                         />
                     </div>
-    
+
                     {/* // <!-- CARD CVV INPUT --> */}
                     <div id="give-card-cvc-wrap" class="form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-                        <span for="give-card-cvc-field" class="give-label" style={{ display: 'block', padding: '10 0'}}>
+                        <span for="give-card-cvc-field" class="give-label" style={{ display: 'block', padding: '10 0' }}>
                             CVV
                             <span class="give-required-indicator" style={{ color: 'red' }}> *</span>
                             <span class="give-tooltip give-icon give-icon-question"
@@ -307,7 +303,7 @@ const lkn_erede_debit_3ds = {
                         </span>
                         <div id="give-card-cvc-field" class="input empty give-lkn-cielo-api-cc-field give-lkn-cielo-api-card-cvc-field"></div>
                         <input
-                            onInput={(e) => {lknCVVMask(e), lknSetBorderColorOninput(e.target)}}
+                            onInput={(e) => { lknCVVMask(e), lknSetBorderColorOninput(e.target) }}
                             type="text"
                             size="4"
                             maxlength="4"
@@ -317,7 +313,6 @@ const lkn_erede_debit_3ds = {
                             class="give-input required"
                             placeholder="CVV"
                             aria-required="true"
-                            required
                         />
                     </div>
                     {/* //TODO verificar o pq disso aqui */}
@@ -327,7 +322,7 @@ const lkn_erede_debit_3ds = {
                     // } */}
                 </fieldset>
             )
-        }  
+        }
     },
 };
 

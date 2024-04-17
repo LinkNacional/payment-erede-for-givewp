@@ -421,7 +421,7 @@ class LknPaymentEredeForGivewp {
         ));
 
         if ('enabled' === $configs['debug']) {
-            LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
+            LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(json_decode(wp_remote_retrieve_body($response)), true), $logname);
         }
 
         $response = json_decode(wp_remote_retrieve_body($response));
@@ -545,7 +545,7 @@ class LknPaymentEredeForGivewp {
 
         $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
-        $this->loader->add_action('lkn_payment_erede_cron_delete_logs', 'Payment_Erede_For_Givewp_Helper', 'delete_old_logs', 10, 0 );
+        $this->loader->add_action('lkn_payment_erede_cron_delete_logs', 'LknPaymentEredeForGivewpHelper', 'delete_old_logs', 10, 0 );
         $this->loader->add_action('lkn_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
 
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
