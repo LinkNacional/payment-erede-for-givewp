@@ -194,8 +194,7 @@ const lkn_erede_debit_3ds = {
         console.log(values);
 
         return {
-            pluginIntent: 'lkn-plugin-intent',
-            custom: 'anything'
+            ...values
         };
     },
     async afterCreatePayment(response) {

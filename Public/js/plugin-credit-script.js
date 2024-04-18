@@ -134,8 +134,7 @@ const lkn_erede_credit = {
     }
     console.log(values);
     return {
-      pluginIntent: 'lkn-plugin-intent',
-      custom: 'anything'
+      ...values
     };
   },
   async afterCreatePayment(response) {},
