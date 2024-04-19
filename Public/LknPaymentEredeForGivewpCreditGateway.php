@@ -83,7 +83,6 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 'Content-Type' => 'application/json'
             );
 
-            //Aceita currenct diferente?
             $currencyCode = give_get_currency($donation->formId, $donation);
 
             $payment_id = $donation->id;

@@ -91,11 +91,10 @@ class LknPaymentEredeForGivewp {
         }
 
         if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_verify_payment' ) ) {
-
             add_filter( 'cron_schedules', function( $schedules ) {
                 $schedules['every_minute'] = array(
                     'interval' => 60, 
-                    'display'  =>  'A cada minuto',
+                    'display' => 'A cada minuto',
                 );
                 return $schedules;
             });
@@ -104,6 +103,7 @@ class LknPaymentEredeForGivewp {
         }
     }
 
+    // BUG mudar logica
     public function verify_payment(): bool {
         $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
     
@@ -113,7 +113,7 @@ class LknPaymentEredeForGivewp {
             // Tente decodificar a opção de pagamento pendente
             $decodedPayments = json_decode(base64_decode($paymentsToVerify, true), true);
     
-            if (!is_array($decodedPayments)) {
+            if ( ! is_array($decodedPayments)) {
                 $decodedPayments = array();
             }
     
@@ -147,7 +147,7 @@ class LknPaymentEredeForGivewp {
     
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
     
-                if (!$response) {
+                if ( ! $response) {
                     // Resposta inválida, tratamento de erro necessário
                     error_log('Resposta inválida da API');
                     continue; // Avança para o próximo pagamento
@@ -178,7 +178,7 @@ class LknPaymentEredeForGivewp {
                 }
             }
     
-            if (!empty($paymentsToValidate)) {
+            if ( ! empty($paymentsToValidate)) {
                 $encodedPaymentsToValidate = base64_encode(json_encode($paymentsToValidate));
                 give_update_option('lkn_erede_debit_3ds_payments_pending', $encodedPaymentsToValidate);
             } else {
@@ -207,161 +207,6 @@ class LknPaymentEredeForGivewp {
      */
     private function load_dependencies(): void {
         $this->loader = new LknPaymentEredeForGivewpLoader();
-    }
-
-    // TODO metodo de processamento de pagamento no debito
-    public function process_debit_3ds_api_payment($payment_data) : void {
-        // Set the configs values
-        $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
-    
-        // Validate nonce.
-        give_validate_nonce($payment_data['gateway_nonce'], 'give-gateway');
-    
-        // Make sure we don't have any left over errors present.
-        give_clear_errors();
-
-        // Any errors?
-        $errors = give_get_errors();
-
-        if ($errors) {
-            give_send_back_to_checkout('?payment-mode=' . $payment_data['post_data']['give-gateway'] . '&error-msg=Erro interno no processamento do pagamento, contate o suporte');
-
-            exit;
-        }
-
-        // Setup the payment details.
-        $payment_array = array(
-            'price' => $payment_data['price'],
-            'give_form_title' => $payment_data['post_data']['give-form-title'],
-            'give_form_id' => (int) ($payment_data['post_data']['give-form-id']),
-            'give_price_id' => isset($payment_data['post_data']['give-price-id']) ? $payment_data['post_data']['give-price-id'] : '',
-            'date' => $payment_data['date'],
-            'user_email' => $payment_data['user_email'],
-            'purchase_key' => $payment_data['purchase_key'],
-            'currency' => give_get_currency($payment_data['post_data']['give-form-id'], $payment_data),
-            'user_info' => $payment_data['user_info'],
-            'status' => 'pending',
-            'gateway' => 'lkn_erede_debit_3ds',
-        );
-
-        $headers = array(
-            'Authorization' => 'Basic ' . base64_encode( $configs['pv'] . ':' . $configs['token'] ),
-            'Content-Type' => 'application/json'
-        );
-
-        $currencyCode = give_get_currency($payment_data['post_data']['give-form-id'], $payment_data);
-        $payment_id = give_insert_payment($payment_array);
-        $amount = number_format($payment_data['price'], 2, '', '');
-        $userAgent = $payment_data['post_data']['lkn_erede_debit_3ds_user_agent'];
-        $colorDepth = $payment_data['post_data']['lkn_erede_debit_3ds_device_color'];
-        $lang = $payment_data['post_data']['lkn_erede_debit_3ds_lang'];
-        $height = $payment_data['post_data']['lkn_erede_debit_3ds_device_height'];
-        $width = $payment_data['post_data']['lkn_erede_debit_3ds_device_width'];
-        $timezone = $payment_data['post_data']['lkn_erede_debit_3ds_timezone'];
-        $logname = date('d.m.Y-H.i.s') . '-debit-3ds';
-
-        $card = array();
-        $splitDate = explode('/', $payment_data['post_data']['lkn_erede_debit_3ds_card_expiry']);
-        $card['expMonth'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[0]));
-        $card['expYear'] = preg_replace('/\D/', '', sanitize_text_field($splitDate[1]));
-        $card['number'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_number']));
-        $card['cvv'] = preg_replace('/\D/', '', sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_cvc']));
-        $card['name'] = sanitize_text_field($payment_data['post_data']['lkn_erede_debit_3ds_card_name']);
-
-        $body = array(
-            'capture' => true,
-            'kind' => 'debit',
-            'reference' => $payment_id,
-            'amount' => $amount,
-            'cardholderName' => $card['name'],
-            'cardNumber' => $card['number'],
-            'expirationMonth' => $card['expMonth'],
-            'expirationYear' => $card['expYear'],
-            'securityCode' => $card['cvv'],
-            'softDescriptor' => $configs['description'],
-            'threeDSecure' => array(
-                'embedded' => true,
-                'onFailure' => 'decline',
-                'userAgent' => $userAgent,
-                'device' => array(
-                    'colorDepth' => $colorDepth,
-                    'deviceType3ds' => 'BROWSER',
-                    'javaEnabled' => false,
-                    'language' => $lang,
-                    'screenHeight' => $height,
-                    'screenWidth' => $width,
-                    'timeZoneOffset' => $timezone
-                )
-            ),
-            'urls' => array(
-                array(
-                    'kind' => 'threeDSecureSuccess',
-                    'url' => give_get_success_page_uri()
-                ),
-                array(
-                    'kind' => 'threeDSecureFailure',
-                    'url' => give_get_failed_transaction_uri()
-                )
-            )
-        );
-
-        $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $payment_data);
-
-        $response = wp_remote_post($configs['api_url'], array(
-            'headers' => $headers,
-            'body' => json_encode($body)
-        ));
-
-        if ('enabled' === $configs['debug']) {
-            LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
-        }
-
-        $response = json_decode(wp_remote_retrieve_body($response));
-
-        $arrMetaData = array(
-            'status' => $response->returnCode ?? '500',
-            'message' => $response->returnMessage ?? 'Error on processing payment',
-            'transaction_id' => $response->tid ?? '0',
-            'capture' => $body['capture']
-        );
-
-        if ('enabled' === $configs['debug']) {
-            $arrMetaData['log'] = $logname;
-        }
-
-        give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
-
-        switch ($response->returnCode) {
-            case '200':
-                give_update_payment_status($payment_id, 'publish');
-
-                give_send_to_success_page();
-
-                exit;
-            case '220':
-                $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
-
-                if (empty($paymentsToVerify)) {
-                    $paymentsToVerify = array();
-                } else {
-                    $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true), true);
-                }
-
-                $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
-                $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
-                give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToVerify);
-
-                wp_redirect($response->threeDSecure->url);
-
-                exit;
-
-            default:
-                give_update_payment_status($payment_id, 'failed');
-
-                wp_redirect(give_get_failed_transaction_uri());
-
-                exit;
-        }
     }
 
     public function define_row_meta($plugin_meta, $plugin_file) :array {

@@ -90,6 +90,5 @@ class LknPaymentEredeForGivewpPublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        
     }
 }

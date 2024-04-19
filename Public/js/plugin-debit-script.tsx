@@ -191,6 +191,7 @@ const lkn_erede_debit_3ds = {
             throw new Error('Gateway failed');
         }
 
+        //TODO lembrar de tirar
         console.log(values);
 
         return {
