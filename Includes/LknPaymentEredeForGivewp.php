@@ -206,6 +206,7 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function load_dependencies(): void {
+        require_once __DIR__ . '/plugin-updater/plugin-update-checker.php';
         $this->loader = new LknPaymentEredeForGivewpLoader();
     }
 

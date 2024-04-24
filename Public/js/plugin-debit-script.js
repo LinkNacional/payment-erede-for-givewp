@@ -7,6 +7,7 @@ function lknSet3DSvalue() {
   const userAgent = navigator.userAgent;
   const date = new Date();
   const timezoneOffset = date.getTimezoneOffset();
+  
   form?.setAttribute('data-payment-language', language);
   form?.setAttribute('data-payment-height', String(height));
   form?.setAttribute('data-payment-width', String(width));
@@ -152,17 +153,17 @@ function lknGet3DSvalue(values) {
   const paymentColorDepth = form?.getAttribute('data-payment-colorDepth');
   const paymentUserAgent = form?.getAttribute('data-payment-userAgent');
   const paymentDate = form?.getAttribute('data-payment-date');
-  const paymenTimezoneOffset = form?.getAttribute('data-payment-timezoneOffset');
+  const paymentTimezoneOffset = form?.getAttribute('data-payment-timezoneOffset');
 
   // Verifica se as informações estão presentes antes de usá-las
-  if (paymentLanguage && paymentHeight && paymentWidth && paymentColorDepth && paymentUserAgent && paymentDate && paymenTimezoneOffset) {
+  if (paymentLanguage && paymentHeight && paymentWidth && paymentColorDepth && paymentUserAgent && paymentDate && paymentTimezoneOffset) {
     values.paymentLanguage = paymentLanguage;
     values.paymentHeight = paymentHeight;
     values.paymentWidth = paymentWidth;
     values.paymentColorDepth = paymentColorDepth;
     values.paymentUserAgent = paymentUserAgent;
     values.paymentDate = paymentDate;
-    values.paymenTimezoneOffset = paymenTimezoneOffset;
+    values.paymentTimezoneOffset = paymentTimezoneOffset;
   } else {
     throw new Error('Dados do 3DS não inseridos');
   }
@@ -176,7 +177,7 @@ const lkn_erede_debit_3ds = {
     if (values.firstname === 'error') {
       throw new Error('Gateway failed');
     }
-    console.log(values);
+
     return {
       ...values
     };

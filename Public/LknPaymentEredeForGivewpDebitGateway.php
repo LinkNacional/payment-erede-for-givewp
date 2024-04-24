@@ -80,7 +80,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $lang = $gatewayData['paymentLanguage'];
             $height = $gatewayData['paymentHeight'];
             $width = $gatewayData['paymentWidth'];
-            $timezone = $gatewayData['paymentDate'];
+            $timezone = $gatewayData['paymentTimezoneOffset'];
             
             //Separando mes e ano.
             $expDate = explode('/', $CardExp);
@@ -97,6 +97,9 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
+
+            //TODO apenas para teste
+            $donUrl = site_url() . '/confirmacao-da-doacao';
       
             $body = array(
                 'capture' => true,
@@ -126,11 +129,11 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'urls' => array(
                     array(
                         'kind' => 'threeDSecureSuccess',
-                        'url' => give_get_sucess_page_uri() //BUG no form legado ele funciona, mas no novo dá esse erro Urls: Invalid parameter size (url/ThreeDSecureSuccess).
+                        'url' => $donUrl //BUG no form legado ele funciona, mas no novo dá esse erro Urls: Invalid parameter size (url/ThreeDSecureSuccess).
                     ),
                     array(
                         'kind' => 'threeDSecureFailure',
-                        'url' => give_get_failed_transaction_uri()
+                        'url' => $donUrl
                     )
                 )
             );
@@ -161,8 +164,10 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 
             give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
 
+
             switch ($response->returnCode) {
                 case '200':
+
                     $donation->status = DonationStatus::COMPLETE();
                     $donation->save();
 
@@ -170,27 +175,11 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                     exit;
 
                 case '220':
-                    // FIXME pensar em como mudar os pagamentos pendentes.
-                    // $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
-
-
-                    // if (empty($paymentsToVerify)) {
-                    //     $paymentsToVerify = array();
-                    // } else {
-                    //     $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true), true);
-                    // }
-
-
-                    // $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
-                    // $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
-
-
-                    // give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToVerify);
 
                     $donation->status = DonationStatus::PENDING();
                     $donation->save();
 
-                    return new RedirectOffsite(urlencode($response->threeDSecure->url));
+                    return new RedirectOffsite($response->threeDSecure->url);
                     exit;
 
                 default:
@@ -204,7 +193,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                         'content' => sprintf(esc_html('Falha na doação. Razão: %s'), $errorMessage)
                     ));
                         
-                    throw new PaymentGatewayException($errorMessage);ref
+                    throw new PaymentGatewayException($errorMessage);
             }
         } catch (Exception $e) {
             $errorMessage = $response->returnMessage ?? 'Error on processing payment';
@@ -240,132 +229,132 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
         do_action('give_before_cc_fields', $form_id); ?>
 
 <fieldset id="give_dc_fields" class="give-do-validate">
-    <legend>
-        Informações de cartão de débito
-    </legend>
+	<legend>
+		Informações de cartão de débito
+	</legend>
 
-    <?php if (is_ssl()) { ?>
-    <div id="give_secure_site_wrapper">
-        <span class="give-icon padlock"></span>
-        <span>
-            Doação Segura por Criptografia SSL
-        </span>
-    </div>
-    <?php }
+	<?php if (is_ssl()) { ?>
+	<div id="give_secure_site_wrapper">
+		<span class="give-icon padlock"></span>
+		<span>
+			Doação Segura por Criptografia SSL
+		</span>
+	</div>
+	<?php }
 
-    if ( ! is_ssl()) {
-        Give()->notices->print_frontend_notice(
-            sprintf(
-                '<strong>%1$s</strong> %2$s',
-                esc_html__('Erro:', 'give'),
-                esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
-            )
-        );
+	if ( ! is_ssl()) {
+	    Give()->notices->print_frontend_notice(
+	        sprintf(
+	            '<strong>%1$s</strong> %2$s',
+	            esc_html__('Erro:', 'give'),
+	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
+	        )
+	    );
 
-        exit;
-    }
+	    exit;
+	}
         ?>
-    <!-- Secure 3DS - Erede -->
-    <input type="hidden" name="gatewayData[paymentUserAgent]" value="" />
-    <input type="hidden" name="gatewayData[paymentColorDepth]" value="" />
-    <input type="hidden" name="gatewayData[paymentLanguage]" value="" />
-    <input type="hidden" name="gatewayData[paymentHeight]" value="" />
-    <input type="hidden" name="gatewayData[paymentWidth]" value="" />
-    <input type="hidden" name="gatewayData[paymentDate]" value="" />
+	<!-- Secure 3DS - Erede -->
+	<input type="hidden" name="gatewayData[paymentUserAgent]" value="" />
+	<input type="hidden" name="gatewayData[paymentColorDepth]" value="" />
+	<input type="hidden" name="gatewayData[paymentLanguage]" value="" />
+	<input type="hidden" name="gatewayData[paymentHeight]" value="" />
+	<input type="hidden" name="gatewayData[paymentWidth]" value="" />
+	<input type="hidden" name="gatewayData[paymentTimezoneOffset]" value="" />
 
-    <script type="text/javascript">
-        const language = window.navigator.language.slice(0, 2)
-        const height = screen.height
-        const width = screen.width
-        const colorDepth = window.screen.colorDepth
-        const userAgent = navigator.userAgent
-        const date = new Date()
-        const timezoneOffset = date.getTimezoneOffset()
+	<script type="text/javascript">
+		const language = window.navigator.language.slice(0, 2)
+		const height = screen.height
+		const width = screen.width
+		const colorDepth = window.screen.colorDepth
+		const userAgent = navigator.userAgent
+		const date = new Date()
+		const timezoneOffset = date.getTimezoneOffset()
 
-        const userAgentInput = document.getElementsByName('gatewayData[paymentUserAgent]')[0]
-        const deviceColorInput = document.getElementsByName('gatewayData[paymentColorDepth]')[0]
-        const langInput = document.getElementsByName('gatewayData[paymentLanguage]')[0]
-        const heightInput = document.getElementsByName('gatewayData[paymentHeight]')[0]
-        const widthInput = document.getElementsByName('gatewayData[paymentWidth]')[0]
-        const timezoneInput = document.getElementsByName('gatewayData[paymentDate]')[0]
+		const userAgentInput = document.getElementsByName('gatewayData[paymentUserAgent]')[0]
+		const deviceColorInput = document.getElementsByName('gatewayData[paymentColorDepth]')[0]
+		const langInput = document.getElementsByName('gatewayData[paymentLanguage]')[0]
+		const heightInput = document.getElementsByName('gatewayData[paymentHeight]')[0]
+		const widthInput = document.getElementsByName('gatewayData[paymentWidth]')[0]
+		const timezoneInput = document.getElementsByName('gatewayData[paymentTimezoneOffset]')[0]
 
-        if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-            userAgentInput.value = userAgent
-            deviceColorInput.value = colorDepth
-            langInput.value = language
-            heightInput.value = height
-            widthInput.value = width
-            timezoneInput.value = timezoneOffset
-        }
-    </script>
+		if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
+			userAgentInput.value = userAgent
+			deviceColorInput.value = colorDepth
+			langInput.value = language
+			heightInput.value = height
+			widthInput.value = width
+			timezoneInput.value = timezoneOffset
+		}
+	</script>
 
-    <!-- CARD NUMBER INPUT -->
-    <div id="give-card-number-wrap"
-        class="form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-        <label for="card_number-<?php esc_attr_e($form_id); ?>"
-            class="give-label">
-            Número do cartão
-            <span class="give-required-indicator">*</span>
-            <span class="give-tooltip hint--top hint--medium hint--bounce"
-                aria-label="Normalmente possui 16 digitos na frente do seu cartão de débito." rel="tooltip"><i
-                    class="give-icon give-icon-question"></i></span>
-        </label>
-        <input type="tel" autocomplete="off" name="gatewayData[paymentCardNum]"
-            id="card_number-<?php esc_attr_e($form_id); ?>"
-            class="card-number give-input required" placeholder="Número do cartão" required="" aria-required="true" />
-    </div>
+	<!-- CARD NUMBER INPUT -->
+	<div id="give-card-number-wrap"
+		class="form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap">
+		<label for="card_number-<?php esc_attr_e($form_id); ?>"
+			class="give-label">
+			Número do cartão
+			<span class="give-required-indicator">*</span>
+			<span class="give-tooltip hint--top hint--medium hint--bounce"
+				aria-label="Normalmente possui 16 digitos na frente do seu cartão de débito." rel="tooltip"><i
+					class="give-icon give-icon-question"></i></span>
+		</label>
+		<input type="tel" autocomplete="off" name="gatewayData[paymentCardNum]"
+			id="card_number-<?php esc_attr_e($form_id); ?>"
+			class="card-number give-input required" placeholder="Número do cartão" required="" aria-required="true" />
+	</div>
 
-    <!-- CARD EXPIRY INPUT -->
-    <div id="give-card-expiration-wrap"
-        class="card-expiration form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-        <label
-            for="give-card-expiration-field-<?php esc_attr_e($form_id); ?>"
-            class="give-label">
-            Expiração
-            <span class="give-required-indicator">*</span>
-            <span class="give-tooltip give-icon give-icon-question"
-                data-tooltip="A data de expiração do cartão de débito, geralmente na frente do cartão."></span>
-        </label>
-        <input type="tel" autocomplete="off" name="gatewayData[paymentCardExp]"
-            id="card_expiry-<?php esc_attr_e($form_id); ?>"
-            class="card-expiry give-input required" placeholder="MM / AAAA" required="" aria-required="true" />
-    </div>
+	<!-- CARD EXPIRY INPUT -->
+	<div id="give-card-expiration-wrap"
+		class="card-expiration form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
+		<label
+			for="give-card-expiration-field-<?php esc_attr_e($form_id); ?>"
+			class="give-label">
+			Expiração
+			<span class="give-required-indicator">*</span>
+			<span class="give-tooltip give-icon give-icon-question"
+				data-tooltip="A data de expiração do cartão de débito, geralmente na frente do cartão."></span>
+		</label>
+		<input type="tel" autocomplete="off" name="gatewayData[paymentCardExp]"
+			id="card_expiry-<?php esc_attr_e($form_id); ?>"
+			class="card-expiry give-input required" placeholder="MM / AAAA" required="" aria-required="true" />
+	</div>
 
-    <!-- CARD HOLDER INPUT -->
-    <div id="give-card-name-wrap" class="form-row form-row-two-thirds form-row-responsive">
-        <label
-            for="give-card-name-field-<?php esc_attr_e($form_id); ?>"
-            class="give-label">
-            Nome do títular do cartão
-            <span class="give-required-indicator">*</span>
-            <span class="give-tooltip give-icon give-icon-question"
-                data-tooltip="O nome do titular da conta do cartão de débito.">
-            </span>
-        </label>
-        <input type="text" autocomplete="off"
-            id="give-card-name-field-<?php esc_attr_e($form_id); ?>"
-            name="gatewayData[paymentCardName]" class="card-name give-input required"
-            placeholder="Nome do titular do cartão" required="" aria-required="true" />
-    </div>
+	<!-- CARD HOLDER INPUT -->
+	<div id="give-card-name-wrap" class="form-row form-row-two-thirds form-row-responsive">
+		<label
+			for="give-card-name-field-<?php esc_attr_e($form_id); ?>"
+			class="give-label">
+			Nome do títular do cartão
+			<span class="give-required-indicator">*</span>
+			<span class="give-tooltip give-icon give-icon-question"
+				data-tooltip="O nome do titular da conta do cartão de débito.">
+			</span>
+		</label>
+		<input type="text" autocomplete="off"
+			id="give-card-name-field-<?php esc_attr_e($form_id); ?>"
+			name="gatewayData[paymentCardName]" class="card-name give-input required"
+			placeholder="Nome do titular do cartão" required="" aria-required="true" />
+	</div>
 
-    <!-- CARD CVV INPUT -->
-    <div id="give-card-cvc-wrap"
-        class="form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
-        <label
-            for="give-card-cvc-field-<?php esc_attr_e($form_id); ?>"
-            class="give-label">
-            CVV
-            <span class="give-required-indicator">*</span>
-            <span class="give-tooltip give-icon give-icon-question"
-                data-tooltip="São os 3 ou 4 dígitos que estão atrás do seu cartão de débito."></span>
-        </label>
-        <div id="give-card-cvc-field-<?php esc_attr_e($form_id); ?>"
-            class="input empty give-lkn-cielo-api-cc-field give-lkn-cielo-api-card-cvc-field"></div>
-        <input type="tel" size="4" maxlength="4" autocomplete="off" name="gatewayData[paymentCardCVC]"
-            id="card_cvc-<?php esc_attr_e($form_id); ?>"
-            class="give-input required" placeholder="CVV" required="" aria-required="true" />
-    </div>
-    <?php
+	<!-- CARD CVV INPUT -->
+	<div id="give-card-cvc-wrap"
+		class="form-row form-row-one-third form-row-responsive give-lkn-cielo-api-cc-field-wrap">
+		<label
+			for="give-card-cvc-field-<?php esc_attr_e($form_id); ?>"
+			class="give-label">
+			CVV
+			<span class="give-required-indicator">*</span>
+			<span class="give-tooltip give-icon give-icon-question"
+				data-tooltip="São os 3 ou 4 dígitos que estão atrás do seu cartão de débito."></span>
+		</label>
+		<div id="give-card-cvc-field-<?php esc_attr_e($form_id); ?>"
+			class="input empty give-lkn-cielo-api-cc-field give-lkn-cielo-api-card-cvc-field"></div>
+		<input type="tel" size="4" maxlength="4" autocomplete="off" name="gatewayData[paymentCardCVC]"
+			id="card_cvc-<?php esc_attr_e($form_id); ?>"
+			class="give-input required" placeholder="CVV" required="" aria-required="true" />
+	</div>
+	<?php
         do_action('give_after_dc_expiration', $form_id, $args);
 
         do_action('give_lkn_payment_erede_after_dc_expiration', $form_id, $args);
