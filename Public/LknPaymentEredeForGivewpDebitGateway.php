@@ -36,14 +36,14 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
      * @inheritDoc
      */
     public function getName(): string {
-        return __('E-Rede API - Debit Card 3DS', 'lkn_erede_debit_3ds');
+        return 'E-Rede API - Debit Card 3DS';
     }
 
     /**
      * @inheritDoc
      */
     public function getPaymentMethodLabel(): string {
-        return __('E-Rede - Debit Card', 'lkn_erede_debit_3ds');
+        return 'E-Rede - Debit Card';
     }
 
     /**
@@ -97,6 +97,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
+
 
             //TODO apenas para teste
             $donUrl = site_url() . '/confirmacao-da-doacao';
@@ -246,8 +247,8 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 	    Give()->notices->print_frontend_notice(
 	        sprintf(
 	            '<strong>%1$s</strong> %2$s',
-	            esc_html__('Erro:', 'give'),
-	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
+	            esc_html('Erro:'),
+	            esc_html('Doação desabilitada por falta de SSL (HTTPS).')
 	        )
 	    );
 

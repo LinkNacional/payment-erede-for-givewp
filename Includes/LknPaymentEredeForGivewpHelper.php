@@ -34,7 +34,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $configs['token'] = give_get_option('lkn_erede_credit_token_setting_field', '');
                 $configs['billing_fields'] = give_get_option('lkn_erede_credit_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_credit_debug_setting_field', 'disabled');
-                $description = give_get_option('lkn_erede_credit_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
+                $description = give_get_option('lkn_erede_credit_softdescription_setting_field', 'Doação');
                 $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {
@@ -50,7 +50,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $configs['token'] = give_get_option('lkn_erede_debit_3ds_token_setting_field', '');
                 $configs['billing_fields'] = give_get_option('lkn_erede_debit_3ds_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_debit_3ds_debug_setting_field', 'disabled');
-                $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', __('Donation', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN));
+                $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', 'Doação');
                 $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
 
                 if ('production' === $configs['env']) {

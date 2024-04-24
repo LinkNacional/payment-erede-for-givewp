@@ -218,7 +218,7 @@ class LknPaymentEredeForGivewp {
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways'),
-            __('Settings', 'give')
+            'Settings',
         );
     
         return array_merge($plugin_meta, $new_meta_links);
@@ -271,13 +271,13 @@ class LknPaymentEredeForGivewp {
         // Admin notice.
         $message = sprintf(
             '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
-            __('Activation error:', ''),
-            __('You need to have', ''),
+            'Activation error:', 
+            'You need to have', 
             'https://givewp.com',
-            __('Give WP', ''),
-            __('version', ''),
+            'Give WP', 
+            'version', 
             PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
-            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', '')
+            'for the Payment Gateway E-Rede for GiveWP plugin to activate.',
         );
 
         echo $message;
