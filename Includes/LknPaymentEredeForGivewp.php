@@ -240,7 +240,7 @@ class LknPaymentEredeForGivewp {
             // Min. Give. plugin version.
 
             // Show admin notice.
-            add_action('admin_notices', array('Payment_Erede_For_Givewp', 'givewp_dependency_notice'));
+            add_action('admin_notices', array($this, 'givewp_dependency_notice'));
 
             $is_deactivate_plugin = true;
         }
@@ -248,7 +248,7 @@ class LknPaymentEredeForGivewp {
         $is_give_active = defined('GIVE_PLUGIN_BASENAME') ? is_plugin_active(GIVE_PLUGIN_BASENAME) : false;
 
         if ( ! $is_give_active) {
-            add_action('admin_notices', array('Payment_Erede_For_Givewp', 'givewp_dependency_notice'));
+            add_action('admin_notices', array($this, 'givewp_dependency_notice'));
 
             $is_deactivate_plugin = true;
         }
