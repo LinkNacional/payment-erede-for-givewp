@@ -99,9 +99,10 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $amount = number_format($amount, 2, '', '');
 
 
-            //TODO apenas para teste
-            $donUrl = site_url() . '/confirmacao-da-doacao';
-      
+            //Url de retorno api
+            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' .   $payment_id;
+            $donUrlFailure = site_url() . '/a-doacao-falhou';
+
             $body = array(
                 'capture' => true,
                 'kind' => 'debit',
@@ -130,11 +131,11 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'urls' => array(
                     array(
                         'kind' => 'threeDSecureSuccess',
-                        'url' => $donUrl //BUG no form legado ele funciona, mas no novo dá esse erro Urls: Invalid parameter size (url/ThreeDSecureSuccess).
+                        'url' => $donUrlSucess 
                     ),
                     array(
                         'kind' => 'threeDSecureFailure',
-                        'url' => $donUrl
+                        'url' => $donUrlFailure
                     )
                 )
             );
@@ -176,6 +177,18 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                     exit;
 
                 case '220':
+
+                    $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
+
+                    if (empty($paymentsToVerify)) {
+                        $paymentsToVerify = array();
+                    } else {
+                        $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true), true);
+                    }
+    
+                    $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
+                    $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
+                    give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToVerify);
 
                     $donation->status = DonationStatus::PENDING();
                     $donation->save();

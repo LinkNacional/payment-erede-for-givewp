@@ -104,67 +104,41 @@ class LknPaymentEredeForGivewp {
     }
 
     // BUG mudar logica
-    public function verify_payment(): bool {
+    public function verify_payment() : bool {
         $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
+        $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true) ?: '[]', true);
     
-        if (empty($paymentsToVerify)) {
-            $paymentsToVerify = array();
-        } else {
-            // Tente decodificar a opção de pagamento pendente
-            $decodedPayments = json_decode(base64_decode($paymentsToVerify, true), true);
-    
-            if ( ! is_array($decodedPayments)) {
-                $decodedPayments = array();
-            }
-    
-            $paymentsToVerify = $decodedPayments;
-        }
-    
-        $paymentCounter = count($paymentsToVerify);
-    
-        if ($paymentCounter > 0) {
+        if (is_array($paymentsToVerify) && !empty($paymentsToVerify)) {
             $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
-    
             $authorization = base64_encode($configs['pv'] . ':' . $configs['token']);
-            $paymentsToValidate = array();
+            $paymentsToValidate = [];
             $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
-    
-            $headers = array(
+            $headers = [
                 'Authorization' => 'Basic ' . $authorization,
                 'Content-Type' => 'application/json'
-            );
+            ];
     
             foreach ($paymentsToVerify as $payment) {
-                $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . $payment['id'], array(
-                    'headers' => $headers
-                ));
-    
-                if (is_wp_error($responseRaw)) {
-                    // Erro na solicitação HTTP, tratamento de erro necessário
-                    error_log('Erro na solicitação HTTP: ' . $responseRaw->get_error_message());
-                    continue; // Avança para o próximo pagamento
-                }
-    
+                $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . $payment['id'], ['headers' => $headers]);
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
     
-                if ( ! $response) {
-                    // Resposta inválida, tratamento de erro necessário
-                    error_log('Resposta inválida da API');
-                    continue; // Avança para o próximo pagamento
-                }
-    
                 if ('enabled' === $configs['debug']) {
-                    // Registro de depuração
-                    LknPaymentEredeForGivewpHelper::log('VERIFY PAYMENT - [Response]: ' . var_export($response, true) . ' [INFO]: ' . var_export($payment, true), $logname);
+                    // Realizar o logging da informação relevante
+                    $rawHeaders = wp_remote_retrieve_headers($responseRaw);
+                    $logMessage = 'VERIFY PAYMENT - [Raw header]: ' . var_export($rawHeaders, true) . PHP_EOL .
+                                ' [INFO]: ' . var_export($payment, true) . PHP_EOL .
+                                ' [BODY]: ' . var_export($response, true);
+
+                    LknPaymentEredeForGivewpHelper::log($logMessage, $logname);
                 }
     
                 switch ($response->returnCode) {
                     case '00':
                         give_update_payment_status($payment['id'], 'publish');
                         break;
+    
                     case '78':
                         $counter = (int) $payment['count'] + 1;
-    
                         if ($counter > 5) {
                             give_update_payment_status($payment['id'], 'failed');
                         } else {
@@ -172,18 +146,17 @@ class LknPaymentEredeForGivewp {
                             $paymentsToValidate[] = $payment;
                         }
                         break;
+    
                     default:
                         give_update_payment_status($payment['id'], 'failed');
                         break;
                 }
             }
     
-            if ( ! empty($paymentsToValidate)) {
-                $encodedPaymentsToValidate = base64_encode(json_encode($paymentsToValidate));
-                give_update_option('lkn_erede_debit_3ds_payments_pending', $encodedPaymentsToValidate);
-            } else {
-                give_update_option('lkn_erede_debit_3ds_payments_pending', '');
-            }
+            $pendingPayments = !empty($paymentsToValidate) ? base64_encode(json_encode($paymentsToValidate)) : '';
+            give_update_option('lkn_erede_debit_3ds_payments_pending', $pendingPayments);
+        } else {
+            give_update_option('lkn_erede_debit_3ds_payments_pending', '');
         }
     
         return true;
