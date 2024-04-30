@@ -98,15 +98,14 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
 
-
             //Url de retorno api
-            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' .   $payment_id;
+            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' . $payment_id;
             $donUrlFailure = site_url() . '/a-doacao-falhou';
 
             $body = array(
                 'capture' => true,
                 'kind' => 'debit',
-                'reference' => $payment_id,
+                'reference' => 'order' . $payment_id,
                 'amount' => $amount,
                 'cardholderName' => $CardName,
                 'cardNumber' => $cardNum,
@@ -131,7 +130,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'urls' => array(
                     array(
                         'kind' => 'threeDSecureSuccess',
-                        'url' => $donUrlSucess 
+                        'url' => $donUrlSucess
                     ),
                     array(
                         'kind' => 'threeDSecureFailure',
@@ -165,7 +164,6 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             }
 
             give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
-
 
             switch ($response->returnCode) {
                 case '200':

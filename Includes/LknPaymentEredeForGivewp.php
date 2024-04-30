@@ -2,6 +2,8 @@
 
 namespace Lkn\PaymentEredeForGivewp\Includes;
 
+use Give\Donations\Models\Donation;
+use Give\Donations\ValueObjects\DonationStatus;
 use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
 use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
 use Lkn_Puc_Plugin_UpdateChecker;
@@ -91,69 +93,80 @@ class LknPaymentEredeForGivewp {
         }
 
         if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_verify_payment' ) ) {
-            add_filter( 'cron_schedules', function( $schedules ) {
-                $schedules['every_minute'] = array(
-                    'interval' => 60, 
-                    'display' => 'A cada minuto',
-                );
-                return $schedules;
-            });
-
             wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
         }
     }
 
-    // BUG mudar logica
     public function verify_payment() : bool {
         $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
         $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true) ?: '[]', true);
+        $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
     
-        if (is_array($paymentsToVerify) && !empty($paymentsToVerify)) {
+        if (is_array($paymentsToVerify) && ! empty($paymentsToVerify)) {
             $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
             $authorization = base64_encode($configs['pv'] . ':' . $configs['token']);
-            $paymentsToValidate = [];
+            $paymentsToValidate = array();
             $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
-            $headers = [
+            $headers = array(
                 'Authorization' => 'Basic ' . $authorization,
                 'Content-Type' => 'application/json'
-            ];
-    
+            );
+
             foreach ($paymentsToVerify as $payment) {
-                $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . $payment['id'], ['headers' => $headers]);
+                $donation_payment = Donation::find($payment['id']);
+                
+                $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . 'order' . $payment['id'], array('headers' => $headers));
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
     
                 if ('enabled' === $configs['debug']) {
                     // Realizar o logging da informação relevante
                     $rawHeaders = wp_remote_retrieve_headers($responseRaw);
-                    $logMessage = 'VERIFY PAYMENT - [Raw header]: ' . var_export($rawHeaders, true) . PHP_EOL .
-                                ' [INFO]: ' . var_export($payment, true) . PHP_EOL .
+                    $logMessage = 'VERIFY PAYMENT - [Raw header]: ' . var_export($rawHeaders, true) . \PHP_EOL .
+                                ' [INFO]: ' . var_export($payment, true) . \PHP_EOL .
                                 ' [BODY]: ' . var_export($response, true);
 
                     LknPaymentEredeForGivewpHelper::log($logMessage, $logname);
                 }
     
-                switch ($response->returnCode) {
+                if ($response && isset($response->authorization) && isset($response->authorization->returnCode)) {
+                    $returnCode = $response->authorization->returnCode;
+
+                } elseif ($response && isset($response->returnCode)) {
+                    $returnCode = $response->returnCode;
+
+                } else {
+                    $donation_payment->status = DonationStatus::FAILED();
+                    $donation_payment->save();
+                    continue; 
+                }
+
+                // Atualizar o status da doação com base no código de retorno
+                switch ($returnCode) {
                     case '00':
-                        give_update_payment_status($payment['id'], 'publish');
+                        // Transação aprovada, atualizar o status da doação para COMPLETE
+                        $donation_payment->status = DonationStatus::COMPLETE();
+                        $donation_payment->save();
                         break;
-    
                     case '78':
-                        $counter = (int) $payment['count'] + 1;
+                        $counter = isset($payment['count']) ? (int) $payment['count'] + 1 : 1;
+
                         if ($counter > 5) {
-                            give_update_payment_status($payment['id'], 'failed');
+                            $donation_payment->status = DonationStatus::FAILED();
+                            $donation_payment->save();
                         } else {
                             $payment['count'] = $counter;
                             $paymentsToValidate[] = $payment;
                         }
                         break;
-    
                     default:
-                        give_update_payment_status($payment['id'], 'failed');
+                        // Outro código de retorno não esperado, marcar a doação como FAILED
+                        $donation_payment->status = DonationStatus::FAILED();
+                        $donation_payment->save();
                         break;
                 }
             }
     
-            $pendingPayments = !empty($paymentsToValidate) ? base64_encode(json_encode($paymentsToValidate)) : '';
+            $pendingPayments = ! empty($paymentsToValidate) ? base64_encode(json_encode($paymentsToValidate)) : '';
             give_update_option('lkn_erede_debit_3ds_payments_pending', $pendingPayments);
         } else {
             give_update_option('lkn_erede_debit_3ds_payments_pending', '');
@@ -244,11 +257,11 @@ class LknPaymentEredeForGivewp {
         // Admin notice.
         $message = sprintf(
             '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
-            'Activation error:', 
-            'You need to have', 
+            'Activation error:',
+            'You need to have',
             'https://givewp.com',
-            'Give WP', 
-            'version', 
+            'Give WP',
+            'version',
             PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
             'for the Payment Gateway E-Rede for GiveWP plugin to activate.',
         );
