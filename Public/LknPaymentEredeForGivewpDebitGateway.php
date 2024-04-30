@@ -176,7 +176,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 
                 case '220':
 
-                    $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
+                    $paymentsToVerify = give_get_option('lkn_erede_3ds_payments_pending', '');
 
                     if (empty($paymentsToVerify)) {
                         $paymentsToVerify = array();
@@ -186,7 +186,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
     
                     $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
                     $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
-                    give_update_option('lkn_erede_debit_3ds_payments_pending', $paymentsToVerify);
+                    give_update_option('lkn_erede_3ds_payments_pending', $paymentsToVerify);
 
                     $donation->status = DonationStatus::PENDING();
                     $donation->save();

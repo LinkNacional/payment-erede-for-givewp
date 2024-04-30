@@ -98,15 +98,15 @@ class LknPaymentEredeForGivewp {
     }
 
     public function verify_payment() : bool {
-        $paymentsToVerify = give_get_option('lkn_erede_debit_3ds_payments_pending', '');
+        $paymentsToVerify = give_get_option('lkn_erede_3ds_payments_pending', '');
         $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true) ?: '[]', true);
-        $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
+        $logname = date('d.m.Y-H.i.s') . '-3ds-verification';
     
         if (is_array($paymentsToVerify) && ! empty($paymentsToVerify)) {
             $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
             $authorization = base64_encode($configs['pv'] . ':' . $configs['token']);
             $paymentsToValidate = array();
-            $logname = date('d.m.Y-H.i.s') . '-debit-3ds-verification';
+            $logname = date('d.m.Y-H.i.s') . '-3ds-verification';
             $headers = array(
                 'Authorization' => 'Basic ' . $authorization,
                 'Content-Type' => 'application/json'
@@ -167,9 +167,9 @@ class LknPaymentEredeForGivewp {
             }
     
             $pendingPayments = ! empty($paymentsToValidate) ? base64_encode(json_encode($paymentsToValidate)) : '';
-            give_update_option('lkn_erede_debit_3ds_payments_pending', $pendingPayments);
+            give_update_option('lkn_erede_3ds_payments_pending', $pendingPayments);
         } else {
-            give_update_option('lkn_erede_debit_3ds_payments_pending', '');
+            give_update_option('lkn_erede_3ds_payments_pending', '');
         }
     
         return true;

@@ -1,3 +1,21 @@
+function lknCreditSet3DSvalue() {
+  const form = document.querySelector('button[type="submit"]')?.closest('form');
+  const language = window.navigator.language.slice(0, 2);
+  const height = screen.height;
+  const width = screen.width;
+  const colorDepth = window.screen.colorDepth;
+  const userAgent = navigator.userAgent;
+  const date = new Date();
+  const timezoneOffset = date.getTimezoneOffset();
+  form?.setAttribute('data-payment-language', language);
+  form?.setAttribute('data-payment-height', String(height));
+  form?.setAttribute('data-payment-width', String(width));
+  form?.setAttribute('data-payment-colorDepth', String(colorDepth));
+  form?.setAttribute('data-payment-userAgent', userAgent);
+  form?.setAttribute('data-payment-date', date.toISOString());
+  form?.setAttribute('data-payment-timezoneOffset', String(timezoneOffset));
+}
+
 // Máscara para número de cartão de crédito
 function lknCreditCardMask(inputHTML) {
   let cardNumber = inputHTML.target.value.replace(/\D/gmi, ''); // Remover caracteres não numéricos
@@ -124,11 +142,35 @@ function lknSetDataCard(values) {
     values.paymentCardExp = cardExpiration;
   }
 }
+function lknCreditGet3DSvalue(values) {
+  const form = document.querySelector('button[type="submit"]')?.closest('form');
+  const paymentLanguage = form?.getAttribute('data-payment-language');
+  const paymentHeight = form?.getAttribute('data-payment-height');
+  const paymentWidth = form?.getAttribute('data-payment-width');
+  const paymentColorDepth = form?.getAttribute('data-payment-colorDepth');
+  const paymentUserAgent = form?.getAttribute('data-payment-userAgent');
+  const paymentDate = form?.getAttribute('data-payment-date');
+  const paymentTimezoneOffset = form?.getAttribute('data-payment-timezoneOffset');
+
+  // Verifica se as informações estão presentes antes de usá-las
+  if (paymentLanguage && paymentHeight && paymentWidth && paymentColorDepth && paymentUserAgent && paymentDate && paymentTimezoneOffset) {
+    values.paymentLanguage = paymentLanguage;
+    values.paymentHeight = paymentHeight;
+    values.paymentWidth = paymentWidth;
+    values.paymentColorDepth = paymentColorDepth;
+    values.paymentUserAgent = paymentUserAgent;
+    values.paymentDate = paymentDate;
+    values.paymentTimezoneOffset = paymentTimezoneOffset;
+  } else {
+    throw new Error('Dados do 3DS não inseridos');
+  }
+}
 const lkn_erede_credit = {
   id: 'lkn_erede_credit',
   async initialize() {},
   async beforeCreatePayment(values) {
     lknSetDataCard(values);
+    lknCreditGet3DSvalue(values);
     if (values.firstname === 'error') {
       throw new Error('Gateway failed');
     }
@@ -139,6 +181,9 @@ const lkn_erede_credit = {
   },
   async afterCreatePayment(response) {},
   Fields() {
+    setTimeout(() => {
+      lknCreditSet3DSvalue(); // Chamar a função após o atraso de 1 segundo
+    }, 1000);
     function isSSL() {
       return window.location.protocol === 'https:';
     }

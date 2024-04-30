@@ -9,6 +9,7 @@ use Give\Framework\Exceptions\Primitives\Exception;
 use Give\Framework\PaymentGateways\Commands\GatewayCommand;
 use Give\Framework\PaymentGateways\Commands\PaymentComplete;
 use Give\Framework\PaymentGateways\Commands\PaymentRefunded;
+use Give\Framework\PaymentGateways\Commands\RedirectOffsite;
 use Give\Framework\PaymentGateways\Exceptions\PaymentGatewayException;
 use Give\Framework\PaymentGateways\PaymentGateway;
 use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpHelper;
@@ -60,6 +61,14 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
             // Set the configs values
             $configs = LknPaymentEredeForGivewpHelper::get_configs('credit');
             $logname = date('d.m.Y-H.i.s') . '-credit';
+            $withoutAuth3DS = $configs['withoutAuth3DS'];
+
+            if ('enabled' == $withoutAuth3DS){
+                $onFailure = 'continue';
+            }else{
+                $onFailure = 'decline';
+            }
+
 
             $donation->firstName = sanitize_text_field($donation->firstName);
             $donation->lastName = sanitize_text_field($donation->lastName);
@@ -72,6 +81,14 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
             $CardCVC = $gatewayData['paymentCardCVC'];
             $CardName = sanitize_text_field($gatewayData['paymentCardName']);
             $CardExp = $gatewayData['paymentCardExp'];
+
+            // 3DS.
+            $userAgent = $gatewayData['paymentUserAgent'];
+            $colorDepth = $gatewayData['paymentColorDepth'];
+            $lang = $gatewayData['paymentLanguage'];
+            $height = $gatewayData['paymentHeight'];
+            $width = $gatewayData['paymentWidth'];
+            $timezone = $gatewayData['paymentTimezoneOffset'];
             
             //Separando mes e ano
             $expDate = explode('/', $CardExp);
@@ -89,10 +106,14 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
 
+            //Url de retorno api
+            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' . $payment_id;
+            $donUrlFailure = site_url() . '/a-doacao-falhou';
+
             $body = array(
-                'capture' => true,
+                'capture' => false,
                 'kind' => 'credit',
-                'reference' => $payment_id,
+                'reference' => 'order' . $payment_id,
                 'amount' => $amount,
                 'cardholderName' => $CardName,
                 'cardNumber' => $cardNum,
@@ -100,12 +121,29 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 'expirationYear' => $cardExpiryYear,
                 'securityCode' => $CardCVC,
                 'softDescriptor' => $configs['description'],
-                'subscription' => false,
-                'origin' => 1,
-                'distributorAffiliation' => 0,
-                'storageCard' => '0',
-                'transactionCredentials' => array(
-                    'credentialId' => '01'
+                'threeDSecure' => array(
+                    'embedded' => true,
+                    'onFailure' => $onFailure, //Dinamico de acordo com oq o admin seleciona nas configs
+                    'userAgent' => $userAgent,
+                    'device' => array(
+                        'colorDepth' => $colorDepth,
+                        'deviceType3ds' => 'BROWSER',
+                        'javaEnabled' => false,
+                        'language' => $lang,
+                        'screenHeight' => $height,
+                        'screenWidth' => $width,
+                        'timeZoneOffset' => $timezone
+                    )
+                ),
+                'urls' => array(
+                    array(
+                        'kind' => 'threeDSecureSuccess',
+                        'url' => $donUrlSucess
+                    ),
+                    array(
+                        'kind' => 'threeDSecureFailure',
+                        'url' => $donUrlFailure
+                    )
                 )
             );
 
@@ -136,27 +174,46 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
             give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
 
             switch ($response->returnCode) {
-                case '00':
+                case '200':
 
                     $donation->status = DonationStatus::COMPLETE();
                     $donation->save();
 
                     return new PaymentComplete($payment_id);
-                    break;
+                    exit;
+
+                case '220':
+
+                    $paymentsToVerify = give_get_option('lkn_erede_3ds_payments_pending', '');
+
+                    if (empty($paymentsToVerify)) {
+                        $paymentsToVerify = array();
+                    } else {
+                        $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true), true);
+                    }
+    
+                    $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
+                    $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
+                    give_update_option('lkn_erede_3ds_payments_pending', $paymentsToVerify);
+
+                    $donation->status = DonationStatus::PENDING();
+                    $donation->save();
+
+                    return new RedirectOffsite($response->threeDSecure->url);
+                    exit;
 
                 default:
                     $errorMessage = $response->returnMessage ?? 'Error on processing payment';
 
                     $donation->status = DonationStatus::FAILED();
                     $donation->save();
-                
+                        
                     DonationNote::create(array(
                         'donationId' => $donation->id,
                         'content' => sprintf(esc_html('Falha na doação. Razão: %s'), $errorMessage)
                     ));
-                
+                        
                     throw new PaymentGatewayException($errorMessage);
-                    break;
             }
         } catch (Exception $e) {
             $errorMessage = $response->returnMessage ?? 'Error on processing payment';
@@ -216,7 +273,43 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 
 	    exit;
 	}
-        ?>
+    
+    ?>
+
+        <!-- Secure 3DS - Erede -->
+	<input type="hidden" name="gatewayData[paymentUserAgent]" value="" />
+	<input type="hidden" name="gatewayData[paymentColorDepth]" value="" />
+	<input type="hidden" name="gatewayData[paymentLanguage]" value="" />
+	<input type="hidden" name="gatewayData[paymentHeight]" value="" />
+	<input type="hidden" name="gatewayData[paymentWidth]" value="" />
+	<input type="hidden" name="gatewayData[paymentTimezoneOffset]" value="" />
+
+	<script type="text/javascript">
+		const language = window.navigator.language.slice(0, 2)
+		const height = screen.height
+		const width = screen.width
+		const colorDepth = window.screen.colorDepth
+		const userAgent = navigator.userAgent
+		const date = new Date()
+		const timezoneOffset = date.getTimezoneOffset()
+
+		const userAgentInput = document.getElementsByName('gatewayData[paymentUserAgent]')[0]
+		const deviceColorInput = document.getElementsByName('gatewayData[paymentColorDepth]')[0]
+		const langInput = document.getElementsByName('gatewayData[paymentLanguage]')[0]
+		const heightInput = document.getElementsByName('gatewayData[paymentHeight]')[0]
+		const widthInput = document.getElementsByName('gatewayData[paymentWidth]')[0]
+		const timezoneInput = document.getElementsByName('gatewayData[paymentTimezoneOffset]')[0]
+
+		if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
+			userAgentInput.value = userAgent
+			deviceColorInput.value = colorDepth
+			langInput.value = language
+			heightInput.value = height
+			widthInput.value = width
+			timezoneInput.value = timezoneOffset
+		}
+	</script>
+
 	<!-- CARD NUMBER INPUT -->
 	<div id="give-card-number-wrap"
 		class="form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap">

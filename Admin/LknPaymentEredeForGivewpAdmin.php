@@ -192,6 +192,18 @@ class LknPaymentEredeForGivewpAdmin {
                         'disabled' => 'Disabled'
                     ),
                 );
+
+                $settings[] = array(
+                    'name' => 'Seguir transação sem autenticação Erede 3DS 2.0',
+                    'id' => 'lkn_erede_credit_transaction_without_authentication',
+                    'desc' => 'Caso esteja com a opção habilitada segue a transação sem autenticação do Erede 3DS 2.0.',
+                    'type' => 'radio',
+                    'default' => 'disabled',
+                    'options' => array(
+                        'enabled' => 'Habilitar',
+                        'disabled' => 'Desabilitar',
+                    ),
+                );
     
                 $settings[] = array(
                     'name' => 'Debug mode',
