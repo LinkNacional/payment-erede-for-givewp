@@ -6,8 +6,6 @@ use Give\Donations\Models\Donation;
 use Give\Donations\ValueObjects\DonationStatus;
 use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
 use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
-use Lkn_Puc_Plugin_UpdateChecker;
-use WP_REST_Server;
 
 /**
  * The file that defines the core plugin class
@@ -193,7 +191,6 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function load_dependencies(): void {
-        require_once __DIR__ . '/plugin-updater/plugin-update-checker.php';
         $this->loader = new LknPaymentEredeForGivewpLoader();
     }
 
@@ -306,7 +303,6 @@ class LknPaymentEredeForGivewp {
      */
     private function define_admin_hooks(): void {
         $plugin_admin = new LknPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
-        $this->loader->add_action('give_init', $this, 'updater_init');
 
         $this->loader->add_action( 'template_redirect', $this,'custom_check_redirect_params' );
 
@@ -390,15 +386,5 @@ class LknPaymentEredeForGivewp {
      */
     public function get_version() {
         return $this->version;
-    }
-
-    public function updater_init() {
-        if (class_exists('Lkn_Puc_Plugin_UpdateChecker')) {
-            return new Lkn_Puc_Plugin_UpdateChecker(
-                'https://api.linknacional.com.br/v2/u/?slug=payment-erede-for-givewp',
-                PAYMENT_EREDE_FOR_GIVEWP_FILE,
-                'payment-erede-for-givewp'
-            );
-        }
     }
 }
