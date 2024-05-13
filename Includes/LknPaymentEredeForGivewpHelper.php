@@ -89,13 +89,13 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $logDate = $logYear . '-' . $logMonth . '-' . $logDay;
     
                 $logDate = new DateTime($logDate);
-                $now = new DateTime(date('Y-m-d'));
+                $now = new DateTime(gmdate('Y-m-d'));
     
                 $interval = $logDate->diff($now);
                 $logAge = $interval->format('%a');
     
                 if ($logAge >= 15) {
-                    unlink($logsPath . '/' . $logFilename);
+                    wp_delete_file($logsPath . '/' . $logFilename);
                 }
             }
         }

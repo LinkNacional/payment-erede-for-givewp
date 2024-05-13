@@ -36,14 +36,14 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
      * @inheritDoc
      */
     public function getName(): string {
-        return __('E-Rede API - Credit Card', 'lkn_erede_credit');
+        return 'E-Rede API - Credit Card';
     }
 
     /**
      * @inheritDoc
      */
     public function getPaymentMethodLabel(): string {
-        return __('E-Rede - Credit Card', 'lkn_erede_credit');
+        return 'E-Rede - Credit Card';
     }
 
     /**
@@ -60,15 +60,8 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
         try {
             // Set the configs values
             $configs = LknPaymentEredeForGivewpHelper::get_configs('credit');
-            $logname = date('d.m.Y-H.i.s') . '-credit';
+            $logname = gmdate('d.m.Y-H.i.s') . '-credit';
             $withoutAuth3DS = $configs['withoutAuth3DS'];
-
-            if ('enabled' == $withoutAuth3DS){
-                $onFailure = 'continue';
-            }else{
-                $onFailure = 'decline';
-            }
-
 
             $donation->firstName = sanitize_text_field($donation->firstName);
             $donation->lastName = sanitize_text_field($donation->lastName);
@@ -106,52 +99,87 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
 
-            //Url de retorno api
-            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' . $payment_id;
-            $donUrlFailure = site_url() . '/a-doacao-falhou';
-
-            $body = array(
-                'capture' => false,
-                'kind' => 'credit',
-                'reference' => 'order' . $payment_id,
-                'amount' => $amount,
-                'cardholderName' => $CardName,
-                'cardNumber' => $cardNum,
-                'expirationMonth' => $cardExpiryMonth,
-                'expirationYear' => $cardExpiryYear,
-                'securityCode' => $CardCVC,
-                'softDescriptor' => $configs['description'],
-                'threeDSecure' => array(
-                    'embedded' => true,
-                    'onFailure' => $onFailure, //Dinamico de acordo com oq o admin seleciona nas configs
-                    'userAgent' => $userAgent,
-                    'device' => array(
-                        'colorDepth' => $colorDepth,
-                        'deviceType3ds' => 'BROWSER',
-                        'javaEnabled' => false,
-                        'language' => $lang,
-                        'screenHeight' => $height,
-                        'screenWidth' => $width,
-                        'timeZoneOffset' => $timezone
-                    )
+            // Construir a URL com parâmetros
+            $redirect_url_sucess = add_query_arg(
+                array(
+                    'doacao_id' => $payment_id,
+                    'status' => 'success'
                 ),
-                'urls' => array(
-                    array(
-                        'kind' => 'threeDSecureSuccess',
-                        'url' => $donUrlSucess
-                    ),
-                    array(
-                        'kind' => 'threeDSecureFailure',
-                        'url' => $donUrlFailure
-                    )
-                )
+                home_url()
             );
+
+            $redirect_url_fail = add_query_arg(
+                array(
+                    'doacao_id' => $payment_id,
+                    'status' => 'failure'
+                ),
+                home_url()
+            );
+
+            if ('enabled' == $withoutAuth3DS) {
+                $body = array(
+                    'capture' => true,
+                    'kind' => 'credit',
+                    'reference' => $payment_id,
+                    'amount' => $amount,
+                    'cardholderName' => $CardName,
+                    'cardNumber' => $cardNum,
+                    'expirationMonth' => $cardExpiryMonth,
+                    'expirationYear' => $cardExpiryYear,
+                    'securityCode' => $CardCVC,
+                    'softDescriptor' => $configs['description'],
+                    'subscription' => false,
+                    'origin' => 1,
+                    'distributorAffiliation' => 0,
+                    'storageCard' => '0',
+                    'transactionCredentials' => array(
+                        'credentialId' => '01'
+                    )
+                );
+            } else {
+                $body = array(
+                    'capture' => false,
+                    'kind' => 'credit',
+                    'reference' => 'order' . $payment_id,
+                    'amount' => $amount,
+                    'cardholderName' => $CardName,
+                    'cardNumber' => $cardNum,
+                    'expirationMonth' => $cardExpiryMonth,
+                    'expirationYear' => $cardExpiryYear,
+                    'securityCode' => $CardCVC,
+                    'softDescriptor' => $configs['description'],
+                    'threeDSecure' => array(
+                        'embedded' => true,
+                        'onFailure' => 'decline', 
+                        'userAgent' => $userAgent,
+                        'device' => array(
+                            'colorDepth' => $colorDepth,
+                            'deviceType3ds' => 'BROWSER',
+                            'javaEnabled' => false,
+                            'language' => $lang,
+                            'screenHeight' => $height,
+                            'screenWidth' => $width,
+                            'timeZoneOffset' => $timezone
+                        )
+                    ),
+                    'urls' => array(
+                        array(
+                            'kind' => 'threeDSecureSuccess',
+                            'url' => $redirect_url_sucess
+                        ),
+                        array(
+                            'kind' => 'threeDSecureFailure',
+                            'url' => $redirect_url_fail
+                        )
+                    )
+                );
+            }
 
             $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode, $donation);
 
             $response = wp_remote_post($configs['api_url'], array(
                 'headers' => $headers,
-                'body' => json_encode($body)
+                'body' => wp_json_encode($body)
             ));
 
             if ('enabled' === $configs['debug']) {
@@ -171,10 +199,10 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 $arrMetaData['log'] = $logname;
             }
 
-            give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
+            give_update_payment_meta($payment_id, 'lkn_erede_response', wp_json_encode($arrMetaData));
 
             switch ($response->returnCode) {
-                case '200':
+                case '00':
 
                     $donation->status = DonationStatus::COMPLETE();
                     $donation->save();
@@ -193,7 +221,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                     }
     
                     $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
-                    $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
+                    $paymentsToVerify = base64_encode(wp_json_encode($paymentsToVerify));
                     give_update_option('lkn_erede_3ds_payments_pending', $paymentsToVerify);
 
                     $donation->status = DonationStatus::PENDING();
@@ -266,17 +294,17 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 	    Give()->notices->print_frontend_notice(
 	        sprintf(
 	            '<strong>%1$s</strong> %2$s',
-	            esc_html__('Erro:', 'give'),
-	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
+	            esc_html('Erro:'),
+	            esc_html('Doação desabilitada por falta de SSL (HTTPS).')
 	        )
 	    );
 
 	    exit;
 	}
     
-    ?>
+        ?>
 
-        <!-- Secure 3DS - Erede -->
+	<!-- Secure 3DS - Erede -->
 	<input type="hidden" name="gatewayData[paymentUserAgent]" value="" />
 	<input type="hidden" name="gatewayData[paymentColorDepth]" value="" />
 	<input type="hidden" name="gatewayData[paymentLanguage]" value="" />
@@ -377,7 +405,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 			class="give-input required" placeholder="CVV" required="" aria-required="true" />
 	</div>
 	<?php
-        do_action('give_after_cc_expiration', $form_id, $args);
+            do_action('give_after_cc_expiration', $form_id, $args);
 
         do_action('give_lkn_payment_erede_after_cc_expiration', $form_id, $args);
 
@@ -407,7 +435,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
     }
     
     /**
-     * // TODO needs this function to appear in v3 forms
+     * // needs this function to appear in v3 forms
      * @since 3.0.0
      */
     public function enqueueScript(int $formId): void {

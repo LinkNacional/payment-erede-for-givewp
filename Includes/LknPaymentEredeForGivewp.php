@@ -7,6 +7,7 @@ use Give\Donations\ValueObjects\DonationStatus;
 use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
 use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
 use Lkn_Puc_Plugin_UpdateChecker;
+use WP_REST_Server;
 
 /**
  * The file that defines the core plugin class
@@ -100,13 +101,13 @@ class LknPaymentEredeForGivewp {
     public function verify_payment() : bool {
         $paymentsToVerify = give_get_option('lkn_erede_3ds_payments_pending', '');
         $paymentsToVerify = json_decode(base64_decode($paymentsToVerify, true) ?: '[]', true);
-        $logname = date('d.m.Y-H.i.s') . '-3ds-verification';
+        $logname = gmdate('d.m.Y-H.i.s') . '-3ds-verification';
     
         if (is_array($paymentsToVerify) && ! empty($paymentsToVerify)) {
             $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
             $authorization = base64_encode($configs['pv'] . ':' . $configs['token']);
             $paymentsToValidate = array();
-            $logname = date('d.m.Y-H.i.s') . '-3ds-verification';
+            $logname = gmdate('d.m.Y-H.i.s') . '-3ds-verification';
             $headers = array(
                 'Authorization' => 'Basic ' . $authorization,
                 'Content-Type' => 'application/json'
@@ -166,7 +167,7 @@ class LknPaymentEredeForGivewp {
                 }
             }
     
-            $pendingPayments = ! empty($paymentsToValidate) ? base64_encode(json_encode($paymentsToValidate)) : '';
+            $pendingPayments = ! empty($paymentsToValidate) ? base64_encode(wp_json_encode($paymentsToValidate)) : '';
             give_update_option('lkn_erede_3ds_payments_pending', $pendingPayments);
         } else {
             give_update_option('lkn_erede_3ds_payments_pending', '');
@@ -266,9 +267,36 @@ class LknPaymentEredeForGivewp {
             'for the Payment Gateway E-Rede for GiveWP plugin to activate.',
         );
 
-        echo $message;
+        echo wp_kses_post($message);
     }
 
+    function custom_check_redirect_params() {
+        if ( is_front_page() ) {
+            $doacao_id = isset( $_GET['doacao_id'] ) ? intval( $_GET['doacao_id'] ) : 0;
+            $status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'] ) : '';
+    
+            if ( $doacao_id && ( $status === 'success' || $status === 'failure' ) ) {
+                $redirect_url = '';
+
+                // Determinar a página de destino com base no status
+                if ( $status === 'success' ) {
+                    // Obter a URL de sucesso do GiveWP
+                    $redirect_url = give_get_success_page_uri() . '?donation_id=' . $doacao_id;
+                } elseif ( $status === 'failure' ) {
+                    // Obter a URL de falha do GiveWP
+                    $redirect_url = give_get_failed_transaction_uri();
+                }
+
+                // Redirecionar para a URL de destino se encontrada
+                if ( ! empty( $redirect_url ) ) {
+                    wp_redirect( $redirect_url );
+                    exit;
+                }
+            }
+        }
+    }
+
+    
     /**
      * Register all of the hooks related to the admin area functionality
      * of the plugin.
@@ -279,6 +307,8 @@ class LknPaymentEredeForGivewp {
     private function define_admin_hooks(): void {
         $plugin_admin = new LknPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
         $this->loader->add_action('give_init', $this, 'updater_init');
+
+        $this->loader->add_action( 'template_redirect', $this,'custom_check_redirect_params' );
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );

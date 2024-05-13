@@ -189,8 +189,6 @@ const lkn_erede_credit = {
             throw new Error('Gateway failed');
         }
 
-        console.log(values);
-
         return {
             ...values
         };

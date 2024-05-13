@@ -60,7 +60,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
         try {
             // Set the configs values
             $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
-            $logname = date('d.m.Y-H.i.s') . '-debit-3ds';
+            $logname = gmdate('d.m.Y-H.i.s') . '-debit-3ds';
             
             // Donation informations.
             $donation->firstName = sanitize_text_field($donation->firstName);
@@ -98,9 +98,22 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
 
-            //Url de retorno api
-            $donUrlSucess = site_url() . '/confirmacao-da-doacao' . '?donation_id=' . $payment_id;
-            $donUrlFailure = site_url() . '/a-doacao-falhou';
+            // Construir a URL com parâmetros
+            $redirect_url_sucess = add_query_arg(
+                array(
+                    'doacao_id' => $payment_id,
+                    'status' => 'success'
+                ),
+                home_url()
+            );
+
+            $redirect_url_fail = add_query_arg(
+                array(
+                    'doacao_id' => $payment_id,
+                    'status' => 'failure'
+                ),
+                home_url()
+            );
 
             $body = array(
                 'capture' => true,
@@ -130,11 +143,11 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'urls' => array(
                     array(
                         'kind' => 'threeDSecureSuccess',
-                        'url' => $donUrlSucess
+                        'url' => $redirect_url_sucess
                     ),
                     array(
                         'kind' => 'threeDSecureFailure',
-                        'url' => $donUrlFailure
+                        'url' => $redirect_url_fail
                     )
                 )
             );
@@ -143,7 +156,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 
             $response = wp_remote_post($configs['api_url'], array(
                 'headers' => $headers,
-                'body' => json_encode($body)
+                'body' => wp_json_encode($body)
             ));
 
             if ('enabled' === $configs['debug']) {
@@ -163,7 +176,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 $arrMetaData['log'] = $logname;
             }
 
-            give_update_payment_meta($payment_id, 'lkn_erede_response', json_encode($arrMetaData));
+            give_update_payment_meta($payment_id, 'lkn_erede_response', wp_json_encode($arrMetaData));
 
             switch ($response->returnCode) {
                 case '200':
@@ -185,7 +198,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                     }
     
                     $paymentsToVerify[] = array('id' => $payment_id, 'count' => '0');
-                    $paymentsToVerify = base64_encode(json_encode($paymentsToVerify));
+                    $paymentsToVerify = base64_encode(wp_json_encode($paymentsToVerify));
                     give_update_option('lkn_erede_3ds_payments_pending', $paymentsToVerify);
 
                     $donation->status = DonationStatus::PENDING();
