@@ -81,6 +81,7 @@ class LknPaymentEredeForGivewp {
         $this->plugin_name = 'payment-erede-for-givewp';
 
         $this->load_dependencies();
+        $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
         $this->schedule_events();
@@ -194,6 +195,12 @@ class LknPaymentEredeForGivewp {
         $this->loader = new LknPaymentEredeForGivewpLoader();
     }
 
+    private function set_locale(): void {
+        $plugin_i18n = new LknPaymentEredeForGivewpI8n();
+
+        $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+    }
+
     public function define_row_meta($plugin_meta, $plugin_file) :array {
         if ( ! defined(PAYMENT_EREDE_FOR_GIVEWP_BASENAME) && ! is_plugin_active(PAYMENT_EREDE_FOR_GIVEWP_BASENAME)) {
             return $plugin_meta;
@@ -255,15 +262,15 @@ class LknPaymentEredeForGivewp {
         // Admin notice.
         $message = sprintf(
             '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
-            'Activation error:',
-            'You need to have',
+            __('Activation error:', ''),
+            __('You need to have', ''),
             'https://givewp.com',
-            'Give WP',
-            'version',
+            __('Give WP', ''),
+            __('version', ''),
             PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
-            'for the Payment Gateway E-Rede for GiveWP plugin to activate.',
+            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', '')
         );
-
+        
         echo wp_kses_post($message);
     }
 

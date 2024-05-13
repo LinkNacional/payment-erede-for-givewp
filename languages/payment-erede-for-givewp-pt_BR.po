@@ -1,0 +1,120 @@
+# Payment E-Rede for GiveWP
+msgid "Payment Gateway E-Rede for GiveWP"
+msgstr "Gateway de pagamento E-Rede para GiveWP"
+
+msgid "Credit and debit card payment using E-Rede"
+msgstr "Pagamento de cartão de crédito e débito utilizando E-Rede"
+
+msgid "If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication."
+msgstr "Caso esteja com a opção habilitada segue a transação sem autenticação do Erede 3DS 2.0."
+
+msgid "E-Rede API - Credit Card"
+msgstr "E-Rede API - Cartão de crédito"
+
+msgid "E-Rede - Credit Card"
+msgstr "E-Rede - Cartão de crédito"
+
+msgid "E-Rede API - Debit Card 3DS"
+msgstr "E-Rede API - Cartão de débito 3DS"
+
+msgid "E-Rede - Debit Card"
+msgstr "E-Rede - Cartão de débito"
+
+msgid "Environment type"
+msgstr "Tipo de ambiente"
+
+msgid "Environment type to make transactions."
+msgstr "Tipo de ambiente para fazer transações."
+
+msgid "Homologation environment for developer"
+msgstr "Ambiente de homologação para desenvolvedor"
+
+msgid "Production"
+msgstr "Produção"
+
+msgid "PV"
+msgstr "PV"
+
+msgid "E-Rede API credential filiation number."
+msgstr "Número de filiação da credencial API do E-Rede."
+
+msgid "Token"
+msgstr "Token"
+
+msgid "E-Rede API credential secret token."
+msgstr "Token secreto da credencial API do E-Rede."
+
+msgid "Transaction description"
+msgstr "Descrição da transação"
+
+msgid "Description that will appear on the customer card statement, does not allow special characters or white space."
+msgstr "A Descrição que constará no extrato do cartão do cliente, não permite caracteres especiais ou espaços em branco."
+
+msgid "Billing fields"
+msgstr "Campos de cobrança"
+
+msgid "Adds additional address fields to your donation form."
+msgstr "Adiciona campos adicionais para seu formulário de doação."
+
+msgid "Enabled"
+msgstr "Habilitado"
+
+msgid "Disabled"
+msgstr "Desabilitado"
+
+msgid "Debug mode"
+msgstr "Modo de depuração"
+
+msgid "Saves transaction logs for testing purposes."
+msgstr "Salva logs da transação para fins de teste."
+
+msgid "Donation"
+msgstr "Doação"
+
+msgid "Return code:"
+msgstr "Código de retorno:"
+
+msgid "Return message:"
+msgstr "Mensagem do retorno:"
+
+msgid "Transaction ID:"
+msgstr "ID da transação:"
+
+msgid "Transaction log in base64"
+msgstr "Log da transação em base64"
+
+msgid "Know more"
+msgstr "Saiba mais"
+
+msgid "Manual capture your transactions"
+msgstr "Capture manualmente suas transações"
+
+msgid "Capture your transactions manually to avoid chargeback and card testing."
+msgstr "Capture suas transações manualmente para evitar estorno e testes de cartão."
+
+msgid "Refund your transactions"
+msgstr "Reembolse suas transações"
+
+msgid "Option to refund transaction amount integrated into GiveWP donation details."
+msgstr "Opção para reembolsar o valor das transações integrado aos detalhes da doação do GiveWP."
+
+msgid "Donations in installments"
+msgstr "Doações parceladas"
+
+msgid "Option for your donor to pay the donation in installments."
+msgstr "Opção para seu doador pagar a doação em parcelas."
+
+msgid "International currency exchange"
+msgstr "Câmbio internacional"
+
+msgid "Get new features with"
+msgstr "Obtenha novas funcionalidades com"
+
+msgid "Payment E-Rede for GiveWP PRO."
+msgstr "Pagamento E-Rede para GiveWP PRO"
+
+msgid "Calculate exchange rates automatically for international currencies, we have full compatibility with the"
+msgstr "Calcule as taxas de câmbio automaticamente para moedas internacionais, temos total compatibilidade com o"
+
+msgid "Multicurrency plugin for GiveWP by Link Nacional."
+msgstr "Plugin Multimoedas para GiveWP por Link Nacional."

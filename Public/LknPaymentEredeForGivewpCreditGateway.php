@@ -36,14 +36,14 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
      * @inheritDoc
      */
     public function getName(): string {
-        return 'E-Rede API - Credit Card';
+        return __('E-Rede API - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN); 
     }
 
-    /**
+    /**s
      * @inheritDoc
      */
     public function getPaymentMethodLabel(): string {
-        return 'E-Rede - Credit Card';
+        return __('E-Rede - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
     }
 
     /**
@@ -293,10 +293,10 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 	if ( ! is_ssl()) {
 	    Give()->notices->print_frontend_notice(
 	        sprintf(
-	            '<strong>%1$s</strong> %2$s',
-	            esc_html('Erro:'),
-	            esc_html('Doação desabilitada por falta de SSL (HTTPS).')
-	        )
+                '<strong>%1$s</strong> %2$s',
+                esc_html__('Erro:', 'give'),
+                esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
+            )
 	    );
 
 	    exit;
