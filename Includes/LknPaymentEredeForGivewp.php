@@ -88,12 +88,14 @@ class LknPaymentEredeForGivewp {
     }
 
     public function schedule_events() : void {
-        if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_delete_logs' ) ) {
-            wp_schedule_event( time() + 604800, 'weekly', 'lkn_payment_erede_cron_delete_logs' );
-        }
-
         if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_verify_payment' ) ) {
             wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
+        } else {
+            wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
+        }
+        
+        if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_delete_logs' ) ) {
+            wp_schedule_event( time() + 604800, 'weekly', 'lkn_payment_erede_cron_delete_logs' );
         }
     }
 
@@ -130,14 +132,12 @@ class LknPaymentEredeForGivewp {
     
                 if ($response && isset($response->authorization) && isset($response->authorization->returnCode)) {
                     $returnCode = $response->authorization->returnCode;
-
                 } elseif ($response && isset($response->returnCode)) {
                     $returnCode = $response->returnCode;
-
                 } else {
                     $donation_payment->status = DonationStatus::FAILED();
                     $donation_payment->save();
-                    continue; 
+                    continue;
                 }
 
                 // Atualizar o status da doação com base no código de retorno
@@ -274,19 +274,19 @@ class LknPaymentEredeForGivewp {
         echo wp_kses_post($message);
     }
 
-    function custom_check_redirect_params() {
+    public function custom_check_redirect_params(): void {
         if ( is_front_page() ) {
-            $doacao_id = isset( $_GET['doacao_id'] ) ? intval( $_GET['doacao_id'] ) : 0;
+            $doacao_id = isset( $_GET['doacao_id'] ) ? (int) ( $_GET['doacao_id'] ) : 0;
             $status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'] ) : '';
     
-            if ( $doacao_id && ( $status === 'success' || $status === 'failure' ) ) {
+            if ( $doacao_id && ( 'success' === $status || 'failure' === $status ) ) {
                 $redirect_url = '';
 
                 // Determinar a página de destino com base no status
-                if ( $status === 'success' ) {
+                if ( 'success' === $status ) {
                     // Obter a URL de sucesso do GiveWP
                     $redirect_url = give_get_success_page_uri() . '?donation_id=' . $doacao_id;
-                } elseif ( $status === 'failure' ) {
+                } elseif ( 'failure' === $status ) {
                     // Obter a URL de falha do GiveWP
                     $redirect_url = give_get_failed_transaction_uri();
                 }
@@ -299,7 +299,6 @@ class LknPaymentEredeForGivewp {
             }
         }
     }
-
     
     /**
      * Register all of the hooks related to the admin area functionality
@@ -311,7 +310,7 @@ class LknPaymentEredeForGivewp {
     private function define_admin_hooks(): void {
         $plugin_admin = new LknPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
 
-        $this->loader->add_action( 'template_redirect', $this,'custom_check_redirect_params' );
+        $this->loader->add_action( 'template_redirect', $this, 'custom_check_redirect_params' );
 
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
