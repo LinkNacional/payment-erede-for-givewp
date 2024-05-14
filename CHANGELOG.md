@@ -1,3 +1,8 @@
+# 2.0.0 - 14/05/2024
+* Added compatibility with GiveWP 3.0.0 template.
+* General plugin optimizations.
+* Addition of 3DS 2.0 for credit card payments.
+
 # 1.0.2 - 22/09/2023
 * Fix a bug in translation.
 
