@@ -310,11 +310,6 @@ const lkn_erede_credit = {
                             aria-required="true"
                         />
                     </div>
-                    {/* //TODO verificar o pq disso aqui */}
-                    {/* // Remove Address Fields if user has option enabled.
-                    // if ('disabled' === $$configs['billing_details']) {
-                    //     remove_action('give_after_dc_fields', 'give_default_cc_address_fields');
-                    // } */}
                 </fieldset>
             )
         }

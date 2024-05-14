@@ -7,7 +7,6 @@ function lknSet3DSvalue() {
   const userAgent = navigator.userAgent;
   const date = new Date();
   const timezoneOffset = date.getTimezoneOffset();
-  
   form?.setAttribute('data-payment-language', language);
   form?.setAttribute('data-payment-height', String(height));
   form?.setAttribute('data-payment-width', String(width));
@@ -177,7 +176,6 @@ const lkn_erede_debit_3ds = {
     if (values.firstname === 'error') {
       throw new Error('Gateway failed');
     }
-
     return {
       ...values
     };
