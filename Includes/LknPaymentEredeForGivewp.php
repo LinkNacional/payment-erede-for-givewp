@@ -119,7 +119,7 @@ class LknPaymentEredeForGivewp {
                 
                 $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . 'order' . $payment['id'], array('headers' => $headers));
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
-    
+                
                 if ('enabled' === $configs['debug']) {
                     // Realizar o logging da informação relevante
                     $rawHeaders = wp_remote_retrieve_headers($responseRaw);

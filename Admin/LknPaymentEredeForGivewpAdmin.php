@@ -173,13 +173,28 @@ class LknPaymentEredeForGivewpAdmin {
                     'default' => '',
                 );
 
+                //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'id' => 'lkn_erede_credit_softdescription_setting_field',
-                    'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'type' => 'text',
-                    'default' => '',
+                    'name' => __('Permitir doação sem descrição de transação', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'id' => 'lkn_erede_credit_enable_transaction_without_description',
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'type' => 'radio',
+                    'default' => 'disabled',
+                    'options' => array(
+                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                    ),
                 );
+
+                if (give_get_option('lkn_erede_credit_enable_transaction_without_description', 'disabled') === 'disabled'){
+                    $settings[] = array(
+                        'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'id' => 'lkn_erede_credit_softdescription_setting_field',
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'type' => 'text',
+                        'default' => '',
+                    );
+                }
     
                 $settings[] = array(
                     'name' => __('Billing fields', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
@@ -257,13 +272,28 @@ class LknPaymentEredeForGivewpAdmin {
                     'default' => '',
                 );
 
+                //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
-                    'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'type' => 'text',
-                    'default' => '',
+                    'name' => __('Permitir doação sem descrição de transação', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'id' => 'lkn_erede_debit_3ds_enable_transaction_without_description',
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'type' => 'radio',
+                    'default' => 'disabled',
+                    'options' => array(
+                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                    ),
                 );
+
+                if (give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description', 'disabled') === 'disabled'){
+                    $settings[] = array(
+                        'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'type' => 'text',
+                        'default' => '',
+                    );
+                }
     
                 $settings[] = array(
                     'name' => __('Billing fields', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),

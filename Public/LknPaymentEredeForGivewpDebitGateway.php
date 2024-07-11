@@ -125,7 +125,6 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'expirationMonth' => $cardExpiryMonth,
                 'expirationYear' => $cardExpiryYear,
                 'securityCode' => $CardCVC,
-                'softDescriptor' => $configs['description'],
                 'threeDSecure' => array(
                     'embedded' => true,
                     'onFailure' => 'decline',
@@ -151,6 +150,16 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                     )
                 )
             );
+
+            // Adicione o softDescriptor apenas se withoutDescription for disabled
+            if ($configs['withoutDescription'] === 'disabled') {
+                $body['softDescriptor'] = $configs['description'];
+            }
+
+            if ('enabled' === $configs['debug']) {
+                LknPaymentEredeForGivewpHelper::log('[Raw body 1]: ' . var_export(($body), true), $logname);
+            }
+
 
             $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $donation);
 
