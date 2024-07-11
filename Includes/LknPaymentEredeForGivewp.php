@@ -132,13 +132,36 @@ class LknPaymentEredeForGivewp {
     
                 if ($response && isset($response->authorization) && isset($response->authorization->returnCode)) {
                     $returnCode = $response->authorization->returnCode;
+
+                    $arrMetaData = array(
+                        'status' => $response->authorization->returnCode ?? '500',
+                        'message' => $response->authorization->returnMessage ?? 'Error on processing payment',
+                        'transaction_id' => $response->authorization->tid ?? '0',
+                        'capture' => false
+                    );
+
                 } elseif ($response && isset($response->returnCode)) {
                     $returnCode = $response->returnCode;
+
+                    $arrMetaData = array(
+                        'status' => $response->returnCode ?? '500',
+                        'message' => $response->returnMessage ?? 'Error on processing payment',
+                        'transaction_id' => $response->tid ?? '0',
+                        'capture' => false
+                    );
+
                 } else {
                     $donation_payment->status = DonationStatus::FAILED();
                     $donation_payment->save();
                     continue;
                 }
+
+                if ('enabled' === $configs['debug']) {
+                    $arrMetaData['log'] = $logname;
+                }
+
+                give_update_payment_meta($payment['id'], 'lkn_erede_response', wp_json_encode($arrMetaData));
+
 
                 // Atualizar o status da doação com base no código de retorno
                 switch ($returnCode) {
@@ -291,7 +314,7 @@ class LknPaymentEredeForGivewp {
                     $redirect_url = give_get_failed_transaction_uri();
                 }
 
-                // Redirecionar para a URL de destino se encontrada
+                // Adicionar o script de redirecionamento ao cabesçalho se a URL de destino for encontrada
                 if ( ! empty( $redirect_url ) ) {
                     wp_redirect( $redirect_url );
                     exit;
