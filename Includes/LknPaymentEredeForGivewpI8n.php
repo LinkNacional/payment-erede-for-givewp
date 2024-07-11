@@ -1,5 +1,7 @@
 <?php
 
+namespace Lkn\PaymentEredeForGivewp\Includes;
+
 /**
  * Define the internationalization functionality
  *
@@ -24,7 +26,7 @@
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class Payment_Erede_For_Givewp_i18n {
+class LknPaymentEredeForGivewpI8n {
     /**
      * Load the plugin text domain for translation.
      *

@@ -5,6 +5,9 @@ msgstr ""
 msgid "Credit and debit card payment using E-Rede"
 msgstr ""
 
+msgid "If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication."
+msgstr ""
+
 msgid "E-Rede API - Credit Card"
 msgstr ""
 

@@ -5,6 +5,9 @@ msgstr "Gateway de pagamento E-Rede para GiveWP"
 msgid "Credit and debit card payment using E-Rede"
 msgstr "Pagamento de cartão de crédito e débito utilizando E-Rede"
 
+msgid "If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication."
+msgstr "Caso esteja com a opção habilitada segue a transação sem autenticação do Erede 3DS 2.0."
+
 msgid "E-Rede API - Credit Card"
 msgstr "E-Rede API - Cartão de crédito"
 
