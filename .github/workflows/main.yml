@@ -2,12 +2,12 @@ name: Generate new release for plugin
 
 on:
   pull_request:
-    types: [closed]
-    branches: [main]
+    types: [ closed ]
+    branches: [ main ]
 
 env:
   PLUGIN_NAME: payment-erede-for-givewp
-  PLUGIN_NAME_WITH_UPDATER: payment-erede-for-givewp-updt
+  PHP_VERSION: "7.4"
 
 jobs:
   release-build:
@@ -15,48 +15,47 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      # Add plugin files to a root directory
-      - name: Make plugin root directory with auto-updater
-        run: "mkdir ${{env.PLUGIN_NAME_WITH_UPDATER}} && cp -r ./languages ./admin ./includes ./public LICENSE *.php ./${{env.PLUGIN_NAME_WITH_UPDATER}}/ && find ./${{env.PLUGIN_NAME_WITH_UPDATER}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME_WITH_UPDATER}} -type d -exec chmod 0755 {} + && ls -lah"
+    # Run composer install and generate vendor
+    - name: Run composer install
+      uses: php-actions/composer@v6
+      with:
+        php_version: ${{ env.PHP_VERSION }}
+        working_dir: "."
+        args: --ignore-platform-reqs
+        command: install
+        dev: no
 
-      - name: Make plugin root directory
-        run: "rm -Rf ./includes/plugin-updater && mkdir ${{env.PLUGIN_NAME}} && mv -t ./${{env.PLUGIN_NAME}} ./languages ./admin ./includes ./public LICENSE *.php *.txt && find ./${{env.PLUGIN_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME}} -type d -exec chmod 0755 {} + && ls -lah"
+    # Add plugin files to a root directory
+    - name: Make plugin root directory
+      run: "mkdir $PLUGIN_NAME && mv -t ./$PLUGIN_NAME ./languages ./Admin ./Includes ./Public *.txt *.php && cp -r ./vendor ./${{env.PLUGIN_NAME}}/vendor && find ./${{env.PLUGIN_NAME}} -type f -exec chmod 0644 {} + && find ./${{env.PLUGIN_NAME}} -type d -exec chmod 0755 {} + && ls -lah"
 
-      # Compact plugin as .zip
-      - name: Archive Release
-        uses: thedoctor0/zip-release@master
-        with:
-          type: "zip"
-          path: "${{ env.PLUGIN_NAME }}"
-          directory: "."
-          filename: "${{ env.PLUGIN_NAME }}.zip"
-          exclusions: "*.git* /*node_modules/* .editorconfig"
+    # Compact plugin as .zip
+    - name: Archive Release
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'zip'
+        path: '${{ env.PLUGIN_NAME }}'
+        directory: '.'
+        filename: '${{ env.PLUGIN_NAME }}.zip'
+        exclusions: '*.git* /*node_modules/* .editorconfig'
 
-      - name: Archive Release with auto-updater
-        uses: thedoctor0/zip-release@master
-        with:
-          type: "zip"
-          path: "${{ env.PLUGIN_NAME_WITH_UPDATER }}"
-          directory: "."
-          filename: "${{ env.PLUGIN_NAME_WITH_UPDATER }}.zip"
-          exclusions: "*.git* /*node_modules/* .editorconfig"
+    # Update version tag
+    - name: Bump version and push tag
+      id: tag_version
+      uses: mathieudutour/github-tag-action@v6.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        custom_tag: '2.0.0' # // TODO caso necessário definir a tag da release manualmente
 
-      # Update version tag
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      # Generate new release
-      - name: Generate new Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "${{ env.PLUGIN_NAME }}.zip,${{env.PLUGIN_NAME_WITH_UPDATER}}.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit: "main"
-          draft: true
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
+    # Generate new release
+    - name: Generate new Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "${{ env.PLUGIN_NAME }}.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit: "main"
+        draft: true
+        tag: ${{ steps.tag_version.outputs.new_tag }}
+        name: Release ${{ steps.tag_version.outputs.new_tag }}
