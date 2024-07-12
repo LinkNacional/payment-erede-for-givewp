@@ -139,7 +139,6 @@ class LknPaymentEredeForGivewp {
                         'transaction_id' => $response->authorization->tid ?? '0',
                         'capture' => false
                     );
-
                 } elseif ($response && isset($response->returnCode)) {
                     $returnCode = $response->returnCode;
 
@@ -149,7 +148,6 @@ class LknPaymentEredeForGivewp {
                         'transaction_id' => $response->tid ?? '0',
                         'capture' => false
                     );
-
                 } else {
                     $donation_payment->status = DonationStatus::FAILED();
                     $donation_payment->save();
@@ -161,7 +159,6 @@ class LknPaymentEredeForGivewp {
                 }
 
                 give_update_payment_meta($payment['id'], 'lkn_erede_response', wp_json_encode($arrMetaData));
-
 
                 // Atualizar o status da doação com base no código de retorno
                 switch ($returnCode) {
@@ -232,7 +229,7 @@ class LknPaymentEredeForGivewp {
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways'),
-            'Settings',
+            __('Settings', 'payment-erede-for-givewp'),
         );
     
         return array_merge($plugin_meta, $new_meta_links);

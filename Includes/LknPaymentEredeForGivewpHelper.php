@@ -90,8 +90,8 @@ abstract class LknPaymentEredeForGivewpHelper {
     
                 $logDate = $logYear . '-' . $logMonth . '-' . $logDay;
     
-                $logDate = new DateTime($logDate);
-                $now = new DateTime(gmdate('Y-m-d'));
+                $logDate = new Datetime($logDate);
+                $now = new Datetime(gmdate('Y-m-d'));
     
                 $interval = $logDate->diff($now);
                 $logAge = $interval->format('%a');

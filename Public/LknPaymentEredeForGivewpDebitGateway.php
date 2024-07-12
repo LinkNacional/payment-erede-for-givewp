@@ -152,14 +152,13 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             );
 
             // Adicione o softDescriptor apenas se withoutDescription for disabled
-            if ($configs['withoutDescription'] === 'disabled') {
+            if ('disabled' === $configs['withoutDescription']) {
                 $body['softDescriptor'] = $configs['description'];
             }
 
             if ('enabled' === $configs['debug']) {
                 LknPaymentEredeForGivewpHelper::log('[Raw body 1]: ' . var_export(($body), true), $logname);
             }
-
 
             $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $donation);
 
@@ -279,10 +278,10 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 	if ( ! is_ssl()) {
 	    Give()->notices->print_frontend_notice(
 	        sprintf(
-                '<strong>%1$s</strong> %2$s',
-                esc_html__('Erro:', 'give'),
-                esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
-            )
+	            '<strong>%1$s</strong> %2$s',
+	            esc_html__('Erro:', 'give'),
+	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'give')
+	        )
 	    );
 
 	    exit;

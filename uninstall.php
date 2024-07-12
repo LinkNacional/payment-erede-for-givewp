@@ -37,7 +37,7 @@ $lkn_erede_opt = give_get_settings();
 
 $lkn_erede_opt = array_filter($lkn_erede_opt, function ($key) {
     return strpos($key, 'lkn_erede_') === 0;
-}, ARRAY_FILTER_USE_KEY);
+}, \ARRAY_FILTER_USE_KEY);
 $lkn_erede_opt = array_keys($lkn_erede_opt);
 
 if (count($lkn_erede_opt) > 0) {
