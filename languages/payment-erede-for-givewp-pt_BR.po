@@ -118,3 +118,6 @@ msgstr "Calcule as taxas de câmbio automaticamente para moedas internacionais, 
 
 msgid "Multicurrency plugin for GiveWP by Link Nacional."
 msgstr "Plugin Multimoedas para GiveWP por Link Nacional."
+
+msgid "Settings"
+msgstr "Configurações"

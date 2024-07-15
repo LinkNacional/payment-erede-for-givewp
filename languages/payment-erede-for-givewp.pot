@@ -118,3 +118,6 @@ msgstr ""
 
 msgid "Multicurrency plugin for GiveWP by Link Nacional."
 msgstr ""
+
+msgid "Settings"
+msgstr ""

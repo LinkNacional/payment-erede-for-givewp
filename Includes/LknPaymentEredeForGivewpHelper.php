@@ -37,6 +37,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $description = give_get_option('lkn_erede_credit_softdescription_setting_field', 'Doação');
                 $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
                 $configs['withoutAuth3DS'] = give_get_option('lkn_erede_credit_transaction_without_authentication');
+                $configs['withoutDescription'] = give_get_option('lkn_erede_credit_enable_transaction_without_description');
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
@@ -53,6 +54,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $configs['debug'] = give_get_option('lkn_erede_debit_3ds_debug_setting_field', 'disabled');
                 $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', 'Doação');
                 $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
+                $configs['withoutDescription'] = give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description');
 
                 if ('production' === $configs['env']) {
                     $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
@@ -88,8 +90,8 @@ abstract class LknPaymentEredeForGivewpHelper {
     
                 $logDate = $logYear . '-' . $logMonth . '-' . $logDay;
     
-                $logDate = new DateTime($logDate);
-                $now = new DateTime(gmdate('Y-m-d'));
+                $logDate = new Datetime($logDate);
+                $now = new Datetime(gmdate('Y-m-d'));
     
                 $interval = $logDate->diff($now);
                 $logAge = $interval->format('%a');

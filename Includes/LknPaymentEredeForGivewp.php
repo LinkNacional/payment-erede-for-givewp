@@ -119,7 +119,7 @@ class LknPaymentEredeForGivewp {
                 
                 $responseRaw = wp_remote_get($configs['api_url'] . '?reference=' . 'order' . $payment['id'], array('headers' => $headers));
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
-    
+                
                 if ('enabled' === $configs['debug']) {
                     // Realizar o logging da informação relevante
                     $rawHeaders = wp_remote_retrieve_headers($responseRaw);
@@ -132,13 +132,33 @@ class LknPaymentEredeForGivewp {
     
                 if ($response && isset($response->authorization) && isset($response->authorization->returnCode)) {
                     $returnCode = $response->authorization->returnCode;
+
+                    $arrMetaData = array(
+                        'status' => $response->authorization->returnCode ?? '500',
+                        'message' => $response->authorization->returnMessage ?? 'Error on processing payment',
+                        'transaction_id' => $response->authorization->tid ?? '0',
+                        'capture' => false
+                    );
                 } elseif ($response && isset($response->returnCode)) {
                     $returnCode = $response->returnCode;
+
+                    $arrMetaData = array(
+                        'status' => $response->returnCode ?? '500',
+                        'message' => $response->returnMessage ?? 'Error on processing payment',
+                        'transaction_id' => $response->tid ?? '0',
+                        'capture' => false
+                    );
                 } else {
                     $donation_payment->status = DonationStatus::FAILED();
                     $donation_payment->save();
                     continue;
                 }
+
+                if ('enabled' === $configs['debug']) {
+                    $arrMetaData['log'] = $logname;
+                }
+
+                give_update_payment_meta($payment['id'], 'lkn_erede_response', wp_json_encode($arrMetaData));
 
                 // Atualizar o status da doação com base no código de retorno
                 switch ($returnCode) {
@@ -209,7 +229,7 @@ class LknPaymentEredeForGivewp {
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways'),
-            'Settings',
+            __('Settings', 'payment-erede-for-givewp'),
         );
     
         return array_merge($plugin_meta, $new_meta_links);
@@ -291,7 +311,7 @@ class LknPaymentEredeForGivewp {
                     $redirect_url = give_get_failed_transaction_uri();
                 }
 
-                // Redirecionar para a URL de destino se encontrada
+                // Adicionar o script de redirecionamento ao cabesçalho se a URL de destino for encontrada
                 if ( ! empty( $redirect_url ) ) {
                     wp_redirect( $redirect_url );
                     exit;
