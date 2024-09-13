@@ -65,7 +65,7 @@ msgstr ""
 msgid "Debug mode"
 msgstr ""
 
-msgid "Saves transaction logs for testing purposes."
+msgid "Saves transaction logs for testing purposes. %sSee logs.%s"
 msgstr ""
 
 msgid "Donation"
