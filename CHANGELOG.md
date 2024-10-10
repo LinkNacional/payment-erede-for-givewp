@@ -1,3 +1,7 @@
+# 2.0.1 - 10/10/2024
+* Add link to view logs;
+* Fix donation status;
+
 # 2.0.0 - 14/05/2024
 * Added compatibility with GiveWP 3.0.0 template.
 * General plugin optimizations.
