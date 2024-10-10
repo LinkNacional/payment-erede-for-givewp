@@ -182,7 +182,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 LknPaymentEredeForGivewpHelper::log('[Raw body 1]: ' . var_export(($body), true), $logname);
             }
 
-            $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode, $donation);
+            $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode);
 
             $response = wp_remote_post($configs['api_url'], array(
                 'headers' => $headers,
