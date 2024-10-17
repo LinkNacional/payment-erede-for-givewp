@@ -65,8 +65,8 @@ msgstr "Desabilitado"
 msgid "Debug mode"
 msgstr "Modo de depuração"
 
-msgid "Saves transaction logs for testing purposes."
-msgstr "Salva logs da transação para fins de teste."
+msgid "Saves transaction logs for testing purposes. %sSee logs.%s"
+msgstr "Salva logs da transação para fins de teste. %sVer logs.%s"
 
 msgid "Donation"
 msgstr "Doação"

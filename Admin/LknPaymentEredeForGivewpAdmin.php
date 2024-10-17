@@ -223,7 +223,10 @@ class LknPaymentEredeForGivewpAdmin {
                 $settings[] = array(
                     'name' => __('Debug mode', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_credit_debug_setting_field',
-                    'desc' => __('Saves transaction logs for testing purposes.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => sprintf(
+                        __( 'Saves transaction logs for testing purposes. %sSee logs.%s', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN), 
+                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">', '</a>' 
+                    ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
@@ -310,7 +313,10 @@ class LknPaymentEredeForGivewpAdmin {
                 $settings[] = array(
                     'name' => __('Debug mode', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
                     'id' => 'lkn_erede_debit_3ds_debug_setting_field',
-                    'desc' => __('Saves transaction logs for testing purposes.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => sprintf(
+                        __( 'Saves transaction logs for testing purposes. %sSee logs.%s', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN), 
+                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">', '</a>' 
+                    ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
