@@ -178,10 +178,6 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 $body['softDescriptor'] = $configs['description'];
             }
 
-            if ('enabled' === $configs['debug']) {
-                LknPaymentEredeForGivewpHelper::log('[Raw body 1]: ' . var_export(($body), true), $logname);
-            }
-
             $body = apply_filters('lkn_erede_credit_body', $body, $currencyCode);
 
             $response = wp_remote_post($configs['api_url'], array(
@@ -189,11 +185,22 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 'body' => wp_json_encode($body)
             ));
 
-            if ('enabled' === $configs['debug']) {
-                LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(json_decode(wp_remote_retrieve_body($response)), true), $logname);
-            }
-
             $response = json_decode(wp_remote_retrieve_body($response));
+
+            if ('enabled' === $configs['debug']) {
+                LknPaymentEredeForGivewpHelper::regLog(
+                    'info', // logType
+                    'createPayment', // category
+                    'Requisição para gerar pagamento', // description
+                    array(
+                        'url' => $configs['api_url'],
+                        'headers' => $headers,
+                        'body' => $body,
+                        'response' => $response
+                    ), // data
+                    true // forceLog
+                );
+            }
 
             $arrMetaData = array(
                 'status' => $response->returnCode ?? '500',
@@ -201,10 +208,6 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 'transaction_id' => $response->tid ?? '0',
                 'capture' => $body['capture']
             );
-
-            if ('enabled' === $configs['debug']) {
-                $arrMetaData['log'] = $logname;
-            }
 
             give_update_payment_meta($payment_id, 'lkn_erede_response', wp_json_encode($arrMetaData));
 

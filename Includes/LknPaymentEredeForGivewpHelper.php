@@ -1,7 +1,7 @@
 <?php
 
 namespace Lkn\PaymentEredeForGivewp\Includes;
-
+use Give\Log\LogFactory;
 use Datetime;
 
 /**
@@ -72,34 +72,17 @@ abstract class LknPaymentEredeForGivewpHelper {
         return $configs;
     }
 
-    public static function log($message, $type) :void {
-        error_log($message, 3, PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $type . '.log');
-    }
-
-    public static function delete_old_logs() :void {
-        $logsPath = PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR;
-
-        foreach (scandir($logsPath) as $logFilename) {
-            if ('.' !== $logFilename && '..' !== $logFilename && 'index.php' !== $logFilename) {
-                $logDate = explode('-', $logFilename)[0];
-                $logDate = explode('.', $logDate);
-    
-                $logDay = $logDate[0];
-                $logMonth = $logDate[1];
-                $logYear = $logDate[2];
-    
-                $logDate = $logYear . '-' . $logMonth . '-' . $logDay;
-    
-                $logDate = new Datetime($logDate);
-                $now = new Datetime(gmdate('Y-m-d'));
-    
-                $interval = $logDate->diff($now);
-                $logAge = $interval->format('%a');
-    
-                if ($logAge >= 15) {
-                    wp_delete_file($logsPath . '/' . $logFilename);
-                }
-            }
+    public static function regLog($logType, $category, $description, $data, $forceLog = false): void {
+        if (give_get_option('lkn_getnet_debug') == 'enabled' || $forceLog) {
+            $logFactory = new LogFactory();
+            $log = $logFactory->make(
+                $logType,
+                $description,
+                $category,
+                'Give Getnet Payment',
+                $data
+            );
+            $log->save();
         }
     }
 
