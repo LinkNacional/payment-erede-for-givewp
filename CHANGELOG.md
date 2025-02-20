@@ -1,3 +1,6 @@
+# 2.0.2 - 07/01/2025
+* Changed log functionality.
+
 # 2.0.1 - 10/10/2024
 * Add link to view logs;
 * Fix donation status;

@@ -156,10 +156,6 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 $body['softDescriptor'] = $configs['description'];
             }
 
-            if ('enabled' === $configs['debug']) {
-                LknPaymentEredeForGivewpHelper::log('[Raw body 1]: ' . var_export(($body), true), $logname);
-            }
-
             $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $donation);
 
             $response = wp_remote_post($configs['api_url'], array(
@@ -167,11 +163,22 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'body' => wp_json_encode($body)
             ));
 
-            if ('enabled' === $configs['debug']) {
-                LknPaymentEredeForGivewpHelper::log('[Raw header]: ' . var_export(wp_remote_retrieve_headers($response), true) . \PHP_EOL . ' [Raw body]: ' . var_export(wp_remote_retrieve_body($response), true), $logname);
-            }
-
             $response = json_decode(wp_remote_retrieve_body($response));
+
+            if ('enabled' === $configs['debug']) {
+                LknPaymentEredeForGivewpHelper::regLog(
+                    'info', // logType
+                    'createPayment', // category
+                    'Requisição para gerar pagamento', // description
+                    array(
+                        'url' => $configs['api_url'],
+                        'headers' => $headers,
+                        'body' => $body,
+                        'response' => $response
+                    ), // data
+                    true // forceLog
+                );
+            }
 
             $arrMetaData = array(
                 'status' => $response->returnCode ?? '500',

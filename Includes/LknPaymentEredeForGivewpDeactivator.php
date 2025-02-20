@@ -31,7 +31,6 @@ class LknPaymentEredeForGivewpDeactivator {
      * @since    1.0.0
      */
     public static function deactivate(): void {
-        wp_unschedule_hook( 'lkn_payment_erede_cron_delete_logs' );
         wp_unschedule_hook( 'lkn_payment_erede_cron_verify_payment' );
     }
 }

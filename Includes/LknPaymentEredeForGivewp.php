@@ -6,6 +6,7 @@ use Give\Donations\Models\Donation;
 use Give\Donations\ValueObjects\DonationStatus;
 use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
 use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
+use Lkn_Puc_Plugin_UpdateChecker;
 
 /**
  * The file that defines the core plugin class
@@ -93,10 +94,6 @@ class LknPaymentEredeForGivewp {
         } else {
             wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
         }
-        
-        if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_delete_logs' ) ) {
-            wp_schedule_event( time() + 604800, 'weekly', 'lkn_payment_erede_cron_delete_logs' );
-        }
     }
 
     public function verify_payment() : bool {
@@ -121,13 +118,16 @@ class LknPaymentEredeForGivewp {
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
                 
                 if ('enabled' === $configs['debug']) {
-                    // Realizar o logging da informação relevante
-                    $rawHeaders = wp_remote_retrieve_headers($responseRaw);
-                    $logMessage = 'VERIFY PAYMENT - [Raw header]: ' . var_export($rawHeaders, true) . \PHP_EOL .
-                                ' [INFO]: ' . var_export($payment, true) . \PHP_EOL .
-                                ' [BODY]: ' . var_export($response, true);
-
-                    LknPaymentEredeForGivewpHelper::log($logMessage, $logname);
+                    LknPaymentEredeForGivewpHelper::regLog(
+                        'info', // logType
+                        'verify_payment', // category
+                        'Verificação de pagamento', // description
+                        array(
+                            'response' => $response,
+                            'payment' => $payment
+                        ), // data
+                        true // forceLog
+                    );
                 }
     
                 if ($response && isset($response->authorization) && isset($response->authorization->returnCode)) {
@@ -337,12 +337,12 @@ class LknPaymentEredeForGivewp {
 
         $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
-        $this->loader->add_action('lkn_payment_erede_cron_delete_logs', 'Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpHelper', 'delete_old_logs', 10, 0 );
         $this->loader->add_action('lkn_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
 
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
         $this->loader->add_filter('give_get_sections_gateways', $plugin_admin, 'new_setting_section');
         $this->loader->add_action('give_view_donation_details_billing_after', $plugin_admin, 'add_donation_details');
+        $this->loader->add_action('give_init', $this, 'updater_init');
     }
 
     /**
@@ -412,5 +412,13 @@ class LknPaymentEredeForGivewp {
      */
     public function get_version() {
         return $this->version;
+    }
+
+    public function updater_init() {
+        return new Lkn_Puc_Plugin_UpdateChecker(
+            'https://api.linknacional.com/v2/u/?slug=payment-erede-for-givewp',
+            PAYMENT_EREDE_FOR_GIVEWP_FILE,//(caso o plugin não precise de compatibilidade com ioncube utilize: __FILE__), //Full path to the main plugin file or functions.php.
+            PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN
+        );
     }
 }
