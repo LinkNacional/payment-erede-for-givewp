@@ -94,29 +94,29 @@ class LknPaymentEredeForGivewpAdmin {
         
         $noticeDesc = sprintf(
             ' %1$s %2$s %3$s %4$s',
-            __('Get new features with', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            __('Get new features with', 'payment-erede-for-givewp'),
             '<a href="https://www.linknacional.com.br/wordpress/" target="_blank">',
-            __('Payment E-Rede for GiveWP PRO.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            __('Payment E-Rede for GiveWP PRO.', 'payment-erede-for-givewp'),
             '</a>',
         );
 
         $currencyExchangeLabel = sprintf(
             '%1$s %2$s %3$s %4$s',
-            __('Calculate exchange rates automatically for international currencies, we have full compatibility with the', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            __('Calculate exchange rates automatically for international currencies, we have full compatibility with the', 'payment-erede-for-givewp'),
             '<a href="https://www.linknacional.com.br/wordpress/givewp/multimoeda/" target="_blank">',
-            __('Multicurrency plugin for GiveWP by Link Nacional.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            __('Multicurrency plugin for GiveWP by Link Nacional.', 'payment-erede-for-givewp'),
             '</a>',
         );
 
         wp_localize_script($this->plugin_name, 'lknEredePaymentAdmin', array(
-            'notice' => esc_html__($noticeDesc),
-            'captureLabelTitle' => esc_html__('Manual capture your transactions', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'captureLabelDesc' => esc_html__('Capture your transactions manually to avoid chargeback and card testing.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'returnLabelTitle' => esc_html__('Refund your transactions', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'returnLabelDesc' => esc_html__('Option to refund transaction amount integrated into GiveWP donation details.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'installmentLabelTitle' => esc_html__('Donations in installments', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'installmentLabelDesc' => esc_html__('Option for your donor to pay the donation in installments.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-            'currencyExchangeLabelTitle' => esc_html__('International currency exchange', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+            'notice' => esc_html($noticeDesc),
+            'captureLabelTitle' => esc_html__('Manual capture your transactions', 'payment-erede-for-givewp'),
+            'captureLabelDesc' => esc_html__('Capture your transactions manually to avoid chargeback and card testing.', 'payment-erede-for-givewp'),
+            'returnLabelTitle' => esc_html__('Refund your transactions', 'payment-erede-for-givewp'),
+            'returnLabelDesc' => esc_html__('Option to refund transaction amount integrated into GiveWP donation details.', 'payment-erede-for-givewp'),
+            'installmentLabelTitle' => esc_html__('Donations in installments', 'payment-erede-for-givewp'),
+            'installmentLabelDesc' => esc_html__('Option for your donor to pay the donation in installments.', 'payment-erede-for-givewp'),
+            'currencyExchangeLabelTitle' => esc_html__('International currency exchange', 'payment-erede-for-givewp'),
             'currencyExchangeLabelDesc' => $currencyExchangeLabel,
         ));
     }
@@ -129,8 +129,8 @@ class LknPaymentEredeForGivewpAdmin {
      * @return array
      */
     public function new_setting_section($sections) {
-        $sections['lkn-erede-credit'] = __('E-Rede API - Credit Card', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
-        $sections['lkn-erede-debit-3ds'] = __('E-Rede API - Debit Card 3DS', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN);
+        $sections['lkn-erede-credit'] = __('E-Rede API - Credit Card', 'payment-erede-for-givewp');
+        $sections['lkn-erede-debit-3ds'] = __('E-Rede API - Debit Card 3DS', 'payment-erede-for-givewp');
 
         return $sections;
     }
@@ -146,72 +146,72 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Environment type', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Environment type', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_env_setting_field',
-                    'desc' => __('Environment type to make transactions.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Environment type to make transactions.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation environment for developer', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'production' => __('Production', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'sandbox' => __('Homologation environment for developer', 'payment-erede-for-givewp'),
+                        'production' => __('Production', 'payment-erede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('PV', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('PV', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_pv_setting_field',
-                    'desc' => __('E-Rede API credential filiation number.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential filiation number.', 'payment-erede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
     
                 $settings[] = array(
-                    'name' => __('Token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Token', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential secret token.', 'payment-erede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
 
                 //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Permitir doação sem descrição de transação', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Permitir doação sem descrição de transação', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_enable_transaction_without_description',
-                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
 
-                if (give_get_option('lkn_erede_credit_enable_transaction_without_description', 'disabled') === 'disabled'){
+                if (give_get_option('lkn_erede_credit_enable_transaction_without_description', 'disabled') === 'disabled') {
                     $settings[] = array(
-                        'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'name' => __('Transaction description', 'payment-erede-for-givewp'),
                         'id' => 'lkn_erede_credit_softdescription_setting_field',
-                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-erede-for-givewp'),
                         'type' => 'text',
                         'default' => '',
                     );
                 }
     
                 $settings[] = array(
-                    'name' => __('Billing fields', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Billing fields', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_billing_fields_setting_field',
-                    'desc' => __('Adds additional address fields to your donation form.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Adds additional address fields to your donation form.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
 
                 $settings[] = array(
                     'name' => 'Seguir transação sem autenticação Erede 3DS 2.0',
                     'id' => 'lkn_erede_credit_transaction_without_authentication',
-                    'desc' => __('If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
@@ -221,17 +221,19 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Debug mode', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Debug mode', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_credit_debug_setting_field',
                     'desc' => sprintf(
-                        __( 'Saves transaction logs for testing purposes. %sSee logs.%s', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN), 
-                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">', '</a>' 
+                        /* translators: 1: HTML tag 2: HTML tag end */
+                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-erede-for-givewp'),
+                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">',
+                        '</a>'
                     ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
     
@@ -248,80 +250,81 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Environment type', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Environment type', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_env_setting_field',
-                    'desc' => __('Environment type to make transactions.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Environment type to make transactions.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation environment for developer', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'production' => __('Production', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'sandbox' => __('Homologation environment for developer', 'payment-erede-for-givewp'),
+                        'production' => __('Production', 'payment-erede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('PV', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('PV', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_pv_setting_field',
-                    'desc' => __('E-Rede API credential filiation number.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential filiation number.', 'payment-erede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
     
                 $settings[] = array(
-                    'name' => __('Token', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Token', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('E-Rede API credential secret token.', 'payment-erede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
 
                 //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Permitir doação sem descrição de transação', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Permitir doação sem descrição de transação', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_enable_transaction_without_description',
-                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
 
-                if (give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description', 'disabled') === 'disabled'){
+                if (give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description', 'disabled') === 'disabled') {
                     $settings[] = array(
-                        'name' => __('Transaction description', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'name' => __('Transaction description', 'payment-erede-for-givewp'),
                         'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
-                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-erede-for-givewp'),
                         'type' => 'text',
                         'default' => '',
                     );
                 }
     
                 $settings[] = array(
-                    'name' => __('Billing fields', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Billing fields', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_billing_fields_setting_field',
-                    'desc' => __('Adds additional address fields to your donation form.', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'desc' => __('Adds additional address fields to your donation form.', 'payment-erede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('Debug mode', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
+                    'name' => __('Debug mode', 'payment-erede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_debug_setting_field',
                     'desc' => sprintf(
-                        __( 'Saves transaction logs for testing purposes. %sSee logs.%s', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN), 
-                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">', '</a>' 
+                        /* translators: 1: HTML tag 2: HTML tag end */
+                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-erede-for-givewp'),                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">',
+                        '</a>'
                     ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                        'disabled' => __('Disabled', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
                     ),
                 );
     
@@ -354,11 +357,11 @@ class LknPaymentEredeForGivewpAdmin {
                     'capture' => $metaOpt->capture,
                     'log_exists' => file_exists(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log'),
                     'log_data' => base64_encode(file_get_contents(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log')),
-                    'status_label' => __('Return code:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'message_label' => __('Return message:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'transaction_label' => __('Transaction ID:', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'log_label' => __('Transaction log in base64', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN),
-                    'know_more_label' => __('Know more', PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN)
+                    'status_label' => __('Return code:', 'payment-erede-for-givewp'),
+                    'message_label' => __('Return message:', 'payment-erede-for-givewp'),
+                    'transaction_label' => __('Transaction ID:', 'payment-erede-for-givewp'),
+                    'log_label' => __('Transaction log in base64', 'payment-erede-for-givewp'),
+                    'know_more_label' => __('Know more', 'payment-erede-for-givewp')
                 )
             );
         }

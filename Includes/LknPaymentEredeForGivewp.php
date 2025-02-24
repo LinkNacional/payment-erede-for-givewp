@@ -235,60 +235,17 @@ class LknPaymentEredeForGivewp {
         return array_merge($plugin_meta, $new_meta_links);
     }
 
-    public function check_environment() : bool {
-        // Flag to check whether deactivate plugin or not.
-        $is_deactivate_plugin = false;
-
-        // Load plugin helper functions.
-        if ( ! function_exists('deactivate_plugins') || ! function_exists('is_plugin_active')) {
-            require_once ABSPATH . '/wp-admin/includes/plugin.php';
-        }
-
-        if (
-            defined('GIVE_VERSION')
-            && version_compare(GIVE_VERSION, PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION, '<')
-        ) {
-            // Min. Give. plugin version.
-
-            // Show admin notice.
-            add_action('admin_notices', array($this, 'givewp_dependency_notice'));
-
-            $is_deactivate_plugin = true;
-        }
-
-        $is_give_active = defined('GIVE_PLUGIN_BASENAME') ? is_plugin_active(GIVE_PLUGIN_BASENAME) : false;
-
-        if ( ! $is_give_active) {
-            add_action('admin_notices', array($this, 'givewp_dependency_notice'));
-
-            $is_deactivate_plugin = true;
-        }
-
-        // Don't let this plugin activate.
-        if ($is_deactivate_plugin) {
-            // Deactivate plugin.
-            deactivate_plugins(PAYMENT_EREDE_FOR_GIVEWP_BASENAME);
-
-            if (isset($_GET['activate'])) {
-                unset($_GET['activate']);
-            }
-            return false;
-        }
-
-        return true;
-    }
-
     public static function givewp_dependency_notice(): void {
         // Admin notice.
         $message = sprintf(
             '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
-            __('Activation error:', ''),
-            __('You need to have', ''),
+            __('Activation error:', 'payment-erede-for-givewp'),
+            __('You need to have', 'payment-erede-for-givewp'),
             'https://givewp.com',
-            __('Give WP', ''),
-            __('version', ''),
+            __('Give WP', 'payment-erede-for-givewp'),
+            __('version', 'payment-erede-for-givewp'),
             PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
-            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', '')
+            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', 'payment-erede-for-givewp')
         );
         
         echo wp_kses_post($message);
@@ -296,8 +253,8 @@ class LknPaymentEredeForGivewp {
 
     public function custom_check_redirect_params(): void {
         if ( is_front_page() ) {
-            $doacao_id = isset( $_GET['doacao_id'] ) ? (int) ( $_GET['doacao_id'] ) : 0;
-            $status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'] ) : '';
+            $doacao_id = isset( $_GET['doacao_id'] ) ? (int) sanitize_text_field(wp_unslash(( $_GET['doacao_id'] ))) : 0;
+            $status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash($_GET['status']) ) : '';
     
             if ( $doacao_id && ( 'success' === $status || 'failure' === $status ) ) {
                 $redirect_url = '';
@@ -335,7 +292,6 @@ class LknPaymentEredeForGivewp {
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-        $this->loader->add_action('plugins_loaded', $this, 'check_environment', 999);
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
         $this->loader->add_action('lkn_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
 
@@ -418,7 +374,7 @@ class LknPaymentEredeForGivewp {
         return new Lkn_Puc_Plugin_UpdateChecker(
             'https://api.linknacional.com/v2/u/?slug=payment-erede-for-givewp',
             PAYMENT_EREDE_FOR_GIVEWP_FILE,//(caso o plugin não precise de compatibilidade com ioncube utilize: __FILE__), //Full path to the main plugin file or functions.php.
-            PAYMENT_EREDE_FOR_GIVEWP_TEXT_DOMAIN
+            'payment-erede-for-givewp'
         );
     }
 }

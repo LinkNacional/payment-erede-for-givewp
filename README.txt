@@ -33,6 +33,9 @@ Payment Gateway E-Rede for GiveWP plugin is dependent on [GiveWP plugin](https:/
 
 This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.
 
+**Third party APIs usage**
+This plugin is a payment method, it uses the [E-Rede account](https://developer.userede.com.br/) API for credit and debit card payment processing. See the [privacy policy](https://www.itau.com.br/privacidade/politica-de-privacidade-e-cookies) and [terms of use](https://developer.userede.com.br/files/termos/politica_privacidade_rede_2024.pdf).
+
 **User instructions**
 
 1. Go to GiveWP settings menu;
