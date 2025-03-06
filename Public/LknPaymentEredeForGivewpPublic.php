@@ -90,5 +90,6 @@ class LknPaymentEredeForGivewpPublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
+        wp_enqueue_script('lknPaymentEredeForGivewpSetPaymentInfo', PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/lknPaymentEredeForGivewpSetPaymentInfoFixLegacyMultiStep.js', array('wp-api'), PAYMENT_EREDE_FOR_GIVEWP_VERSION, false );
     }
 }

@@ -11,6 +11,7 @@
  * @package    Payment_Erede_For_Givewp
  * @subpackage Payment_Erede_For_Givewp/admin/partials
  */
+if ( ! defined( 'ABSPATH' ) ) exit;
 ?>
 
 <input type="hidden" id="lkn-erede-capture" value="<?php echo esc_attr($args['capture']); ?>">

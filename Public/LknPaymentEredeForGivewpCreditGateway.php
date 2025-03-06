@@ -322,36 +322,6 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 	<input type="hidden" name="gatewayData[paymentWidth]" value="" />
 	<input type="hidden" name="gatewayData[paymentTimezoneOffset]" value="" />
 
-	<script type="text/javascript">
-        function setCreditInfo() {
-            const language = window.navigator.language.slice(0, 2)
-            const height = screen.height
-            const width = screen.width
-            const colorDepth = window.screen.colorDepth
-            const userAgent = navigator.userAgent
-            const date = new Date()
-            const timezoneOffset = date.getTimezoneOffset()
-
-            const userAgentInput = document.getElementsByName('gatewayData[paymentUserAgent]')[0]
-            const deviceColorInput = document.getElementsByName('gatewayData[paymentColorDepth]')[0]
-            const langInput = document.getElementsByName('gatewayData[paymentLanguage]')[0]
-            const heightInput = document.getElementsByName('gatewayData[paymentHeight]')[0]
-            const widthInput = document.getElementsByName('gatewayData[paymentWidth]')[0]
-            const timezoneInput = document.getElementsByName('gatewayData[paymentTimezoneOffset]')[0]
-
-            if (userAgentInput && deviceColorInput && langInput && heightInput && widthInput && timezoneInput) {
-                userAgentInput.value = userAgent
-                deviceColorInput.value = colorDepth
-                langInput.value = language
-                heightInput.value = height
-                widthInput.value = width
-                timezoneInput.value = timezoneOffset
-            }
-        }
-
-        setCreditInfo()
-	</script>
-
 	<!-- CARD NUMBER INPUT -->
 	<div id="give-card-number-wrap"
 		class="form-row form-row-two-thirds form-row-responsive give-lkn-cielo-api-cc-field-wrap">
@@ -433,6 +403,7 @@ class LknPaymentEredeForGivewpCreditGateway extends PaymentGateway {
 </fieldset>
 
 <?php
+        wp_enqueue_script('lknPaymentEredeForGivewpSetPaymentInfo', PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/lknPaymentEredeForGivewpSetPaymentInfo.js', array('jquery'), PAYMENT_EREDE_FOR_GIVEWP_VERSION, false );
 
         $form = ob_get_clean();
 
