@@ -20,7 +20,7 @@ use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
  * Plugin Name:       Payment Gateway E-Rede for GiveWP
  * Plugin URI:        https://www.linknacional.com.br/wordpress/plugins/
  * Description:       Credit and debit card payment using E-Rede
- * Version:           2.0.2
+ * Version:           2.0.3
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com.br/wordpress/plugins/
  * License:           GPL-3.0+
@@ -43,7 +43,7 @@ require_once __DIR__ . '/Includes/plugin-updater/plugin-update-checker.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PAYMENT_EREDE_FOR_GIVEWP_VERSION', '2.0.2' );
+define( 'PAYMENT_EREDE_FOR_GIVEWP_VERSION', '2.0.3' );
 
 define( 'PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION', '2.31.0' );
 

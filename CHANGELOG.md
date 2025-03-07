@@ -1,3 +1,6 @@
+# 2.0.3 - 07/03/2025
+* Fix WordPress guidelines.
+
 # 2.0.2 - 07/01/2025
 * Changed log functionality.
 
