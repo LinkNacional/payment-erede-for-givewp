@@ -1,11 +1,11 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\Includes;
+namespace Lknpg\PaymentEredeForGivewp\Includes;
 
 use Give\Donations\Models\Donation;
 use Give\Donations\ValueObjects\DonationStatus;
-use Lkn\PaymentEredeForGivewp\Admin\LknPaymentEredeForGivewpAdmin;
-use Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpPublic;
+use Lknpg\PaymentEredeForGivewp\Admin\LknpgPaymentEredeForGivewpAdmin;
+use Lknpg\PaymentEredeForGivewp\PublicView\LknpgPaymentEredeForGivewpPublic;
 use Lkn_Puc_Plugin_UpdateChecker;
 
 /**
@@ -35,7 +35,7 @@ use Lkn_Puc_Plugin_UpdateChecker;
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewp {
+class LknpgPaymentEredeForGivewp {
     /**
      * The loader that's responsible for maintaining and registering all hooks that power
      * the plugin.
@@ -82,17 +82,16 @@ class LknPaymentEredeForGivewp {
         $this->plugin_name = 'payment-erede-for-givewp';
 
         $this->load_dependencies();
-        $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
         $this->schedule_events();
     }
 
     public function schedule_events() : void {
-        if ( ! wp_next_scheduled( 'lkn_payment_erede_cron_verify_payment' ) ) {
-            wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
+        if ( ! wp_next_scheduled( 'lknpg_payment_erede_cron_verify_payment' ) ) {
+            wp_schedule_event( time() + 60, 'every_minute', 'lknpg_payment_erede_cron_verify_payment' );
         } else {
-            wp_schedule_event( time() + 60, 'every_minute', 'lkn_payment_erede_cron_verify_payment' );
+            wp_schedule_event( time() + 60, 'every_minute', 'lknpg_payment_erede_cron_verify_payment' );
         }
     }
 
@@ -102,7 +101,7 @@ class LknPaymentEredeForGivewp {
         $logname = gmdate('d.m.Y-H.i.s') . '-3ds-verification';
     
         if (is_array($paymentsToVerify) && ! empty($paymentsToVerify)) {
-            $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
+            $configs = LknpgPaymentEredeForGivewpHelper::get_configs('debit-3ds');
             $authorization = base64_encode($configs['pv'] . ':' . $configs['token']);
             $paymentsToValidate = array();
             $logname = gmdate('d.m.Y-H.i.s') . '-3ds-verification';
@@ -118,7 +117,7 @@ class LknPaymentEredeForGivewp {
                 $response = json_decode(wp_remote_retrieve_body($responseRaw));
                 
                 if ('enabled' === $configs['debug']) {
-                    LknPaymentEredeForGivewpHelper::regLog(
+                    LknpgPaymentEredeForGivewpHelper::regLog(
                         'info', // logType
                         'verify_payment', // category
                         'Verificação de pagamento', // description
@@ -212,13 +211,7 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function load_dependencies(): void {
-        $this->loader = new LknPaymentEredeForGivewpLoader();
-    }
-
-    private function set_locale(): void {
-        $plugin_i18n = new LknPaymentEredeForGivewpI8n();
-
-        $this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+        $this->loader = new LknpgPaymentEredeForGivewpLoader();
     }
 
     public function define_row_meta($plugin_meta, $plugin_file) :array {
@@ -229,7 +222,7 @@ class LknPaymentEredeForGivewp {
         $new_meta_links['setting'] = sprintf(
             '<a href="%1$s">%2$s</a>',
             admin_url('edit.php?post_type=give_forms&page=give-settings&tab=gateways'),
-            __('Settings', 'payment-erede-for-givewp'),
+            __('Settings', 'payment-gateway-e-rede-for-givewp'),
         );
     
         return array_merge($plugin_meta, $new_meta_links);
@@ -239,13 +232,13 @@ class LknPaymentEredeForGivewp {
         // Admin notice.
         $message = sprintf(
             '<div class="notice notice-error"><p><strong>%1$s</strong> %2$s <a href="%3$s" target="_blank">%4$s</a>  %5$s %6$s+ %7$s.</p></div>',
-            __('Activation error:', 'payment-erede-for-givewp'),
-            __('You need to have', 'payment-erede-for-givewp'),
+            __('Activation error:', 'payment-gateway-e-rede-for-givewp'),
+            __('You need to have', 'payment-gateway-e-rede-for-givewp'),
             'https://givewp.com',
-            __('Give WP', 'payment-erede-for-givewp'),
-            __('version', 'payment-erede-for-givewp'),
+            __('Give WP', 'payment-gateway-e-rede-for-givewp'),
+            __('version', 'payment-gateway-e-rede-for-givewp'),
             PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION,
-            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', 'payment-erede-for-givewp')
+            __('for the Payment Gateway E-Rede for GiveWP plugin to activate.', 'payment-gateway-e-rede-for-givewp')
         );
         
         echo wp_kses_post($message);
@@ -285,7 +278,7 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function define_admin_hooks(): void {
-        $plugin_admin = new LknPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
+        $plugin_admin = new LknpgPaymentEredeForGivewpAdmin( $this->get_plugin_name(), $this->get_version() );
 
         $this->loader->add_action( 'template_redirect', $this, 'custom_check_redirect_params' );
 
@@ -293,7 +286,7 @@ class LknPaymentEredeForGivewp {
         $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
         $this->loader->add_filter('plugin_action_links_' . PAYMENT_EREDE_FOR_GIVEWP_BASENAME, $this, 'define_row_meta', 10, 2);
-        $this->loader->add_action('lkn_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
+        $this->loader->add_action('lknpg_payment_erede_cron_verify_payment', $this, 'verify_payment', 10, 0 );
 
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
         $this->loader->add_filter('give_get_sections_gateways', $plugin_admin, 'new_setting_section');
@@ -309,7 +302,7 @@ class LknPaymentEredeForGivewp {
      * @access   private
      */
     private function define_public_hooks(): void {
-        $plugin_public = new LknPaymentEredeForGivewpPublic( $this->get_plugin_name(), $this->get_version() );
+        $plugin_public = new LknpgPaymentEredeForGivewpPublic( $this->get_plugin_name(), $this->get_version() );
 
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
         $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
@@ -326,8 +319,8 @@ class LknPaymentEredeForGivewp {
      * @return void
      */
     final public function new_gateway_register($paymentGatewayRegister): void {
-        $paymentGatewayRegister->registerGateway('Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpDebitGateway');
-        $paymentGatewayRegister->registerGateway('Lkn\PaymentEredeForGivewp\PublicView\LknPaymentEredeForGivewpCreditGateway');
+        $paymentGatewayRegister->registerGateway('Lknpg\PaymentEredeForGivewp\PublicView\LknpgPaymentEredeForGivewpDebitGateway');
+        $paymentGatewayRegister->registerGateway('Lknpg\PaymentEredeForGivewp\PublicView\LknpgPaymentEredeForGivewpCreditGateway');
     }
 
     /**

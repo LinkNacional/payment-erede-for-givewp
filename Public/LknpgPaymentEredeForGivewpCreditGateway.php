@@ -1,28 +1,28 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\PublicView;
+namespace Lknpg\PaymentEredeForGivewp\PublicView;
 
 use Give\Donations\Models\Donation;
 use Give\Donations\Models\DonationNote;
 use Give\Donations\ValueObjects\DonationStatus;
 use Give\Framework\Exceptions\Primitives\Exception;
-use Give\Framework\PaymentGateways\Commands\RedirectOffsite;
 use Give\Framework\PaymentGateways\Commands\GatewayCommand;
 use Give\Framework\PaymentGateways\Commands\PaymentComplete;
 use Give\Framework\PaymentGateways\Commands\PaymentRefunded;
+use Give\Framework\PaymentGateways\Commands\RedirectOffsite;
 use Give\Framework\PaymentGateways\Exceptions\PaymentGatewayException;
 use Give\Framework\PaymentGateways\PaymentGateway;
-use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpHelper;
+use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpHelper;
 
 /**
  * @inheritDoc
  */
-class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
+class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway {
     /**
      * @inheritDoc
      */
     public static function id(): string {
-        return 'lkn_erede_debit_3ds';
+        return 'lkn_erede_credit';
     }
 
     /**
@@ -36,21 +36,21 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
      * @inheritDoc
      */
     public function getName(): string {
-        return __('E-Rede API - Debit Card 3DS', 'payment-erede-for-givewp');
+        return __('E-Rede API - Credit Card', 'payment-gateway-e-rede-for-givewp');
     }
 
-    /**
+    /**s
      * @inheritDoc
      */
     public function getPaymentMethodLabel(): string {
-        return __('E-Rede - Debit Card', 'payment-erede-for-givewp');
+        return __('E-Rede - Credit Card', 'payment-gateway-e-rede-for-givewp');
     }
 
     /**
      * @inheritDoc
      */
     public function getLegacyFormFieldMarkup(int $formId, array $args): string {
-        return $this->debit_card_form($formId, $args);
+        return $this->credit_card_form($formId, $args);
     }
 
     /**
@@ -59,16 +59,17 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
     public function createPayment(Donation $donation, $gatewayData): GatewayCommand {
         try {
             // Set the configs values
-            $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
-            $logname = gmdate('d.m.Y-H.i.s') . '-debit-3ds';
-            
-            // Donation informations.
+            $configs = LknpgPaymentEredeForGivewpHelper::get_configs('credit');
+            $logname = gmdate('d.m.Y-H.i.s') . '-credit';
+            $withoutAuth3DS = $configs['withoutAuth3DS'];
+
             $donation->firstName = sanitize_text_field($donation->firstName);
             $donation->lastName = sanitize_text_field($donation->lastName);
             $donation->email = sanitize_email($donation->email);
+            
+            // Donation informations.
             $donPrice = $donation->amount->formatToDecimal();
 
-            // Card informations.
             $cardNum = preg_replace('/\D/', '', sanitize_text_field($gatewayData['paymentCardNum']));
             $CardCVC = $gatewayData['paymentCardCVC'];
             $CardName = sanitize_text_field($gatewayData['paymentCardName']);
@@ -82,7 +83,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $width = $gatewayData['paymentWidth'];
             $timezone = $gatewayData['paymentTimezoneOffset'];
             
-            //Separando mes e ano.
+            //Separando mes e ano
             $expDate = explode('/', $CardExp);
             $cardExpiryMonth = trim($expDate[0]);
             $cardExpiryYear = trim($expDate[1]);
@@ -93,8 +94,8 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             );
 
             $currencyCode = give_get_currency($donation->formId, $donation);
-            $payment_id = $donation->id;
 
+            $payment_id = $donation->id;
             $amount = $donPrice;
             $amount = number_format($amount, 2, '', '');
 
@@ -115,48 +116,69 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 home_url()
             );
 
-            $body = array(
-                'capture' => true,
-                'kind' => 'debit',
-                'reference' => 'order' . $payment_id,
-                'amount' => $amount,
-                'cardholderName' => $CardName,
-                'cardNumber' => $cardNum,
-                'expirationMonth' => $cardExpiryMonth,
-                'expirationYear' => $cardExpiryYear,
-                'securityCode' => $CardCVC,
-                'threeDSecure' => array(
-                    'embedded' => true,
-                    'onFailure' => 'decline',
-                    'userAgent' => $userAgent,
-                    'device' => array(
-                        'colorDepth' => $colorDepth,
-                        'deviceType3ds' => 'BROWSER',
-                        'javaEnabled' => false,
-                        'language' => $lang,
-                        'screenHeight' => $height,
-                        'screenWidth' => $width,
-                        'timeZoneOffset' => $timezone
+            if ('enabled' == $withoutAuth3DS) {
+                $body = array(
+                    'capture' => true,
+                    'kind' => 'credit',
+                    'reference' => $payment_id,
+                    'amount' => $amount,
+                    'cardholderName' => $CardName,
+                    'cardNumber' => $cardNum,
+                    'expirationMonth' => $cardExpiryMonth,
+                    'expirationYear' => $cardExpiryYear,
+                    'securityCode' => $CardCVC,
+                    'subscription' => false,
+                    'origin' => 1,
+                    'distributorAffiliation' => 0,
+                    'storageCard' => '0',
+                    'transactionCredentials' => array(
+                        'credentialId' => '01'
                     )
-                ),
-                'urls' => array(
-                    array(
-                        'kind' => 'threeDSecureSuccess',
-                        'url' => $redirect_url_sucess
+                );
+            } else {
+                $body = array(
+                    'capture' => false,
+                    'kind' => 'credit',
+                    'reference' => 'order' . $payment_id,
+                    'amount' => $amount,
+                    'cardholderName' => $CardName,
+                    'cardNumber' => $cardNum,
+                    'expirationMonth' => $cardExpiryMonth,
+                    'expirationYear' => $cardExpiryYear,
+                    'securityCode' => $CardCVC,
+                    'threeDSecure' => array(
+                        'embedded' => true,
+                        'onFailure' => 'decline', 
+                        'userAgent' => $userAgent,
+                        'device' => array(
+                            'colorDepth' => $colorDepth,
+                            'deviceType3ds' => 'BROWSER',
+                            'javaEnabled' => false,
+                            'language' => $lang,
+                            'screenHeight' => $height,
+                            'screenWidth' => $width,
+                            'timeZoneOffset' => $timezone
+                        )
                     ),
-                    array(
-                        'kind' => 'threeDSecureFailure',
-                        'url' => $redirect_url_fail
+                    'urls' => array(
+                        array(
+                            'kind' => 'threeDSecureSuccess',
+                            'url' => $redirect_url_sucess
+                        ),
+                        array(
+                            'kind' => 'threeDSecureFailure',
+                            'url' => $redirect_url_fail
+                        )
                     )
-                )
-            );
+                );
+            }
 
             // Adicione o softDescriptor apenas se withoutDescription for disabled
             if ('disabled' === $configs['withoutDescription']) {
                 $body['softDescriptor'] = $configs['description'];
             }
 
-            $body = apply_filters('lkn_erede_debit_3ds_body', $body, $currencyCode, $donation);
+            $body = apply_filters('lknpg_erede_credit_body', $body, $currencyCode);
 
             $response = wp_remote_post($configs['api_url'], array(
                 'headers' => $headers,
@@ -166,7 +188,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
             $response = json_decode(wp_remote_retrieve_body($response));
 
             if ('enabled' === $configs['debug']) {
-                LknPaymentEredeForGivewpHelper::regLog(
+                LknpgPaymentEredeForGivewpHelper::regLog(
                     'info', // logType
                     'createPayment', // category
                     'Requisição para gerar pagamento', // description
@@ -187,14 +209,10 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
                 'capture' => $body['capture']
             );
 
-            if ('enabled' === $configs['debug']) {
-                $arrMetaData['log'] = $logname;
-            }
-
             give_update_payment_meta($payment_id, 'lkn_erede_response', wp_json_encode($arrMetaData));
 
             switch ($response->returnCode) {
-                case '200':
+                case '00':
 
                     $donation->status = DonationStatus::COMPLETE();
                     $donation->save();
@@ -261,16 +279,16 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
      *
      * @return mixed
      */
-    final public static function debit_card_form($form_id, $args) {
-        $configs = LknPaymentEredeForGivewpHelper::get_configs('debit-3ds');
+    final public static function credit_card_form($form_id, $args) {
+        $configs = LknpgPaymentEredeForGivewpHelper::get_configs('credit');
       
         ob_start();
 
         do_action('give_before_cc_fields', $form_id); ?>
 
-<fieldset id="give_dc_fields" class="give-do-validate">
+<fieldset id="give_cc_fields" class="give-do-validate">
 	<legend>
-		Informações de cartão de débito
+		Informações de cartão de crédito
 	</legend>
 
 	<?php if (is_ssl()) { ?>
@@ -286,14 +304,16 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 	    Give()->notices->print_frontend_notice(
 	        sprintf(
 	            '<strong>%1$s</strong> %2$s',
-	            esc_html__('Erro:', 'payment-erede-for-givewp'),
-	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'payment-erede-for-givewp')
+	            esc_html__('Erro:', 'payment-gateway-e-rede-for-givewp'),
+	            esc_html__('Doação desabilitada por falta de SSL (HTTPS).', 'payment-gateway-e-rede-for-givewp')
 	        )
 	    );
 
 	    exit;
 	}
+    
         ?>
+
 	<!-- Secure 3DS - Erede -->
 	<input type="hidden" name="gatewayData[paymentUserAgent]" value="" />
 	<input type="hidden" name="gatewayData[paymentColorDepth]" value="" />
@@ -310,7 +330,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 			Número do cartão
 			<span class="give-required-indicator">*</span>
 			<span class="give-tooltip hint--top hint--medium hint--bounce"
-				aria-label="Normalmente possui 16 digitos na frente do seu cartão de débito." rel="tooltip"><i
+				aria-label="Normalmente possui 16 digitos na frente do seu cartão de crédito." rel="tooltip"><i
 					class="give-icon give-icon-question"></i></span>
 		</label>
 		<input type="tel" autocomplete="off" name="gatewayData[paymentCardNum]"
@@ -327,7 +347,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 			Expiração
 			<span class="give-required-indicator">*</span>
 			<span class="give-tooltip give-icon give-icon-question"
-				data-tooltip="A data de expiração do cartão de débito, geralmente na frente do cartão."></span>
+				data-tooltip="A data de expiração do cartão de crédito, geralmente na frente do cartão."></span>
 		</label>
 		<input type="tel" autocomplete="off" name="gatewayData[paymentCardExp]"
 			id="card_expiry-<?php echo esc_attr($form_id); ?>"
@@ -342,7 +362,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 			Nome do títular do cartão
 			<span class="give-required-indicator">*</span>
 			<span class="give-tooltip give-icon give-icon-question"
-				data-tooltip="O nome do titular da conta do cartão de débito.">
+				data-tooltip="O nome do titular da conta do cartão de crédito.">
 			</span>
 		</label>
 		<input type="text" autocomplete="off"
@@ -360,7 +380,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 			CVV
 			<span class="give-required-indicator">*</span>
 			<span class="give-tooltip give-icon give-icon-question"
-				data-tooltip="São os 3 ou 4 dígitos que estão atrás do seu cartão de débito."></span>
+				data-tooltip="São os 3 ou 4 dígitos que estão atrás do seu cartão de crédito."></span>
 		</label>
 		<div id="give-card-cvc-field-<?php echo esc_attr($form_id); ?>"
 			class="input empty give-lkn-cielo-api-cc-field give-lkn-cielo-api-card-cvc-field"></div>
@@ -369,21 +389,21 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
 			class="give-input required" placeholder="CVV" required="" aria-required="true" />
 	</div>
 	<?php
-        do_action('give_after_dc_expiration', $form_id, $args);
+            do_action('give_after_cc_expiration', $form_id, $args);
 
-        do_action('give_lkn_payment_erede_after_dc_expiration', $form_id, $args);
-                
+        do_action('give_lkn_payment_erede_after_cc_expiration', $form_id, $args);
+
         // Remove Address Fields if user has option enabled.
         if ('disabled' === $configs['billing_fields']) {
-            remove_action('give_after_dc_fields', 'give_default_cc_address_fields');
+            remove_action('give_after_cc_fields', 'give_default_cc_address_fields');
         }
 
-        do_action('give_after_dc_fields', $form_id, $args);
+        do_action('give_after_cc_fields', $form_id, $args);
         ?>
 </fieldset>
 
 <?php
-        wp_enqueue_script('lknPaymentEredeForGivewpSetPaymentInfo', PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/lknPaymentEredeForGivewpSetPaymentInfo.js', array('jquery'), PAYMENT_EREDE_FOR_GIVEWP_VERSION, false );
+        wp_enqueue_script('lknPaymentEredeForGivewpSetPaymentInfo', PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/lknpgPaymentEredeForGivewpSetPaymentInfo.js', array('jquery'), PAYMENT_EREDE_FOR_GIVEWP_VERSION, false );
 
         $form = ob_get_clean();
 
@@ -398,7 +418,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
         // Step 2: return a command to complete the refund.
         return new PaymentRefunded();
     }
-
+    
     /**
      * // needs this function to appear in v3 forms
      * @since 3.0.0
@@ -406,7 +426,7 @@ class LknPaymentEredeForGivewpDebitGateway extends PaymentGateway {
     public function enqueueScript(int $formId): void {
         wp_enqueue_script(
             self::id(),
-            PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/plugin-debit-script.js',
+            PAYMENT_EREDE_FOR_GIVEWP_URL . 'Public/js/plugin-credit-script.js',
             array('wp-element', 'wp-i18n'),
             PAYMENT_EREDE_FOR_GIVEWP_VERSION,
             true

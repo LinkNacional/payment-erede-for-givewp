@@ -1,8 +1,8 @@
 <?php
 
-use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpActivator;
-use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewpDeactivator;
-use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewp;
+use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpActivator;
+use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpDeactivator;
+use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
 
 /**
  * The plugin bootstrap file
@@ -26,7 +26,7 @@ use Lkn\PaymentEredeForGivewp\Includes\LknPaymentEredeForGivewp;
  * License:           GPL-3.0+
  * Requires Plugins: give
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
- * Text Domain:       payment-erede-for-givewp
+ * Text Domain:       payment-gateway-e-rede-for-givewp
  * Domain Path:       /languages
  */
 
@@ -60,7 +60,7 @@ define('PAYMENT_EREDE_FOR_GIVEWP_URL', plugin_dir_url(__FILE__));
  * This action is documented in includes/class-payment-erede-for-givewp-activator.php
  */
 function payment_erede_for_givewp_activate(): void {
-    LknPaymentEredeForGivewpActivator::activate();
+    LknpgPaymentEredeForGivewpActivator::activate();
 }
 
 /**
@@ -68,7 +68,7 @@ function payment_erede_for_givewp_activate(): void {
  * This action is documented in includes/class-payment-erede-for-givewp-deactivator.php
  */
 function payment_erede_for_givewp_deactivate(): void {
-    LknPaymentEredeForGivewpDeactivator::deactivate();
+    LknpgPaymentEredeForGivewpDeactivator::deactivate();
 }
 
 register_activation_hook( __FILE__, 'payment_erede_for_givewp_activate' );
@@ -89,7 +89,7 @@ register_deactivation_hook( __FILE__, 'payment_erede_for_givewp_deactivate' );
  * @since    1.0.0
  */
 function payment_erede_for_givewp_run(): void {
-    $plugin = new LknPaymentEredeForGivewp();
+    $plugin = new LknpgPaymentEredeForGivewp();
     $plugin->run();
 }
 payment_erede_for_givewp_run();

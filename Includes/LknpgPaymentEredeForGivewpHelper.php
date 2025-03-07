@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\Includes;
+namespace Lknpg\PaymentEredeForGivewp\Includes;
 use Give\Log\LogFactory;
 use Datetime;
 
@@ -15,7 +15,7 @@ use Datetime;
  * @subpackage Payment_Erede_For_Givewp_Helper/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-abstract class LknPaymentEredeForGivewpHelper {
+abstract class LknpgPaymentEredeForGivewpHelper {
     /**
      * Get all paymethod config options
      *
@@ -35,7 +35,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $configs['billing_fields'] = give_get_option('lkn_erede_credit_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_credit_debug_setting_field', 'disabled');
                 $description = give_get_option('lkn_erede_credit_softdescription_setting_field', 'Doação');
-                $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
+                $configs['description'] = LknpgPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
                 $configs['withoutAuth3DS'] = give_get_option('lkn_erede_credit_transaction_without_authentication');
                 $configs['withoutDescription'] = give_get_option('lkn_erede_credit_enable_transaction_without_description');
 
@@ -53,7 +53,7 @@ abstract class LknPaymentEredeForGivewpHelper {
                 $configs['billing_fields'] = give_get_option('lkn_erede_debit_3ds_billing_fields_setting_field', 'disabled');
                 $configs['debug'] = give_get_option('lkn_erede_debit_3ds_debug_setting_field', 'disabled');
                 $description = give_get_option('lkn_erede_debit_3ds_softdescription_setting_field', 'Doação');
-                $configs['description'] = LknPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
+                $configs['description'] = LknpgPaymentEredeForGivewpHelper::format_softdescriptor_string($description);
                 $configs['withoutDescription'] = give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description');
 
                 if ('production' === $configs['env']) {

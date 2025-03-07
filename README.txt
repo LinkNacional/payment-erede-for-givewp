@@ -31,7 +31,10 @@ Give your donors the convenience and security they deserve while seamlessly mana
 
 Payment Gateway E-Rede for GiveWP plugin is dependent on [GiveWP plugin](https://wordpress.org/plugins/give/), please make sure GiveWP is installed and properly configured.
 
-This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.
+This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.  
+It connects to the E-Rede API for transaction processing:  
+- **Production:** `https://api.userede.com.br/erede/v1/transactions`  
+- **Sandbox:** `https://sandbox-erede.useredecloud.com.br/v1/transactions`
 
 **Third party APIs usage**
 This plugin is a payment method, it uses the [E-Rede account](https://developer.userede.com.br/) API for credit and debit card payment processing. See the [privacy policy](https://www.itau.com.br/privacidade/politica-de-privacidade-e-cookies) and [terms of use](https://developer.userede.com.br/files/termos/politica_privacidade_rede_2024.pdf).

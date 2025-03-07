@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\Includes;
+namespace Lknpg\PaymentEredeForGivewp\Includes;
 
 /**
  * Register all actions and filters for the plugin
@@ -23,7 +23,7 @@ namespace Lkn\PaymentEredeForGivewp\Includes;
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewpLoader {
+class LknpgPaymentEredeForGivewpLoader {
     /**
      * The array of actions registered with WordPress.
      *

@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\Admin;
+namespace Lknpg\PaymentEredeForGivewp\Admin;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -22,7 +22,7 @@ namespace Lkn\PaymentEredeForGivewp\Admin;
  * @subpackage Payment_Erede_For_Givewp/admin
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewpAdmin {
+class LknpgPaymentEredeForGivewpAdmin {
     /**
      * The ID of this plugin.
      *
@@ -70,7 +70,7 @@ class LknPaymentEredeForGivewpAdmin {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/payment-erede-for-givewp-admin.css', array(), $this->version, 'all' );
+        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/lknpgPaymentEredeForGivewpAdmin.css', array(), $this->version, 'all' );
     }
 
     /**
@@ -90,33 +90,33 @@ class LknPaymentEredeForGivewpAdmin {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/payment-erede-for-givewp-admin.js', array('jquery'), $this->version, false );
+        wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/lknpgPaymentEredeForGivewpAdmin.js', array('jquery'), $this->version, false );
         
         $noticeDesc = sprintf(
             ' %1$s %2$s %3$s %4$s',
-            __('Get new features with', 'payment-erede-for-givewp'),
+            __('Get new features with', 'payment-gateway-e-rede-for-givewp'),
             '<a href="https://www.linknacional.com.br/wordpress/" target="_blank">',
-            __('Payment E-Rede for GiveWP PRO.', 'payment-erede-for-givewp'),
+            __('Payment E-Rede for GiveWP PRO.', 'payment-gateway-e-rede-for-givewp'),
             '</a>',
         );
 
         $currencyExchangeLabel = sprintf(
             '%1$s %2$s %3$s %4$s',
-            __('Calculate exchange rates automatically for international currencies, we have full compatibility with the', 'payment-erede-for-givewp'),
+            __('Calculate exchange rates automatically for international currencies, we have full compatibility with the', 'payment-gateway-e-rede-for-givewp'),
             '<a href="https://www.linknacional.com.br/wordpress/givewp/multimoeda/" target="_blank">',
-            __('Multicurrency plugin for GiveWP by Link Nacional.', 'payment-erede-for-givewp'),
+            __('Multicurrency plugin for GiveWP by Link Nacional.', 'payment-gateway-e-rede-for-givewp'),
             '</a>',
         );
 
         wp_localize_script($this->plugin_name, 'lknEredePaymentAdmin', array(
             'notice' => esc_html($noticeDesc),
-            'captureLabelTitle' => esc_html__('Manual capture your transactions', 'payment-erede-for-givewp'),
-            'captureLabelDesc' => esc_html__('Capture your transactions manually to avoid chargeback and card testing.', 'payment-erede-for-givewp'),
-            'returnLabelTitle' => esc_html__('Refund your transactions', 'payment-erede-for-givewp'),
-            'returnLabelDesc' => esc_html__('Option to refund transaction amount integrated into GiveWP donation details.', 'payment-erede-for-givewp'),
-            'installmentLabelTitle' => esc_html__('Donations in installments', 'payment-erede-for-givewp'),
-            'installmentLabelDesc' => esc_html__('Option for your donor to pay the donation in installments.', 'payment-erede-for-givewp'),
-            'currencyExchangeLabelTitle' => esc_html__('International currency exchange', 'payment-erede-for-givewp'),
+            'captureLabelTitle' => esc_html__('Manual capture your transactions', 'payment-gateway-e-rede-for-givewp'),
+            'captureLabelDesc' => esc_html__('Capture your transactions manually to avoid chargeback and card testing.', 'payment-gateway-e-rede-for-givewp'),
+            'returnLabelTitle' => esc_html__('Refund your transactions', 'payment-gateway-e-rede-for-givewp'),
+            'returnLabelDesc' => esc_html__('Option to refund transaction amount integrated into GiveWP donation details.', 'payment-gateway-e-rede-for-givewp'),
+            'installmentLabelTitle' => esc_html__('Donations in installments', 'payment-gateway-e-rede-for-givewp'),
+            'installmentLabelDesc' => esc_html__('Option for your donor to pay the donation in installments.', 'payment-gateway-e-rede-for-givewp'),
+            'currencyExchangeLabelTitle' => esc_html__('International currency exchange', 'payment-gateway-e-rede-for-givewp'),
             'currencyExchangeLabelDesc' => $currencyExchangeLabel,
         ));
     }
@@ -129,8 +129,8 @@ class LknPaymentEredeForGivewpAdmin {
      * @return array
      */
     public function new_setting_section($sections) {
-        $sections['lkn-erede-credit'] = __('E-Rede API - Credit Card', 'payment-erede-for-givewp');
-        $sections['lkn-erede-debit-3ds'] = __('E-Rede API - Debit Card 3DS', 'payment-erede-for-givewp');
+        $sections['lkn-erede-credit'] = __('E-Rede API - Credit Card', 'payment-gateway-e-rede-for-givewp');
+        $sections['lkn-erede-debit-3ds'] = __('E-Rede API - Debit Card 3DS', 'payment-gateway-e-rede-for-givewp');
 
         return $sections;
     }
@@ -146,72 +146,72 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Environment type', 'payment-erede-for-givewp'),
+                    'name' => __('Environment type', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_env_setting_field',
-                    'desc' => __('Environment type to make transactions.', 'payment-erede-for-givewp'),
+                    'desc' => __('Environment type to make transactions.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation environment for developer', 'payment-erede-for-givewp'),
-                        'production' => __('Production', 'payment-erede-for-givewp')
+                        'sandbox' => __('Homologation environment for developer', 'payment-gateway-e-rede-for-givewp'),
+                        'production' => __('Production', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('PV', 'payment-erede-for-givewp'),
+                    'name' => __('PV', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_pv_setting_field',
-                    'desc' => __('E-Rede API credential filiation number.', 'payment-erede-for-givewp'),
+                    'desc' => __('E-Rede API credential filiation number.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
     
                 $settings[] = array(
-                    'name' => __('Token', 'payment-erede-for-givewp'),
+                    'name' => __('Token', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token.', 'payment-erede-for-givewp'),
+                    'desc' => __('E-Rede API credential secret token.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
 
                 //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Permitir doação sem descrição de transação', 'payment-erede-for-givewp'),
+                    'name' => __('Permitir doação sem descrição de transação', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_enable_transaction_without_description',
-                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-erede-for-givewp'),
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
 
                 if (give_get_option('lkn_erede_credit_enable_transaction_without_description', 'disabled') === 'disabled') {
                     $settings[] = array(
-                        'name' => __('Transaction description', 'payment-erede-for-givewp'),
+                        'name' => __('Transaction description', 'payment-gateway-e-rede-for-givewp'),
                         'id' => 'lkn_erede_credit_softdescription_setting_field',
-                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-erede-for-givewp'),
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-gateway-e-rede-for-givewp'),
                         'type' => 'text',
                         'default' => '',
                     );
                 }
     
                 $settings[] = array(
-                    'name' => __('Billing fields', 'payment-erede-for-givewp'),
+                    'name' => __('Billing fields', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_billing_fields_setting_field',
-                    'desc' => __('Adds additional address fields to your donation form.', 'payment-erede-for-givewp'),
+                    'desc' => __('Adds additional address fields to your donation form.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
 
                 $settings[] = array(
                     'name' => 'Seguir transação sem autenticação Erede 3DS 2.0',
                     'id' => 'lkn_erede_credit_transaction_without_authentication',
-                    'desc' => __('If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication.', 'payment-erede-for-givewp'),
+                    'desc' => __('If the option is enabled, the transaction continues without Erede 3DS 2.0 authentication.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
@@ -221,19 +221,19 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Debug mode', 'payment-erede-for-givewp'),
+                    'name' => __('Debug mode', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_credit_debug_setting_field',
                     'desc' => sprintf(
                         /* translators: 1: HTML tag 2: HTML tag end */
-                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-erede-for-givewp'),
+                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-gateway-e-rede-for-givewp'),
                         '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">',
                         '</a>'
                     ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
     
@@ -250,81 +250,81 @@ class LknPaymentEredeForGivewpAdmin {
                 );
     
                 $settings[] = array(
-                    'name' => __('Environment type', 'payment-erede-for-givewp'),
+                    'name' => __('Environment type', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_env_setting_field',
-                    'desc' => __('Environment type to make transactions.', 'payment-erede-for-givewp'),
+                    'desc' => __('Environment type to make transactions.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'sandbox',
                     'options' => array(
-                        'sandbox' => __('Homologation environment for developer', 'payment-erede-for-givewp'),
-                        'production' => __('Production', 'payment-erede-for-givewp')
+                        'sandbox' => __('Homologation environment for developer', 'payment-gateway-e-rede-for-givewp'),
+                        'production' => __('Production', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('PV', 'payment-erede-for-givewp'),
+                    'name' => __('PV', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_pv_setting_field',
-                    'desc' => __('E-Rede API credential filiation number.', 'payment-erede-for-givewp'),
+                    'desc' => __('E-Rede API credential filiation number.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
     
                 $settings[] = array(
-                    'name' => __('Token', 'payment-erede-for-givewp'),
+                    'name' => __('Token', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_token_setting_field',
-                    'desc' => __('E-Rede API credential secret token.', 'payment-erede-for-givewp'),
+                    'desc' => __('E-Rede API credential secret token.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'api_key',
                     'default' => '',
                 );
 
                 //TODO traduzir textos
                 $settings[] = array(
-                    'name' => __('Permitir doação sem descrição de transação', 'payment-erede-for-givewp'),
+                    'name' => __('Permitir doação sem descrição de transação', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_enable_transaction_without_description',
-                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-erede-for-givewp'),
+                    'desc' => __('Habilitar esta opção permite que doações sejam feitas sem incluir uma descrição na transação.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
 
                 if (give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description', 'disabled') === 'disabled') {
                     $settings[] = array(
-                        'name' => __('Transaction description', 'payment-erede-for-givewp'),
+                        'name' => __('Transaction description', 'payment-gateway-e-rede-for-givewp'),
                         'id' => 'lkn_erede_debit_3ds_softdescription_setting_field',
-                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-erede-for-givewp'),
+                        'desc' => __('Description that will appear on the customer card statement, does not allow special characters or white space.', 'payment-gateway-e-rede-for-givewp'),
                         'type' => 'text',
                         'default' => '',
                     );
                 }
     
                 $settings[] = array(
-                    'name' => __('Billing fields', 'payment-erede-for-givewp'),
+                    'name' => __('Billing fields', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_billing_fields_setting_field',
-                    'desc' => __('Adds additional address fields to your donation form.', 'payment-erede-for-givewp'),
+                    'desc' => __('Adds additional address fields to your donation form.', 'payment-gateway-e-rede-for-givewp'),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
     
                 $settings[] = array(
-                    'name' => __('Debug mode', 'payment-erede-for-givewp'),
+                    'name' => __('Debug mode', 'payment-gateway-e-rede-for-givewp'),
                     'id' => 'lkn_erede_debit_3ds_debug_setting_field',
                     'desc' => sprintf(
                         /* translators: 1: HTML tag 2: HTML tag end */
-                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-erede-for-givewp'),                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">',
+                        __( 'Saves transaction logs for testing purposes. %1$sSee logs.%2$s', 'payment-gateway-e-rede-for-givewp'),                        '<a target="_blank" href="' . home_url('wp-admin/edit.php?post_type=give_forms&page=give-tools&tab=logs') . '">',
                         '</a>'
                     ),
                     'type' => 'radio',
                     'default' => 'disabled',
                     'options' => array(
-                        'enabled' => __('Enabled', 'payment-erede-for-givewp'),
-                        'disabled' => __('Disabled', 'payment-erede-for-givewp')
+                        'enabled' => __('Enabled', 'payment-gateway-e-rede-for-givewp'),
+                        'disabled' => __('Disabled', 'payment-gateway-e-rede-for-givewp')
                     ),
                 );
     
@@ -348,7 +348,7 @@ class LknPaymentEredeForGivewpAdmin {
 
         if (isset($metaOpt->status)) {
             load_template(
-                plugin_dir_path(__FILE__) . 'partials/payment-erede-for-givewp-admin-display.php',
+                plugin_dir_path(__FILE__) . 'partials/lknpgPaymentEredeForGivewpAdminDisplay.php',
                 true,
                 array(
                     'status' => $metaOpt->status,
@@ -357,11 +357,11 @@ class LknPaymentEredeForGivewpAdmin {
                     'capture' => $metaOpt->capture,
                     'log_exists' => file_exists(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log'),
                     'log_data' => base64_encode(file_get_contents(PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR . $metaOpt->log . '.log')),
-                    'status_label' => __('Return code:', 'payment-erede-for-givewp'),
-                    'message_label' => __('Return message:', 'payment-erede-for-givewp'),
-                    'transaction_label' => __('Transaction ID:', 'payment-erede-for-givewp'),
-                    'log_label' => __('Transaction log in base64', 'payment-erede-for-givewp'),
-                    'know_more_label' => __('Know more', 'payment-erede-for-givewp')
+                    'status_label' => __('Return code:', 'payment-gateway-e-rede-for-givewp'),
+                    'message_label' => __('Return message:', 'payment-gateway-e-rede-for-givewp'),
+                    'transaction_label' => __('Transaction ID:', 'payment-gateway-e-rede-for-givewp'),
+                    'log_label' => __('Transaction log in base64', 'payment-gateway-e-rede-for-givewp'),
+                    'know_more_label' => __('Know more', 'payment-gateway-e-rede-for-givewp')
                 )
             );
         }
