@@ -22,7 +22,7 @@ use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
  * Description:       Credit and debit card payment using E-Rede
  * Version:           2.0.3
  * Author:            Link Nacional
- * Author URI:        https://www.linknacional.com.br/wordpress/plugins/
+ * Author URI:        https://www.linknacional.com.br/
  * License:           GPL-3.0+
  * Requires Plugins: give
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
