@@ -1,9 +1,9 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\Includes;
+namespace Lknpg\PaymentEredeForGivewp\Includes;
 
 /**
- * Fired during plugin deactivation
+ * Fired during plugin activation
  *
  * @link       https://www.linknacional.com.br/wordpress/plugins/
  * @since      1.0.0
@@ -13,16 +13,16 @@ namespace Lkn\PaymentEredeForGivewp\Includes;
  */
 
 /**
- * Fired during plugin deactivation.
+ * Fired during plugin activation.
  *
- * This class defines all code necessary to run during the plugin's deactivation.
+ * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
  * @package    Payment_Erede_For_Givewp
  * @subpackage Payment_Erede_For_Givewp/includes
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewpDeactivator {
+class LknpgPaymentEredeForGivewpActivator {
     /**
      * Short Description. (use period)
      *
@@ -30,7 +30,6 @@ class LknPaymentEredeForGivewpDeactivator {
      *
      * @since    1.0.0
      */
-    public static function deactivate(): void {
-        wp_unschedule_hook( 'lkn_payment_erede_cron_verify_payment' );
+    public static function activate(): void {
     }
 }

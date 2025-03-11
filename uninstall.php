@@ -30,7 +30,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
     exit;
 }
 
-wp_unschedule_hook( 'lkn_payment_erede_cron_verify_payment' );
+wp_unschedule_hook( 'lknpg_payment_erede_cron_verify_payment' );
 
 $lkn_erede_opt = give_get_settings();
 

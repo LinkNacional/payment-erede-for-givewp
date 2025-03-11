@@ -5,7 +5,7 @@ Tags: payment, donation, credit, debit, card
 Requires at least: 5.7
 Requires PHP: 7.4
 Tested up to: 6.7
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -31,7 +31,13 @@ Give your donors the convenience and security they deserve while seamlessly mana
 
 Payment Gateway E-Rede for GiveWP plugin is dependent on [GiveWP plugin](https://wordpress.org/plugins/give/), please make sure GiveWP is installed and properly configured.
 
-This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.
+This plugin requires an active [E-Rede account](https://developer.userede.com.br/) for payment processing.  
+It connects to the E-Rede API for transaction processing:  
+- **Production:** `https://api.userede.com.br/erede/v1/transactions`  
+- **Sandbox:** `https://sandbox-erede.useredecloud.com.br/v1/transactions`
+
+**Third party APIs usage**
+This plugin is a payment method, it uses the [E-Rede account](https://developer.userede.com.br/) API for credit and debit card payment processing. See the [privacy policy](https://www.itau.com.br/privacidade/politica-de-privacidade-e-cookies) and [terms of use](https://developer.userede.com.br/files/termos/politica_privacidade_rede_2024.pdf).
 
 **User instructions**
 
@@ -65,6 +71,10 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 1. None
 
 == Changelog ==
+= 2.0.3 =
+**07/03/2025**
+* Fix WordPress guidelines.
+
 = 2.0.2 =
 **07/01/2025**
 * Changed log functionality.

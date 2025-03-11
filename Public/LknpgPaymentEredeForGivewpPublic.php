@@ -1,6 +1,6 @@
 <?php
 
-namespace Lkn\PaymentEredeForGivewp\PublicView;
+namespace Lknpg\PaymentEredeForGivewp\PublicView;
 
 /**
  * The public-facing functionality of the plugin.
@@ -22,7 +22,7 @@ namespace Lkn\PaymentEredeForGivewp\PublicView;
  * @subpackage Payment_Erede_For_Givewp/public
  * @author     Link Nacional <contato@linknacional.com>
  */
-class LknPaymentEredeForGivewpPublic {
+class LknpgPaymentEredeForGivewpPublic {
     /**
      * The ID of this plugin.
      *
@@ -70,7 +70,7 @@ class LknPaymentEredeForGivewpPublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
-        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/payment-erede-for-givewp-public.css', array(), $this->version, 'all' );
+        wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/lknpgPaymentEredeForGivewpPublic.css', array(), $this->version, 'all' );
     }
 
     /**
