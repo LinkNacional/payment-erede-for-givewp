@@ -246,27 +246,30 @@ class LknpgPaymentEredeForGivewp {
 
     public function custom_check_redirect_params(): void {
         if ( is_front_page() ) {
-            $doacao_id = isset( $_GET['doacao_id'] ) ? (int) sanitize_text_field(wp_unslash(( $_GET['doacao_id'] ))) : 0;
-            $status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash($_GET['status']) ) : '';
+            if (isset($_GET['nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['nonce'])), 'lknNonceEredeForGivewp')) {
+                $doacao_id = isset( $_GET['doacao_id'] ) ? (int) sanitize_text_field(wp_unslash(( $_GET['doacao_id'] ))) : 0;
+                $status = isset( $_GET['status'] ) ? sanitize_text_field( wp_unslash($_GET['status']) ) : '';
+        
+                if ( $doacao_id && ( 'success' === $status || 'failure' === $status ) ) {
+                    $redirect_url = '';
     
-            if ( $doacao_id && ( 'success' === $status || 'failure' === $status ) ) {
-                $redirect_url = '';
-
-                // Determinar a página de destino com base no status
-                if ( 'success' === $status ) {
-                    // Obter a URL de sucesso do GiveWP
-                    $redirect_url = give_get_success_page_uri() . '?donation_id=' . $doacao_id;
-                } elseif ( 'failure' === $status ) {
-                    // Obter a URL de falha do GiveWP
-                    $redirect_url = give_get_failed_transaction_uri();
-                }
-
-                // Adicionar o script de redirecionamento ao cabesçalho se a URL de destino for encontrada
-                if ( ! empty( $redirect_url ) ) {
-                    wp_redirect( $redirect_url );
-                    exit;
+                    // Determinar a página de destino com base no status
+                    if ( 'success' === $status ) {
+                        // Obter a URL de sucesso do GiveWP
+                        $redirect_url = give_get_success_page_uri() . '?donation_id=' . $doacao_id;
+                    } elseif ( 'failure' === $status ) {
+                        // Obter a URL de falha do GiveWP
+                        $redirect_url = give_get_failed_transaction_uri();
+                    }
+    
+                    // Adicionar o script de redirecionamento ao cabesçalho se a URL de destino for encontrada
+                    if ( ! empty( $redirect_url ) ) {
+                        wp_redirect( $redirect_url );
+                        exit;
+                    }
                 }
             }
+
         }
     }
     
