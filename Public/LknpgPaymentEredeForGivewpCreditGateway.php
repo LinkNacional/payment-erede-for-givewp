@@ -267,7 +267,7 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway {
                 'content' => sprintf(esc_html('Falha na doação. Razão: %s'), $errorMessage)
             ));
                 
-            throw new PaymentGatewayException($errorMessage);
+            throw new PaymentGatewayException(esc_html($errorMessage));
         }
     }
 
