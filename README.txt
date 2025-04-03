@@ -5,7 +5,7 @@ Tags: payment, donation, credit, debit, card
 Requires at least: 5.7
 Requires PHP: 7.4
 Tested up to: 6.7
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -71,6 +71,10 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 1. None
 
 == Changelog ==
+= 2.0.4 =
+**03/04/2025**
+* Fix WordPress guidelines.
+
 = 2.0.3 =
 **07/03/2025**
 * Fix WordPress guidelines.

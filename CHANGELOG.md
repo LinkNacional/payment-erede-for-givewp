@@ -1,3 +1,6 @@
+# 2.0.4 - 03/04/2025
+* Fix WordPress guidelines.
+
 # 2.0.3 - 07/03/2025
 * Fix WordPress guidelines.
 
