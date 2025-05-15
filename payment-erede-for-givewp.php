@@ -36,7 +36,6 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/Includes/plugin-updater/plugin-update-checker.php';
 
 /**
  * Currently plugin version.
