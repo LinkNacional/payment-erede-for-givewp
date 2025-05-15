@@ -1,3 +1,6 @@
+# 2.0.5 - 15/05/2025
+* Remove plugin updater.
+
 # 2.0.4 - 03/04/2025
 * Fix WordPress guidelines.
 

@@ -294,7 +294,6 @@ class LknpgPaymentEredeForGivewp {
         $this->loader->add_filter( 'give_get_settings_gateways', $plugin_admin, 'add_settings_into_section' );
         $this->loader->add_filter('give_get_sections_gateways', $plugin_admin, 'new_setting_section');
         $this->loader->add_action('give_view_donation_details_billing_after', $plugin_admin, 'add_donation_details');
-        $this->loader->add_action('give_init', $this, 'updater_init');
     }
 
     /**
@@ -364,13 +363,5 @@ class LknpgPaymentEredeForGivewp {
      */
     public function get_version() {
         return $this->version;
-    }
-
-    public function updater_init() {
-        return new Lkn_Puc_Plugin_UpdateChecker(
-            'https://api.linknacional.com/v2/u/?slug=payment-erede-for-givewp',
-            PAYMENT_EREDE_FOR_GIVEWP_FILE,//(caso o plugin não precise de compatibilidade com ioncube utilize: __FILE__), //Full path to the main plugin file or functions.php.
-            'payment-erede-for-givewp'
-        );
     }
 }
