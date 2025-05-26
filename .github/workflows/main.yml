@@ -49,6 +49,10 @@ jobs:
           plugin_repo
           security
         strict: true
+    - name: Mostrar resultado do Plugin Check
+      if: failure()
+      run: cat /home/runner/work/_temp/plugin-check-results.txt || echo "Arquivo de resultado não encontrado"
+  
 
     # Add plugin files to a root directory
     - name: Prepare plugin folder
