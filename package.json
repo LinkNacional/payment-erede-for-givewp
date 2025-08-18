@@ -1,10 +1,10 @@
 {
-  "name": "docker-php-dev-container",
+  "name": "payment-erede-for-givewp",
   "version": "1.0.0",
-  "description": "This repository provides a development environment for WHMCS or WordPress",
+  "description": "Payment Gateway E-Rede for GiveWP - Link Nacional",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/srbrunoferreira/docker-php-dev-container.git"
+    "url": "https://github.com/LinkNacional/payment-erede-for-givewp.git"
   },
   "scripts": {
     "lint": "eslint --fix --ext .js ./"
@@ -16,13 +16,14 @@
     "Dev Container",
     "VS Code"
   ],
-  "author": "Bruno Ferreira <srbrunoferreira@outlook.com>",
+  "author": "Link Nacional <www.linknacional.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/srbrunoferreira/docker-php-dev-container/issues"
+    "url": "https://github.com/LinkNacional/payment-erede-for-givewp/issues"
   },
-  "homepage": "https://github.com/srbrunoferreira/docker-php-dev-container#readme",
+  "homepage": "https://www.linknacional.com",
   "devDependencies": {
+    "cross-spawn": "^7.0.6",
     "eslint": "^8.34.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-standard": "^17.0.0",

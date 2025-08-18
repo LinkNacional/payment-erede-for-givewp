@@ -1,3 +1,6 @@
+# 2.0.6 - 18/08/2025
+* Atualização no debug.
+
 # 2.0.5 - 15/05/2025
 * Remove plugin updater.
 
