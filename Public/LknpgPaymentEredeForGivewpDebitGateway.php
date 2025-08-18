@@ -175,6 +175,20 @@ class LknpgPaymentEredeForGivewpDebitGateway extends PaymentGateway
 
             $response = json_decode(wp_remote_retrieve_body($response));
 
+            // Handle null response from API
+            if (is_null($response)) {
+                $errorMessage = 'No response from payment gateway.';
+                $donation->status = DonationStatus::FAILED();
+                $donation->save();
+
+                DonationNote::create(array(
+                    'donationId' => $donation->id,
+                    'content' => sprintf(esc_html('Falha na doação. Razão: %s'), $errorMessage)
+                ));
+
+                throw new PaymentGatewayException($errorMessage);
+            }
+
             if ('enabled' === $configs['debug']) {
                 LknpgPaymentEredeForGivewpHelper::regLog(
                     'info', // logType

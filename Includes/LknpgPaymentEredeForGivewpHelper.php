@@ -79,7 +79,7 @@ abstract class LknpgPaymentEredeForGivewpHelper {
                 $logType,
                 $description,
                 $category,
-                'Give Getnet Payment',
+                'Payment E-REDE for GiveWP',
                 $data
             );
             $log->save();
