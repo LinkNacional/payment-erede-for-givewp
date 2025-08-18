@@ -20,7 +20,7 @@ use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
  * Plugin Name:       Payment Gateway E-Rede for GiveWP
  * Plugin URI:        https://www.linknacional.com.br/wordpress/plugins/
  * Description:       Credit and debit card payment using E-Rede
- * Version:           2.0.5
+ * Version:           2.0.6
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com.br/wordpress/plugins/
  * License:           GPL-3.0+
@@ -31,7 +31,7 @@ use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
+if (! defined('WPINC')) {
     die;
 }
 
@@ -42,15 +42,15 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'PAYMENT_EREDE_FOR_GIVEWP_VERSION', '2.0.4' );
+define('PAYMENT_EREDE_FOR_GIVEWP_VERSION', '2.0.4');
 
-define( 'PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION', '2.31.0' );
+define('PAYMENT_EREDE_FOR_GIVEWP_MIN_GIVE_VERSION', '2.31.0');
 
-define( 'PAYMENT_EREDE_FOR_GIVEWP_BASENAME', plugin_basename(__FILE__));
+define('PAYMENT_EREDE_FOR_GIVEWP_BASENAME', plugin_basename(__FILE__));
 
-define( 'PAYMENT_EREDE_FOR_GIVEWP_FILE', __FILE__);
+define('PAYMENT_EREDE_FOR_GIVEWP_FILE', __FILE__);
 
-define( 'PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR', __DIR__ . '/includes/logs/' );
+define('PAYMENT_EREDE_FOR_GIVEWP_LOG_DIR', __DIR__ . '/includes/logs/');
 
 define('PAYMENT_EREDE_FOR_GIVEWP_URL', plugin_dir_url(__FILE__));
 
@@ -58,7 +58,8 @@ define('PAYMENT_EREDE_FOR_GIVEWP_URL', plugin_dir_url(__FILE__));
  * The code that runs during plugin activation.
  * This action is documented in includes/class-payment-erede-for-givewp-activator.php
  */
-function payment_erede_for_givewp_activate(): void {
+function payment_erede_for_givewp_activate(): void
+{
     LknpgPaymentEredeForGivewpActivator::activate();
 }
 
@@ -66,12 +67,13 @@ function payment_erede_for_givewp_activate(): void {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-payment-erede-for-givewp-deactivator.php
  */
-function payment_erede_for_givewp_deactivate(): void {
+function payment_erede_for_givewp_deactivate(): void
+{
     LknpgPaymentEredeForGivewpDeactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'payment_erede_for_givewp_activate' );
-register_deactivation_hook( __FILE__, 'payment_erede_for_givewp_deactivate' );
+register_activation_hook(__FILE__, 'payment_erede_for_givewp_activate');
+register_deactivation_hook(__FILE__, 'payment_erede_for_givewp_deactivate');
 
 /**
  * The core plugin class that is used to define internationalization,
@@ -87,7 +89,8 @@ register_deactivation_hook( __FILE__, 'payment_erede_for_givewp_deactivate' );
  *
  * @since    1.0.0
  */
-function payment_erede_for_givewp_run(): void {
+function payment_erede_for_givewp_run(): void
+{
     $plugin = new LknpgPaymentEredeForGivewp();
     $plugin->run();
 }
