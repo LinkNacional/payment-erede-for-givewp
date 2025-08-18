@@ -201,7 +201,7 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
                 LknpgPaymentEredeForGivewpHelper::regLog(
                     'info', // logType
                     'createPayment', // category
-                    'Requisição para gerar pagamento', // description
+                    __('Credit card payment', 'payment-gateway-e-rede-for-givewp'), // description
                     array(
                         'url' => $configs['api_url'],
                         'headers' => $headers,
