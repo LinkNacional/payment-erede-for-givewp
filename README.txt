@@ -71,20 +71,25 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 1. None
 
 == Changelog ==
+
+= 2.0.6 =
+**08/18/2025**
+* Update debug.
+
 = 2.0.5 =
-**15/05/2025**
+**05/15/2025**
 * Remove plugin updater.
 
 = 2.0.4 =
-**03/04/2025**
+**04/03/2025**
 * Fix WordPress guidelines.
 
 = 2.0.3 =
-**07/03/2025**
+**03/07/2025**
 * Fix WordPress guidelines.
 
 = 2.0.2 =
-**07/01/2025**
+**01/07/2025**
 * Changed log functionality.
 
 = 2.0.1 =
@@ -93,21 +98,21 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 * Fix donation status;
 
 = 2.0.0 =
-**14/05/2024**
+**05/14/2024**
 * Added compatibility with GiveWP 3.0.0 template.
 * General plugin optimizations.
 * Addition of 3DS 2.0 for credit card payments.
 
 = 1.0.2 =
-**22/09/2023**
+**09/22/2023**
 * Fix a bug in translation.
 
 = 1.0.1 =
-**20/09/2023**
+**09/20/2023**
 * Fix a bug with front-end inputs.
 
 = 1.0.0 =
-**04/09/2023**
+**09/04/2023**
 * Plugin launch.
 
 == Upgrade Notice ==
