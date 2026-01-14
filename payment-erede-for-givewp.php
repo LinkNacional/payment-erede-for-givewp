@@ -1,5 +1,10 @@
 <?php
 
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpActivator;
 use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpDeactivator;
 use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
