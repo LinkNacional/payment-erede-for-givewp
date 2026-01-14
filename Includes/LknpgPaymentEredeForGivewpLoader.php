@@ -1,11 +1,11 @@
 <?php
 
+namespace Lknpg\PaymentEredeForGivewp\Includes;
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-namespace Lknpg\PaymentEredeForGivewp\Includes;
 
 /**
  * Register all actions and filters for the plugin

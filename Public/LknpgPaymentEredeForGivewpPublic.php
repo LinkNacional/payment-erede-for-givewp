@@ -1,11 +1,11 @@
 <?php
 
+namespace Lknpg\PaymentEredeForGivewp\PublicView;
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-namespace Lknpg\PaymentEredeForGivewp\PublicView;
 
 use Give\Donations\Models\Donation;
 use Give\Donations\Models\DonationNote;

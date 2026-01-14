@@ -1,11 +1,11 @@
 <?php
 
+namespace Lknpg\PaymentEredeForGivewp\Admin;
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-namespace Lknpg\PaymentEredeForGivewp\Admin;
 
 /**
  * The admin-specific functionality of the plugin.
