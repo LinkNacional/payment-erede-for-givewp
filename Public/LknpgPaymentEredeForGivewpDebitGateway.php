@@ -209,23 +209,8 @@ class LknpgPaymentEredeForGivewpDebitGateway extends PaymentGateway
             $nonce = wp_create_nonce('lknNonceEredeForGivewp');
 
             // Construir a URL com parâmetros
-            $redirect_url_sucess = add_query_arg(
-                array(
-                    'doacao_id' => $payment_id,
-                    'status' => 'success',
-                    'nonce' => $nonce
-                ),
-                home_url()
-            );
-
-            $redirect_url_fail = add_query_arg(
-                array(
-                    'doacao_id' => $payment_id,
-                    'status' => 'failure',
-                    'nonce' => $nonce
-                ),
-                home_url()
-            );
+            $redirect_url_sucess = rest_url('lkn-erede/v1/success/');
+            $redirect_url_fail = rest_url('lkn-erede/v1/failure/');
 
             $body = array(
                 'capture' => true,
