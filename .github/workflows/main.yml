@@ -43,6 +43,7 @@ jobs:
           trademarked_term
           textdomain_mismatch
           hidden_files
+          github_workflow_directory
         categories: |
           performance
           accessibility
