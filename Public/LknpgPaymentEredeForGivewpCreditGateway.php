@@ -101,8 +101,18 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
             $token_expired = false;
             $access_token = '';
 
-            // Verificar se existe cache e se já passaram 20 minutos (1200 segundos)
-            if (empty($cached_token_data) || !isset($cached_token_data['timestamp']) || !isset($cached_token_data['token'])) {
+            // Verificar se as credenciais mudaram (para invalidar cache)
+            $current_credentials = md5($configs['pv'] . $configs['token'] . $configs['env']);
+            $cached_credentials = isset($cached_token_data['credentials_hash']) ? $cached_token_data['credentials_hash'] : '';
+            
+            if ($current_credentials !== $cached_credentials) {
+                // Credenciais mudaram, invalidar cache
+                delete_option('lkn_erede_token_cache');
+                $cached_token_data = array();
+            }
+
+            // Verificar se existe cache válido e se já passaram 20 minutos (1200 segundos)
+            if (empty($cached_token_data) || !isset($cached_token_data['timestamp']) || !isset($cached_token_data['token']) || empty($cached_token_data['token'])) {
                 $token_expired = true;
             } else {
                 $time_diff = $current_time - $cached_token_data['timestamp'];
@@ -151,12 +161,36 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
                 }
 
                 $token_response_body = json_decode(wp_remote_retrieve_body($token_response), true);
-                $access_token = isset($token_response_body['access_token']) ? $token_response_body['access_token'] : '';
+                
+                // Verificar se a resposta contém um token válido
+                if (!isset($token_response_body['access_token']) || empty($token_response_body['access_token'])) {
+                    $errorMessage = 'Token inválido ou credenciais incorretas';
+                    
+                    if ('enabled' === $configs['debug']) {
+                        LknpgPaymentEredeForGivewpHelper::regLog(
+                            'error',
+                            'tokenRequestInvalid',
+                            $errorMessage,
+                            array(
+                                'url' => $configs['api_token_url'],
+                                'headers' => $token_headers,
+                                'body' => $token_body,
+                                'response' => $token_response_body
+                            ),
+                            true
+                        );
+                    }
+                    
+                    throw new PaymentGatewayException($errorMessage);
+                }
+                
+                $access_token = $token_response_body['access_token'];
 
-                // Armazenar o token com timestamp no cache
+                // Armazenar o token com timestamp e hash das credenciais no cache
                 $token_cache_data = array(
                     'token' => $access_token,
                     'timestamp' => $current_time,
+                    'credentials_hash' => $current_credentials,
                     'full_response' => $token_response_body
                 );
                 
