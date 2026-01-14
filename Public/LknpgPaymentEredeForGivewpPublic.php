@@ -2,6 +2,14 @@
 
 namespace Lknpg\PaymentEredeForGivewp\PublicView;
 
+use Give\Donations\Models\Donation;
+use Give\Donations\Models\DonationNote;
+use Give\Donations\ValueObjects\DonationStatus;
+use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewpHelper;
+use WP_REST_Request;
+use WP_REST_Response;
+use Exception;
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -90,5 +98,293 @@ class LknpgPaymentEredeForGivewpPublic {
          * between the defined hooks and the functions defined in this
          * class.
          */
+    }
+
+    /**
+     * Register REST API routes
+     * 
+     * @since 1.0.0
+     */
+    public function register_api_routes(): void {
+        // Rota para sucesso
+        register_rest_route('lkn-erede/v1', '/success/', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'handle_success_callback'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Rota para falha
+        register_rest_route('lkn-erede/v1', '/failure/', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'handle_failure_callback'),
+            'permission_callback' => '__return_true'
+        ));
+    }
+
+    /**
+     * Handle success callback from E-Rede
+     * 
+     * @since 1.0.0
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function handle_success_callback(WP_REST_Request $request): WP_REST_Response {
+        return $this->process_callback($request, 'success');
+    }
+
+    /**
+     * Handle failure callback from E-Rede
+     * 
+     * @since 1.0.0
+     * @param WP_REST_Request $request
+     * @return WP_REST_Response
+     */
+    public function handle_failure_callback(WP_REST_Request $request): WP_REST_Response {
+        return $this->process_callback($request, 'failure');
+    }
+
+    /**
+     * Process payment callback from E-Rede
+     * 
+     * @since 1.0.0
+     * @param WP_REST_Request $request
+     * @param string $status
+     * @return WP_REST_Response
+     */
+    private function process_callback(WP_REST_Request $request, string $status): WP_REST_Response {
+        try {
+            // Obter todos os parâmetros da resposta da E-Rede
+            $all_params = $request->get_params();
+            
+            // Log da resposta completa para debug
+            $configs = LknpgPaymentEredeForGivewpHelper::get_configs('credit');
+            
+            if ('enabled' === $configs['debug']) {
+                LknpgPaymentEredeForGivewpHelper::regLog(
+                    'info',
+                    'eredeCallback',
+                    'E-Rede callback received',
+                    array(
+                        'status' => $status,
+                        'params' => $all_params,
+                        'headers' => $request->get_headers()
+                    ),
+                    true
+                );
+            }
+
+            // Extrair o payment_id do reference (formato: orderXXX)
+            $reference = isset($all_params['reference']) ? $all_params['reference'] : '';
+            if (empty($reference) || strpos($reference, 'order') !== 0) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'Invalid or missing reference'
+                ), 400);
+            }
+            
+            $payment_id = (int) str_replace('order', '', $reference);
+            
+            if (!$payment_id) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'Invalid payment ID from reference'
+                ), 400);
+            }
+
+            // Obter informações da doação
+            $donation = Donation::find($payment_id);
+            
+            if (!$donation) {
+                return new WP_REST_Response(array(
+                    'success' => false,
+                    'message' => 'Donation not found'
+                ), 404);
+            }
+
+            // Consultar status do pagamento na E-Rede para confirmar
+            $payment_response = $this->check_payment_status($payment_id, $configs);
+            
+            $redirect_url = '';
+            
+            if ('success' === $status && $payment_response['success']) {
+                // Atualizar status da doação para completa
+                $donation->status = DonationStatus::COMPLETE();
+                $donation->save();
+                
+                $redirect_url = give_get_success_page_uri() . '?donation_id=' . $payment_id;
+                
+                // Log de sucesso
+                if ('enabled' === $configs['debug']) {
+                    LknpgPaymentEredeForGivewpHelper::regLog(
+                        'info',
+                        'paymentSuccess',
+                        'Payment completed successfully',
+                        array(
+                            'payment_id' => $payment_id,
+                            'reference' => $reference,
+                            'payment_response' => $payment_response
+                        ),
+                        true
+                    );
+                }
+                
+            } elseif ('failure' === $status || !$payment_response['success']) {
+                // Atualizar status da doação para falha
+                $donation->status = DonationStatus::FAILED();
+                $donation->save();
+                
+                // Adicionar nota de falha
+                DonationNote::create(array(
+                    'donationId' => $donation->id,
+                    'content' => sprintf(
+                        esc_html('Falha na doação via E-Rede. Razão: %s'), 
+                        $payment_response['message'] ?? 'Status de falha recebido'
+                    )
+                ));
+                
+                $redirect_url = give_get_failed_transaction_uri();
+                
+                // Log de falha
+                if ('enabled' === $configs['debug']) {
+                    LknpgPaymentEredeForGivewpHelper::regLog(
+                        'warning',
+                        'paymentFailure',
+                        'Payment failed',
+                        array(
+                            'payment_id' => $payment_id,
+                            'reference' => $reference,
+                            'payment_response' => $payment_response,
+                            'status' => $status
+                        ),
+                        true
+                    );
+                }
+            }
+
+
+            // Redirecionar o usuário
+            if (!empty($redirect_url)) {
+                wp_redirect($redirect_url);
+                exit;
+            }
+            
+            // Se chegou aqui, algo deu errado
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'No redirect URL determined'
+            ), 500);
+
+        } catch (Exception $e) {
+            // Log do erro se debug estiver ativo
+            if (isset($configs) && 'enabled' === $configs['debug']) {
+                LknpgPaymentEredeForGivewpHelper::regLog(
+                    'error',
+                    'callbackError',
+                    'Error processing callback',
+                    array(
+                        'status' => $status ?? 'unknown',
+                        'error' => $e->getMessage(),
+                        'params' => $all_params ?? array()
+                    ),
+                    true
+                );
+            }
+
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => $e->getMessage()
+            ), 500);
+        }
+    }
+
+    /**
+     * Check payment status with E-Rede API
+     * 
+     * @since 1.0.0
+     * @param int $payment_id
+     * @param array $configs
+     * @return array
+     */
+    private function check_payment_status($payment_id, $configs): array {
+        try {
+            // Obter token de acesso (similar ao código do gateway)
+            $cached_token_data = get_option('lkn_erede_token_cache', array());
+            $current_time = time();
+            $access_token = '';
+            
+            // Verificar se precisa obter novo token
+            if (empty($cached_token_data) || !isset($cached_token_data['token']) || ($current_time - $cached_token_data['timestamp']) >= 1200) {
+                // Obter novo token
+                $token_headers = array(
+                    'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                );
+
+                $token_body = array('grant_type' => 'client_credentials');
+                
+                $token_response = wp_remote_post($configs['api_token_url'], array(
+                    'headers' => $token_headers,
+                    'body' => $token_body
+                ));
+
+                if (is_wp_error($token_response)) {
+                    throw new Exception('Erro ao obter token da API: ' . $token_response->get_error_message());
+                }
+
+                $token_data = json_decode(wp_remote_retrieve_body($token_response), true);
+                
+                if (!isset($token_data['access_token'])) {
+                    throw new Exception('Token inválido ou credenciais incorretas');
+                }
+                
+                $access_token = $token_data['access_token'];
+                
+                // Atualizar cache
+                update_option('lkn_erede_token_cache', array(
+                    'token' => $access_token,
+                    'timestamp' => $current_time,
+                    'credentials_hash' => md5($configs['pv'] . $configs['token'] . $configs['env'])
+                ));
+            } else {
+                $access_token = $cached_token_data['token'];
+            }
+
+            // Consultar status do pagamento
+            $headers = array(
+                'Authorization' => 'Bearer ' . $access_token,
+                'Content-Type' => 'application/json'
+            );
+
+            $response = wp_remote_get($configs['api_url'] . '?reference=order' . $payment_id, array(
+                'headers' => $headers
+            ));
+
+            if (is_wp_error($response)) {
+                throw new Exception('Erro ao consultar status do pagamento: ' . $response->get_error_message());
+            }
+
+            $response_data = json_decode(wp_remote_retrieve_body($response), true);
+            
+            if (!$response_data) {
+                throw new Exception('Resposta inválida da API E-Rede');
+            }
+
+            $return_code = $response_data['returnCode'] ?? $response_data['authorization']['returnCode'] ?? '500';
+            
+            return array(
+                'success' => $return_code === '00',
+                'return_code' => $return_code,
+                'message' => $response_data['returnMessage'] ?? $response_data['authorization']['returnMessage'] ?? 'Unknown status',
+                'transaction_id' => $response_data['tid'] ?? $response_data['authorization']['tid'] ?? '0',
+                'full_response' => $response_data
+            );
+
+        } catch (Exception $e) {
+            return array(
+                'success' => false,
+                'message' => $e->getMessage(),
+                'return_code' => '500'
+            );
+        }
     }
 }

@@ -40,9 +40,11 @@ abstract class LknpgPaymentEredeForGivewpHelper {
                 $configs['withoutDescription'] = give_get_option('lkn_erede_credit_enable_transaction_without_description');
 
                 if ('production' === $configs['env']) {
-                    $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
+                    $configs['api_url'] = 'https://api.userede.com.br/erede/v2/transactions';
+                    $configs['api_token_url'] = 'https://api.userede.com.br/redelabs/oauth2/token';
                 } else {
-                    $configs['api_url'] = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+                    $configs['api_url'] = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+                    $configs['api_token_url'] = 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
                 }
 
                 break;
@@ -57,9 +59,11 @@ abstract class LknpgPaymentEredeForGivewpHelper {
                 $configs['withoutDescription'] = give_get_option('lkn_erede_debit_3ds_enable_transaction_without_description');
 
                 if ('production' === $configs['env']) {
-                    $configs['api_url'] = 'https://api.userede.com.br/erede/v1/transactions';
+                    $configs['api_url'] = 'https://api.userede.com.br/erede/v2/transactions';
+                    $configs['api_token_url'] = 'https://api.userede.com.br/redelabs/oauth2/token';
                 } else {
-                    $configs['api_url'] = 'https://sandbox-erede.useredecloud.com.br/v1/transactions';
+                    $configs['api_url'] = 'https://sandbox-erede.useredecloud.com.br/v2/transactions';
+                    $configs['api_token_url'] = 'https://rl7-sandbox-api.useredecloud.com.br/oauth2/token';
                 }
 
                 break;

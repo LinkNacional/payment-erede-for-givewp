@@ -95,8 +95,110 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
             $cardExpiryMonth = trim($expDate[0]);
             $cardExpiryYear = trim($expDate[1]);
 
+            // Verificar se precisa obter novo token da API E-Rede
+            $cached_token_data = get_option('lkn_erede_token_cache', array());
+            $current_time = time();
+            $token_expired = false;
+            $access_token = '';
+
+            // Verificar se as credenciais mudaram (para invalidar cache)
+            $current_credentials = md5($configs['pv'] . $configs['token'] . $configs['env']);
+            $cached_credentials = isset($cached_token_data['credentials_hash']) ? $cached_token_data['credentials_hash'] : '';
+            
+            if ($current_credentials !== $cached_credentials) {
+                // Credenciais mudaram, invalidar cache
+                delete_option('lkn_erede_token_cache');
+                $cached_token_data = array();
+            }
+
+            // Verificar se existe cache válido e se já passaram 20 minutos (1200 segundos)
+            if (empty($cached_token_data) || !isset($cached_token_data['timestamp']) || !isset($cached_token_data['token']) || empty($cached_token_data['token'])) {
+                $token_expired = true;
+            } else {
+                $time_diff = $current_time - $cached_token_data['timestamp'];
+                if ($time_diff >= 1200) { // 20 minutos = 1200 segundos
+                    $token_expired = true;
+                } else {
+                    $access_token = $cached_token_data['token'];
+                }
+            }
+
+            // Fazer requisição do token apenas se necessário
+            if ($token_expired) {
+                $token_headers = array(
+                    'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                );
+
+                $token_body = array(
+                    'grant_type' => 'client_credentials'
+                );
+
+                $token_response = wp_remote_post($configs['api_token_url'], array(
+                    'headers' => $token_headers,
+                    'body' => $token_body
+                ));
+
+                // Verificar se a requisição do token foi bem-sucedida
+                if (is_wp_error($token_response)) {
+                    $errorMessage = 'Erro ao obter token da API: ' . $token_response->get_error_message();
+                    
+                    if ('enabled' === $configs['debug']) {
+                        LknpgPaymentEredeForGivewpHelper::regLog(
+                            'error',
+                            'tokenRequest',
+                            $errorMessage,
+                            array(
+                                'url' => $configs['api_token_url'],
+                                'headers' => $token_headers,
+                                'body' => $token_body
+                            ),
+                            true
+                        );
+                    }
+                    
+                    throw new PaymentGatewayException($errorMessage);
+                }
+
+                $token_response_body = json_decode(wp_remote_retrieve_body($token_response), true);
+                
+                // Verificar se a resposta contém um token válido
+                if (!isset($token_response_body['access_token']) || empty($token_response_body['access_token'])) {
+                    $errorMessage = 'Token inválido ou credenciais incorretas';
+                    
+                    if ('enabled' === $configs['debug']) {
+                        LknpgPaymentEredeForGivewpHelper::regLog(
+                            'error',
+                            'tokenRequestInvalid',
+                            $errorMessage,
+                            array(
+                                'url' => $configs['api_token_url'],
+                                'headers' => $token_headers,
+                                'body' => $token_body,
+                                'response' => $token_response_body
+                            ),
+                            true
+                        );
+                    }
+                    
+                    throw new PaymentGatewayException($errorMessage);
+                }
+                
+                $access_token = $token_response_body['access_token'];
+
+                // Armazenar o token com timestamp e hash das credenciais no cache
+                $token_cache_data = array(
+                    'token' => $access_token,
+                    'timestamp' => $current_time,
+                    'credentials_hash' => $current_credentials,
+                    'full_response' => $token_response_body
+                );
+                
+                update_option('lkn_erede_token_cache', $token_cache_data);
+            }
+
             $headers = array(
-                'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                'Authorization' => 'Bearer ' . $access_token,
                 'Content-Type' => 'application/json'
             );
 
@@ -107,24 +209,9 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
             $amount = number_format($amount, 2, '', '');
             $nonce = wp_create_nonce('lknNonceEredeForGivewp');
 
-            // Construir a URL com parâmetros
-            $redirect_url_sucess = add_query_arg(
-                array(
-                    'doacao_id' => $payment_id,
-                    'status' => 'success',
-                    'nonce' => $nonce
-                ),
-                home_url()
-            );
-
-            $redirect_url_fail = add_query_arg(
-                array(
-                    'doacao_id' => $payment_id,
-                    'status' => 'failure',
-                    'nonce' => $nonce
-                ),
-                home_url()
-            );
+            // Construir as URLs para API REST
+            $redirect_url_sucess = rest_url('lkn-erede/v1/success/');
+            $redirect_url_fail = rest_url('lkn-erede/v1/failure/');
 
             if ('enabled' == $withoutAuth3DS) {
                 $body = array(
@@ -264,7 +351,7 @@ class LknpgPaymentEredeForGivewpCreditGateway extends PaymentGateway
                     throw new PaymentGatewayException($errorMessage);
             }
         } catch (Exception $e) {
-            $errorMessage = $response->returnMessage ?? 'Error on processing payment';
+            $errorMessage = $e->getMessage() ?? 'Error on processing payment';
 
             // Log de debug para erros se o modo debug estiver ativo
             if (isset($configs) && 'enabled' === $configs['debug']) {
