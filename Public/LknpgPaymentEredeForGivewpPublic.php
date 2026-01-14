@@ -129,7 +129,6 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return WP_REST_Response
      */
     public function handle_success_callback(WP_REST_Request $request): WP_REST_Response {
-        error_log('Handling success callback');
         return $this->process_callback($request, 'success');
     }
 
@@ -153,7 +152,6 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return WP_REST_Response
      */
     private function process_callback(WP_REST_Request $request, string $status): WP_REST_Response {
-        error_log('Processing callback with status: ' . $status);
         try {
             // Obter todos os parâmetros da resposta da E-Rede
             $all_params = $request->get_params();
@@ -263,7 +261,6 @@ class LknpgPaymentEredeForGivewpPublic {
                 }
             }
 
-            error_log('Redirect URL: ' . $redirect_url);
 
             // Redirecionar o usuário
             if (!empty($redirect_url)) {
