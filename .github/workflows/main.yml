@@ -73,7 +73,7 @@ jobs:
         path: '.'
         directory: 'build'
         filename: '${{ env.PLUGIN_NAME }}.zip'
-        exclusions: '*.git* /*node_modules/* .editorconfig'
+        exclusions: '*.git* /*node_modules/* .editorconfig *.github*'
 
     - name: Move .zip to custom location
       run: |
