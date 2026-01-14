@@ -1,3 +1,6 @@
+# 2.0.7 - 14/01/2026
+* Alteração em lógica de requisiçõe para rota v2.
+
 # 2.0.6 - 18/08/2025
 * Atualização no debug.
 

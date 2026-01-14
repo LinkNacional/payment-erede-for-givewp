@@ -94,8 +94,76 @@ class LknpgPaymentEredeForGivewpDebitGateway extends PaymentGateway
             $cardExpiryMonth = trim($expDate[0]);
             $cardExpiryYear = trim($expDate[1]);
 
+            // Verificar se precisa obter novo token da API E-Rede
+            $cached_token_data = get_option('lkn_erede_token_cache', array());
+            $current_time = time();
+            $token_expired = false;
+            $access_token = '';
+
+            // Verificar se existe cache e se já passaram 20 minutos (1200 segundos)
+            if (empty($cached_token_data) || !isset($cached_token_data['timestamp']) || !isset($cached_token_data['token'])) {
+                $token_expired = true;
+            } else {
+                $time_diff = $current_time - $cached_token_data['timestamp'];
+                if ($time_diff >= 1200) { // 20 minutos = 1200 segundos
+                    $token_expired = true;
+                } else {
+                    $access_token = $cached_token_data['token'];
+                }
+            }
+
+            // Fazer requisição do token apenas se necessário
+            if ($token_expired) {
+                $token_headers = array(
+                    'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                );
+
+                $token_body = array(
+                    'grant_type' => 'client_credentials'
+                );
+
+                $token_response = wp_remote_post($configs['api_token_url'], array(
+                    'headers' => $token_headers,
+                    'body' => $token_body
+                ));
+
+                // Verificar se a requisição do token foi bem-sucedida
+                if (is_wp_error($token_response)) {
+                    $errorMessage = 'Erro ao obter token da API: ' . $token_response->get_error_message();
+                    
+                    if ('enabled' === $configs['debug']) {
+                        LknpgPaymentEredeForGivewpHelper::regLog(
+                            'error',
+                            'tokenRequest',
+                            $errorMessage,
+                            array(
+                                'url' => $configs['api_token_url'],
+                                'headers' => $token_headers,
+                                'body' => $token_body
+                            ),
+                            true
+                        );
+                    }
+                    
+                    throw new PaymentGatewayException($errorMessage);
+                }
+
+                $token_response_body = json_decode(wp_remote_retrieve_body($token_response), true);
+                $access_token = isset($token_response_body['access_token']) ? $token_response_body['access_token'] : '';
+
+                // Armazenar o token com timestamp no cache
+                $token_cache_data = array(
+                    'token' => $access_token,
+                    'timestamp' => $current_time,
+                    'full_response' => $token_response_body
+                );
+                
+                update_option('lkn_erede_token_cache', $token_cache_data);
+            }
+
             $headers = array(
-                'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                'Authorization' => 'Bearer ' . $access_token,
                 'Content-Type' => 'application/json'
             );
 
