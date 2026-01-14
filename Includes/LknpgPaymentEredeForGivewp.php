@@ -1,5 +1,10 @@
 <?php
 
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 namespace Lknpg\PaymentEredeForGivewp\Includes;
 
 use Give\Donations\Models\Donation;
@@ -264,7 +269,7 @@ class LknpgPaymentEredeForGivewp {
     
                     // Adicionar o script de redirecionamento ao cabesçalho se a URL de destino for encontrada
                     if ( ! empty( $redirect_url ) ) {
-                        wp_redirect( $redirect_url );
+                        wp_safe_redirect( $redirect_url );
                         exit;
                     }
                 }
