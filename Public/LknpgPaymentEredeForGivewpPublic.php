@@ -129,8 +129,67 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return WP_REST_Response
      */
     public function handle_success_callback(WP_REST_Request $request): WP_REST_Response {
-        error_log('Handling success callback');
-        return $this->process_callback($request, 'success');
+        try {
+            $all_params = $request->get_params();
+            
+            // Extrair o payment_id do reference primeiro (formato: orderXXX)
+            $reference = isset($all_params['reference']) ? $all_params['reference'] : '';
+            if (empty($reference) || strpos($reference, 'order') !== 0) {
+                wp_redirect(give_get_failed_transaction_uri());
+                exit;
+            }
+            
+            $payment_id = (int) str_replace('order', '', $reference);
+            
+            if (!$payment_id) {
+                wp_redirect(give_get_failed_transaction_uri());
+                exit;
+            }
+
+            // Obter informações da doação para determinar o gateway
+            $donation = Donation::find($payment_id);
+            
+            if (!$donation) {
+                wp_redirect(give_get_failed_transaction_uri());
+                exit;
+            }
+
+            // Determinar o gateway usado baseado no meta da doação
+            $gateway_id = give_get_payment_gateway($payment_id);
+            $gateway_type = 'credit'; // padrão
+            
+            if ($gateway_id === 'lkn_erede_debit_3ds') {
+                $gateway_type = 'debit-3ds';
+            } elseif ($gateway_id === 'lkn_erede_credit') {
+                $gateway_type = 'credit';
+            }
+            
+            // Obter configurações do gateway correto
+            $configs = LknpgPaymentEredeForGivewpHelper::get_configs($gateway_type);
+            
+            // Verificar se o TID foi fornecido
+            $tid = $all_params['tid'] ?? '';
+            if (empty($tid)) {
+                wp_redirect(give_get_failed_transaction_uri());
+                exit;
+            }
+            
+            // Verificar se o TID é válido e aprovado na E-Rede
+            $is_valid_payment = $this->verify_tid_with_erede($tid, $configs);
+            
+            if (!$is_valid_payment) {
+                wp_redirect(give_get_failed_transaction_uri());
+                exit;
+            }
+            
+            // Se chegou até aqui, o pagamento é válido - continuar com a lógica original
+            return $this->process_callback($request, 'success');
+            
+        } catch (Exception $e) {
+            // Em caso de erro, redirecionar para falha
+            wp_redirect(give_get_failed_transaction_uri());
+            exit;
+        }
     }
 
     /**
@@ -141,7 +200,10 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return WP_REST_Response
      */
     public function handle_failure_callback(WP_REST_Request $request): WP_REST_Response {
-        return $this->process_callback($request, 'failure');
+        // Para falhas, apenas redirecionar para a página de falha do GiveWP
+        // Não altera status de doação nem nada mais
+        wp_redirect(give_get_failed_transaction_uri());
+        exit;
     }
 
     /**
@@ -153,13 +215,29 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return WP_REST_Response
      */
     private function process_callback(WP_REST_Request $request, string $status): WP_REST_Response {
-        error_log('Processing callback with status: ' . $status);
         try {
             // Obter todos os parâmetros da resposta da E-Rede
             $all_params = $request->get_params();
             
-            // Log da resposta completa para debug
-            $configs = LknpgPaymentEredeForGivewpHelper::get_configs('credit');
+            // Extrair o payment_id do reference (já validado anteriormente)
+            $reference = $all_params['reference'];
+            $payment_id = (int) str_replace('order', '', $reference);
+            
+            // Obter informações da doação (já validada anteriormente)
+            $donation = Donation::find($payment_id);
+            
+            // Determinar o gateway usado para obter configurações corretas
+            $gateway_id = give_get_payment_gateway($payment_id);
+            $gateway_type = 'credit'; // padrão
+            
+            if ($gateway_id === 'lkn_erede_debit_3ds') {
+                $gateway_type = 'debit-3ds';
+            } elseif ($gateway_id === 'lkn_erede_credit') {
+                $gateway_type = 'credit';
+            }
+            
+            // Obter configurações do gateway correto
+            $configs = LknpgPaymentEredeForGivewpHelper::get_configs($gateway_type);
             
             if ('enabled' === $configs['debug']) {
                 LknpgPaymentEredeForGivewpHelper::regLog(
@@ -169,38 +247,11 @@ class LknpgPaymentEredeForGivewpPublic {
                     array(
                         'status' => $status,
                         'params' => $all_params,
+                        'gateway_type' => $gateway_type,
                         'headers' => $request->get_headers()
                     ),
                     true
                 );
-            }
-
-            // Extrair o payment_id do reference (formato: orderXXX)
-            $reference = isset($all_params['reference']) ? $all_params['reference'] : '';
-            if (empty($reference) || strpos($reference, 'order') !== 0) {
-                return new WP_REST_Response(array(
-                    'success' => false,
-                    'message' => 'Invalid or missing reference'
-                ), 400);
-            }
-            
-            $payment_id = (int) str_replace('order', '', $reference);
-            
-            if (!$payment_id) {
-                return new WP_REST_Response(array(
-                    'success' => false,
-                    'message' => 'Invalid payment ID from reference'
-                ), 400);
-            }
-
-            // Obter informações da doação
-            $donation = Donation::find($payment_id);
-            
-            if (!$donation) {
-                return new WP_REST_Response(array(
-                    'success' => false,
-                    'message' => 'Donation not found'
-                ), 404);
             }
 
             // Consultar status do pagamento na E-Rede para confirmar
@@ -262,8 +313,6 @@ class LknpgPaymentEredeForGivewpPublic {
                     );
                 }
             }
-
-            error_log('Redirect URL: ' . $redirect_url);
 
             // Redirecionar o usuário
             if (!empty($redirect_url)) {
@@ -388,6 +437,117 @@ class LknpgPaymentEredeForGivewpPublic {
                 'message' => $e->getMessage(),
                 'return_code' => '500'
             );
+        }
+    }
+
+    /**
+     * Verify TID with E-Rede API to check if payment is valid and approved
+     * 
+     * @since 1.0.0
+     * @param string $tid
+     * @param array $configs
+     * @return bool
+     */
+    private function verify_tid_with_erede(string $tid, array $configs): bool {
+        try {
+            // Obter token de acesso
+            $cached_token_data = get_option('lkn_erede_token_cache', array());
+            $current_time = time();
+            $access_token = '';
+            
+            // Verificar se precisa obter novo token
+            if (empty($cached_token_data) || !isset($cached_token_data['token']) || ($current_time - $cached_token_data['timestamp']) >= 1200) {
+                // Obter novo token
+                $token_headers = array(
+                    'Authorization' => 'Basic ' . base64_encode($configs['pv'] . ':' . $configs['token']),
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                );
+
+                $token_body = array('grant_type' => 'client_credentials');
+                
+                $token_response = wp_remote_post($configs['api_token_url'], array(
+                    'headers' => $token_headers,
+                    'body' => $token_body
+                ));
+
+                if (is_wp_error($token_response)) {
+                    return false;
+                }
+
+                $token_data = json_decode(wp_remote_retrieve_body($token_response), true);
+                
+                if (!isset($token_data['access_token'])) {
+                    return false;
+                }
+                
+                $access_token = $token_data['access_token'];
+                
+                // Atualizar cache
+                update_option('lkn_erede_token_cache', array(
+                    'token' => $access_token,
+                    'timestamp' => $current_time,
+                    'credentials_hash' => md5($configs['pv'] . $configs['token'] . $configs['env'])
+                ));
+            } else {
+                $access_token = $cached_token_data['token'];
+            }
+
+            // Consultar pagamento pelo TID
+            $headers = array(
+                'Authorization' => 'Bearer ' . $access_token,
+                'Content-Type' => 'application/json'
+            );
+
+            $response = wp_remote_get($configs['api_url'] . '/' . $tid, array(
+                'headers' => $headers
+            ));
+
+            if (is_wp_error($response)) {
+                return false;
+            }
+
+            $response_data = json_decode(wp_remote_retrieve_body($response), true);
+            
+            if (!$response_data) {
+                return false;
+            }
+
+            // Log da verificação se debug estiver ativo
+            if ('enabled' === $configs['debug']) {
+                LknpgPaymentEredeForGivewpHelper::regLog(
+                    'info',
+                    'tidVerification',
+                    'TID verification response',
+                    array(
+                        'tid' => $tid,
+                        'response' => $response_data
+                    ),
+                    true
+                );
+            }
+
+            // Verificar se o pagamento foi aprovado
+            $return_code = $response_data['returnCode'] ?? $response_data['authorization']['returnCode'] ?? '500';
+            
+            // Código '00' indica aprovação na E-Rede
+            return $return_code === '00';
+
+        } catch (Exception $e) {
+            // Log do erro se debug estiver ativo
+            if ('enabled' === $configs['debug']) {
+                LknpgPaymentEredeForGivewpHelper::regLog(
+                    'error',
+                    'tidVerificationError',
+                    'Error verifying TID',
+                    array(
+                        'tid' => $tid,
+                        'error' => $e->getMessage()
+                    ),
+                    true
+                );
+            }
+            
+            return false;
         }
     }
 }
