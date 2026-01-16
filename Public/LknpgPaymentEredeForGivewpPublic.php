@@ -127,6 +127,37 @@ class LknpgPaymentEredeForGivewpPublic {
     }
 
     /**
+     * Helper para obter o IP real do cliente (apenas IPv4), mesmo atrás de Cloudflare/Proxy
+     * 
+     * @since 1.0.0
+     * @return string
+     */
+    private function get_client_ip(): string {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        
+        // Lista de headers comuns de proxy em ordem de preferência
+        $keys = array(
+            'HTTP_CF_CONNECTING_IP', // Cloudflare
+            'HTTP_X_FORWARDED_FOR',  // Proxies gerais
+            'HTTP_CLIENT_IP',
+        );
+
+        foreach ($keys as $key) {
+            if (!empty($_SERVER[$key])) {
+                $ip_array = explode(',', $_SERVER[$key]);
+                $candidate_ip = trim($ip_array[0]);
+                
+                // Validar se é um IPv4 válido e não é localhost/desenvolvimento
+                if (filter_var($candidate_ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                    return $candidate_ip;
+                }
+            }
+        }
+
+        return $ip;
+    }
+
+    /**
      * Handle success callback from E-Rede
      * 
      * @since 1.0.0
@@ -150,6 +181,47 @@ class LknpgPaymentEredeForGivewpPublic {
                 wp_redirect(give_get_failed_transaction_uri());
                 exit;
             }
+
+            $user_ip = $this->get_client_ip();
+            $user_id = md5($user_ip);
+            
+            $block_key = 'erede_blk_' . $user_id;
+
+            // Fail-fast: Se bloqueado, morre imediatamente.
+            if (get_transient($block_key)) {
+                return new WP_REST_Response(['error' => 'Too many requests'], 429);
+            }
+            
+            $rate_limit_key = 'erede_lim_' . $user_id;
+            $requests = get_transient($rate_limit_key);
+            
+            if (false === $requests) {
+                $requests = array();
+            }
+            
+            $current_time = time();
+            $window = 60; // 1 minuto
+            $max_requests = 50;
+            $block_duration = 300;
+            
+            // Limpeza de array (remove timestamps antigos)
+            $requests = array_filter($requests, function($timestamp) use ($current_time, $window) {
+                return ($current_time - $timestamp) < $window;
+            });
+            
+            if (count($requests) >= $max_requests) {
+                // Bloqueia o IP
+                set_transient($block_key, true, $block_duration);
+                
+                return new WP_REST_Response(['error' => 'Rate limit exceeded'], 429);
+            }
+            
+            $requests[] = $current_time;
+            set_transient($rate_limit_key, $requests, $window);
+
+            // ---------------------------------------------------------
+            // FIM DA CAMADA DE SEGURANÇA DE REDE - INÍCIO DA LÓGICA DE NEGÓCIO
+            // ---------------------------------------------------------
 
             // Obter informações da doação para determinar o gateway
             $donation = Donation::find($payment_id);
