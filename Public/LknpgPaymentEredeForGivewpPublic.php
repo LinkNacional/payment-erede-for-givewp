@@ -187,8 +187,8 @@ class LknpgPaymentEredeForGivewpPublic {
                 exit;
             }
             
-            // Se chegou até aqui, o pagamento é válido - continuar com a lógica original
-            return $this->process_callback($request, 'success');
+            // Se chegou até aqui, o pagamento é válido - processar sucesso
+            return $this->process_success_callback($request);
             
         } catch (Exception $e) {
             // Em caso de erro, redirecionar para falha
@@ -212,14 +212,13 @@ class LknpgPaymentEredeForGivewpPublic {
     }
 
     /**
-     * Process payment callback from E-Rede
+     * Process success callback from E-Rede
      * 
      * @since 1.0.0
      * @param WP_REST_Request $request
-     * @param string $status
      * @return WP_REST_Response
      */
-    private function process_callback(WP_REST_Request $request, string $status): WP_REST_Response {
+    private function process_success_callback(WP_REST_Request $request): WP_REST_Response {
         try {
             // Obter todos os parâmetros da resposta da E-Rede
             $all_params = $request->get_params();
@@ -248,9 +247,8 @@ class LknpgPaymentEredeForGivewpPublic {
                 LknpgPaymentEredeForGivewpHelper::regLog(
                     'info',
                     'eredeCallback',
-                    'E-Rede callback received',
+                    'E-Rede success callback received',
                     array(
-                        'status' => $status,
                         'params' => $all_params,
                         'gateway_type' => $gateway_type,
                         'headers' => $request->get_headers()
@@ -259,77 +257,29 @@ class LknpgPaymentEredeForGivewpPublic {
                 );
             }
 
-            // Consultar status do pagamento na E-Rede para confirmar
-            $payment_response = $this->check_payment_status($payment_id, $configs);
+            // Atualizar status da doação para completa
+            $donation->status = DonationStatus::COMPLETE();
+            $donation->save();
             
-            $redirect_url = '';
+            $redirect_url = give_get_success_page_uri() . '?donation_id=' . $payment_id;
             
-            if ('success' === $status && $payment_response['success']) {
-                // Atualizar status da doação para completa
-                $donation->status = DonationStatus::COMPLETE();
-                $donation->save();
-                
-                $redirect_url = give_get_success_page_uri() . '?donation_id=' . $payment_id;
-                
-                // Log de sucesso
-                if ('enabled' === $configs['debug']) {
-                    LknpgPaymentEredeForGivewpHelper::regLog(
-                        'info',
-                        'paymentSuccess',
-                        'Payment completed successfully',
-                        array(
-                            'payment_id' => $payment_id,
-                            'reference' => $reference,
-                            'payment_response' => $payment_response
-                        ),
-                        true
-                    );
-                }
-                
-            } elseif ('failure' === $status || !$payment_response['success']) {
-                // Atualizar status da doação para falha
-                $donation->status = DonationStatus::FAILED();
-                $donation->save();
-                
-                // Adicionar nota de falha
-                DonationNote::create(array(
-                    'donationId' => $donation->id,
-                    'content' => sprintf(
-                        esc_html('Falha na doação via E-Rede. Razão: %s'), 
-                        $payment_response['message'] ?? 'Status de falha recebido'
-                    )
-                ));
-                
-                $redirect_url = give_get_failed_transaction_uri();
-                
-                // Log de falha
-                if ('enabled' === $configs['debug']) {
-                    LknpgPaymentEredeForGivewpHelper::regLog(
-                        'warning',
-                        'paymentFailure',
-                        'Payment failed',
-                        array(
-                            'payment_id' => $payment_id,
-                            'reference' => $reference,
-                            'payment_response' => $payment_response,
-                            'status' => $status
-                        ),
-                        true
-                    );
-                }
+            // Log de sucesso
+            if ('enabled' === $configs['debug']) {
+                LknpgPaymentEredeForGivewpHelper::regLog(
+                    'info',
+                    'paymentSuccess',
+                    'Payment completed successfully',
+                    array(
+                        'payment_id' => $payment_id,
+                        'reference' => $reference
+                    ),
+                    true
+                );
             }
 
             // Redirecionar o usuário
-            if (!empty($redirect_url)) {
-                wp_safe_redirect($redirect_url);
-                exit;
-            }
-            
-            // Se chegou aqui, algo deu errado
-            return new WP_REST_Response(array(
-                'success' => false,
-                'message' => 'No redirect URL determined'
-            ), 500);
+            wp_safe_redirect($redirect_url);
+            exit;
 
         } catch (Exception $e) {
             // Log do erro se debug estiver ativo
@@ -337,9 +287,8 @@ class LknpgPaymentEredeForGivewpPublic {
                 LknpgPaymentEredeForGivewpHelper::regLog(
                     'error',
                     'callbackError',
-                    'Error processing callback',
+                    'Error processing success callback',
                     array(
-                        'status' => $status ?? 'unknown',
                         'error' => $e->getMessage(),
                         'params' => $all_params ?? array()
                     ),
@@ -347,10 +296,9 @@ class LknpgPaymentEredeForGivewpPublic {
                 );
             }
 
-            return new WP_REST_Response(array(
-                'success' => false,
-                'message' => $e->getMessage()
-            ), 500);
+            // Em caso de erro, redirecionar para falha
+            wp_redirect(give_get_failed_transaction_uri());
+            exit;
         }
     }
 
