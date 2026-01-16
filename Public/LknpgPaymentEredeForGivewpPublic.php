@@ -179,10 +179,27 @@ class LknpgPaymentEredeForGivewpPublic {
                 exit;
             }
             
-            // Verificar se o TID é válido e aprovado na E-Rede
-            $is_valid_payment = $this->verify_tid_with_erede($tid, $configs);
+            // VERIFICAÇÃO CRÍTICA DE SEGURANÇA:
+            // Verificar se o TID pertence especificamente a este payment_id
+            // Isso previne ataques de replay onde um TID válido é usado para aprovar outro pagamento
+            $payment_verification = $this->verify_payment_belongs_to_tid($payment_id, $tid, $configs);
             
-            if (!$is_valid_payment) {
+            if (!$payment_verification['valid']) {
+                // Log de tentativa de fraude
+                if ('enabled' === $configs['debug']) {
+                    LknpgPaymentEredeForGivewpHelper::regLog(
+                        'warning',
+                        'fraudAttempt',
+                        'Possible TID replay attack detected',
+                        array(
+                            'payment_id' => $payment_id,
+                            'provided_tid' => $tid,
+                            'verification_result' => $payment_verification
+                        ),
+                        true
+                    );
+                }
+                
                 wp_redirect(give_get_failed_transaction_uri());
                 exit;
             }
@@ -501,6 +518,71 @@ class LknpgPaymentEredeForGivewpPublic {
             }
             
             return false;
+        }
+    }
+
+    /**
+     * CRITICAL SECURITY METHOD: Verify that TID belongs specifically to this payment_id
+     * This prevents TID replay attacks where valid TIDs are used to approve different payments
+     * 
+     * @since 1.0.0
+     * @param int $payment_id
+     * @param string $provided_tid
+     * @param array $configs
+     * @return array
+     */
+    private function verify_payment_belongs_to_tid(int $payment_id, string $provided_tid, array $configs): array {
+        try {
+            // Step 1: Query E-Rede by reference (order{$payment_id}) to get the actual TID for this payment
+            $actual_payment_data = $this->check_payment_status($payment_id, $configs);
+            
+            if (!$actual_payment_data['success']) {
+                return array(
+                    'valid' => false,
+                    'reason' => 'payment_not_found_or_failed',
+                    'message' => 'Payment not found or failed in E-Rede'
+                );
+            }
+            
+            $actual_tid = $actual_payment_data['transaction_id'];
+            
+            // Step 2: Compare the provided TID with the actual TID from E-Rede
+            if ($provided_tid !== $actual_tid) {
+                return array(
+                    'valid' => false,
+                    'reason' => 'tid_mismatch',
+                    'message' => 'Provided TID does not match payment TID',
+                    'provided_tid' => $provided_tid,
+                    'actual_tid' => $actual_tid,
+                    'payment_id' => $payment_id
+                );
+            }
+            
+            // Step 3: Verify the TID is approved (redundant check, but important for security)
+            if ($actual_payment_data['return_code'] !== '00') {
+                return array(
+                    'valid' => false,
+                    'reason' => 'payment_not_approved',
+                    'message' => 'Payment exists but is not approved',
+                    'return_code' => $actual_payment_data['return_code']
+                );
+            }
+            
+            return array(
+                'valid' => true,
+                'tid' => $actual_tid,
+                'payment_id' => $payment_id,
+                'return_code' => $actual_payment_data['return_code']
+            );
+            
+        } catch (Exception $e) {
+            return array(
+                'valid' => false,
+                'reason' => 'verification_error',
+                'message' => $e->getMessage(),
+                'payment_id' => $payment_id,
+                'provided_tid' => $provided_tid
+            );
         }
     }
 }
