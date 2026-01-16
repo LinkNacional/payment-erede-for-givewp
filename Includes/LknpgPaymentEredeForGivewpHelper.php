@@ -1,6 +1,11 @@
 <?php
 
 namespace Lknpg\PaymentEredeForGivewp\Includes;
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 use Give\Log\LogFactory;
 use Datetime;
 

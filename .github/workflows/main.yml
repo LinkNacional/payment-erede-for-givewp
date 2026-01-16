@@ -32,7 +32,7 @@ jobs:
       uses: wordpress/plugin-check-action@v1
       with:
         build-dir: './'
-        exclude-directories: 'node_modules,vendor,.eslintrc'
+        exclude-directories: 'node_modules,vendor,.eslintrc,.github'
         ignore-codes: |
           WordPress.WP.I18n.TextDomainMismatch
           WordPress.Security.NonceVerification.Missing
@@ -43,6 +43,7 @@ jobs:
           trademarked_term
           textdomain_mismatch
           hidden_files
+          github_workflow_directory
         categories: |
           performance
           accessibility
@@ -73,7 +74,7 @@ jobs:
         path: '.'
         directory: 'build'
         filename: '${{ env.PLUGIN_NAME }}.zip'
-        exclusions: '*.git* /*node_modules/* .editorconfig'
+        exclusions: '*.git* /*node_modules/* .editorconfig *.github*'
 
     - name: Move .zip to custom location
       run: |

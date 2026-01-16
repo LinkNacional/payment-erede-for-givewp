@@ -1,6 +1,11 @@
 <?php
 
 namespace Lknpg\PaymentEredeForGivewp\Includes;
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 
 /**
  * Register all actions and filters for the plugin

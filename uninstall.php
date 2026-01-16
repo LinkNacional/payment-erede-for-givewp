@@ -32,15 +32,15 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 
 wp_unschedule_hook( 'lknpg_payment_erede_cron_verify_payment' );
 
-$lkn_erede_opt = give_get_settings();
+$lknpg_erede_options = give_get_settings();
 
-$lkn_erede_opt = array_filter($lkn_erede_opt, function ($key) {
+$lknpg_erede_options = array_filter($lknpg_erede_options, function ($key) {
     return strpos($key, 'lkn_erede_') === 0;
 }, \ARRAY_FILTER_USE_KEY);
-$lkn_erede_opt = array_keys($lkn_erede_opt);
+$lknpg_erede_options = array_keys($lknpg_erede_options);
 
-if (count($lkn_erede_opt) > 0) {
-    for ($c = 0; $c < count($lkn_erede_opt); $c++) {
-        give_delete_option($lkn_erede_opt[$c]);
+if (count($lknpg_erede_options) > 0) {
+    for ($lknpg_counter = 0; $lknpg_counter < count($lknpg_erede_options); $lknpg_counter++) {
+        give_delete_option($lknpg_erede_options[$lknpg_counter]);
     }
 }
