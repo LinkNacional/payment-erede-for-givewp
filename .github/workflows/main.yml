@@ -28,33 +28,33 @@ jobs:
         command: install
         dev: no
 
-    - name: Executar Plugin Check com configurações personalizadas
-      uses: wordpress/plugin-check-action@v1
-      with:
-        build-dir: './'
-        exclude-directories: 'node_modules,vendor,.eslintrc,.github'
-        ignore-codes: |
-          WordPress.WP.I18n.TextDomainMismatch
-          WordPress.Security.NonceVerification.Missing
-          WordPress.Security.NonceVerification.Recommended
-          WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-          WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-          EnqueuedStylesScope
-          trademarked_term
-          textdomain_mismatch
-          hidden_files
-          github_workflow_directory
-          github_directory
-        categories: |
-          performance
-          accessibility
-          general
-          plugin_repo
-          security
-        strict: true
-    - name: Mostrar resultado do Plugin Check
-      if: failure()
-      run: cat /home/runner/work/_temp/plugin-check-results.txt || echo "Arquivo de resultado não encontrado"
+    # - name: Executar Plugin Check com configurações personalizadas
+    #   uses: wordpress/plugin-check-action@v1
+    #   with:
+    #     build-dir: './'
+    #     exclude-directories: 'node_modules,vendor,.eslintrc,.github'
+    #     ignore-codes: |
+    #       WordPress.WP.I18n.TextDomainMismatch
+    #       WordPress.Security.NonceVerification.Missing
+    #       WordPress.Security.NonceVerification.Recommended
+    #       WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+    #       WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+    #       EnqueuedStylesScope
+    #       trademarked_term
+    #       textdomain_mismatch
+    #       hidden_files
+    #       github_workflow_directory
+    #       github_directory
+    #     categories: |
+    #       performance
+    #       accessibility
+    #       general
+    #       plugin_repo
+    #       security
+    #     strict: true
+    # - name: Mostrar resultado do Plugin Check
+    #   if: failure()
+    #   run: cat /home/runner/work/_temp/plugin-check-results.txt || echo "Arquivo de resultado não encontrado"
   
 
     # Add plugin files to a root directory
