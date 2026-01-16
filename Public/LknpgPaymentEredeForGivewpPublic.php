@@ -133,7 +133,7 @@ class LknpgPaymentEredeForGivewpPublic {
      * @return string
      */
     private function get_client_ip(): string {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'));
         
         // Lista de headers comuns de proxy em ordem de preferência
         $keys = array(
@@ -144,7 +144,8 @@ class LknpgPaymentEredeForGivewpPublic {
 
         foreach ($keys as $key) {
             if (!empty($_SERVER[$key])) {
-                $ip_array = explode(',', $_SERVER[$key]);
+                $header_value = sanitize_text_field(wp_unslash($_SERVER[$key]));
+                $ip_array = explode(',', $header_value);
                 $candidate_ip = trim($ip_array[0]);
                 
                 // Validar se é um IPv4 válido e não é localhost/desenvolvimento
@@ -171,14 +172,14 @@ class LknpgPaymentEredeForGivewpPublic {
             // Extrair o payment_id do reference primeiro (formato: orderXXX)
             $reference = isset($all_params['reference']) ? $all_params['reference'] : '';
             if (empty($reference) || strpos($reference, 'order') !== 0) {
-                wp_redirect(give_get_failed_transaction_uri());
+                wp_safe_redirect(give_get_failed_transaction_uri());
                 exit;
             }
             
             $payment_id = (int) str_replace('order', '', $reference);
             
             if (!$payment_id) {
-                wp_redirect(give_get_failed_transaction_uri());
+                wp_safe_redirect(give_get_failed_transaction_uri());
                 exit;
             }
 
@@ -227,7 +228,7 @@ class LknpgPaymentEredeForGivewpPublic {
             $donation = Donation::find($payment_id);
             
             if (!$donation) {
-                wp_redirect(give_get_failed_transaction_uri());
+                wp_safe_redirect(give_get_failed_transaction_uri());
                 exit;
             }
 
@@ -247,7 +248,7 @@ class LknpgPaymentEredeForGivewpPublic {
             // Verificar se o TID foi fornecido
             $tid = $all_params['tid'] ?? '';
             if (empty($tid)) {
-                wp_redirect(give_get_failed_transaction_uri());
+                wp_safe_redirect(give_get_failed_transaction_uri());
                 exit;
             }
             
@@ -272,7 +273,7 @@ class LknpgPaymentEredeForGivewpPublic {
                     );
                 }
                 
-                wp_redirect(give_get_failed_transaction_uri());
+                wp_safe_redirect(give_get_failed_transaction_uri());
                 exit;
             }
             
@@ -281,7 +282,7 @@ class LknpgPaymentEredeForGivewpPublic {
             
         } catch (Exception $e) {
             // Em caso de erro, redirecionar para falha
-            wp_redirect(give_get_failed_transaction_uri());
+            wp_safe_redirect(give_get_failed_transaction_uri());
             exit;
         }
     }
@@ -296,7 +297,7 @@ class LknpgPaymentEredeForGivewpPublic {
     public function handle_failure_callback(WP_REST_Request $request): WP_REST_Response {
         // Para falhas, apenas redirecionar para a página de falha do GiveWP
         // Não altera status de doação nem nada mais
-        wp_redirect(give_get_failed_transaction_uri());
+        wp_safe_redirect(give_get_failed_transaction_uri());
         exit;
     }
 
@@ -386,7 +387,7 @@ class LknpgPaymentEredeForGivewpPublic {
             }
 
             // Em caso de erro, redirecionar para falha
-            wp_redirect(give_get_failed_transaction_uri());
+            wp_safe_redirect(give_get_failed_transaction_uri());
             exit;
         }
     }
