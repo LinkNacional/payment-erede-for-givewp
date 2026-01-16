@@ -1,3 +1,6 @@
+# 2.0.8 - 16/01/2026
+* Ajuste na rota API rest da Rede.
+
 # 2.0.7 - 14/01/2026
 * Alteração em lógica de requisiçõe para rota v2.
 

@@ -5,7 +5,7 @@ Tags: payment, donation, credit, debit, card
 Requires at least: 5.7
 Requires PHP: 7.4
 Tested up to: 6.9
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -71,8 +71,12 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 1. None
 
 == Changelog ==
+= 2.0.8 =
+**16/01/2026**
+* REST API route adjustment for E-Rede.
+
 = 2.0.7 =
-**08/18/2025**
+**14/01/2026**
 * Change request logic for v2 route.
 
 = 2.0.6 =
