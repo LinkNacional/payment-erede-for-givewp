@@ -9,7 +9,7 @@ env:
   PLUGIN_NAME: payment-e-rede-for-givewp
   DIR_NAME: payment-e-rede-for-givewp
   PHP_VERSION: "7.4"
-  DEPLOY_TAG: "2.0.7"
+  DEPLOY_TAG: "2.0.8"
 
 jobs:
   release-build:
