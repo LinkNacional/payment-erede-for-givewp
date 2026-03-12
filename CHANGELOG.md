@@ -1,3 +1,6 @@
+# 2.0.9 - 12/03/2026
+* Adição de novos ícones e banners.
+
 # 2.0.8 - 16/01/2026
 * Ajuste na rota API rest da Rede.
 
