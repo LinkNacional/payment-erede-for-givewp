@@ -3,7 +3,7 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com.br/wordpress/plugins/
 Tags: payment, donation, credit, debit, card
 Requires at least: 5.7
-Requires PHP: 7.4
+Requires PHP: 8.0
 Tested up to: 6.9
 Stable tag: 2.0.8
 License: GPLv3 or later
