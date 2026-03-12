@@ -3,9 +3,9 @@ Contributors: linknacional
 Donate link: https://www.linknacional.com.br/wordpress/plugins/
 Tags: payment, donation, credit, debit, card
 Requires at least: 5.7
-Requires PHP: 7.4
+Requires PHP: 8.0
 Tested up to: 6.9
-Stable tag: 2.0.8
+Stable tag: 2.0.9
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -68,9 +68,11 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 
 == Screenshots ==
 
-1. None
-
 == Changelog ==
+= 2.0.9 =
+**12/03/2026**
+* Inclusion of new icons and banners.
+
 = 2.0.8 =
 **16/01/2026**
 * REST API route adjustment for E-Rede.
