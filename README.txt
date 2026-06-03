@@ -69,6 +69,10 @@ To get your E-Rede production credentials you will need to follow [this guide](h
 == Screenshots ==
 
 == Changelog ==
+= 2.0.10 =
+**03/06/2026**
+* Addition of new banners.
+
 = 2.0.9 =
 **12/03/2026**
 * Inclusion of new icons and banners.

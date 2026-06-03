@@ -1,3 +1,6 @@
+# 2.0.10 - 03/06/2026
+* Adição de novos banners.
+
 # 2.0.9 - 12/03/2026
 * Adição de novos ícones e banners.
 
