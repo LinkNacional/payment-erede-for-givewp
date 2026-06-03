@@ -29,6 +29,7 @@ use Lknpg\PaymentEredeForGivewp\Includes\LknpgPaymentEredeForGivewp;
  * Author:            Link Nacional
  * Author URI:        https://www.linknacional.com.br/wordpress/plugins/
  * License:           GPL-3.0+
+ * Requires PHP:      8.2
  * Requires Plugins:  give
  * License URI:       http://www.gnu.org/licenses/gpl-3.0.txt
  * Text Domain:       payment-gateway-e-rede-for-givewp
